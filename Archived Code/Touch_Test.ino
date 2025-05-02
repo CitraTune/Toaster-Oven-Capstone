@@ -1,68 +1,83 @@
 #include <TFT_eSPI.h>
+#include <Wire.h>
 #include <bb_captouch.h>
 
-TFT_eSPI tft = TFT_eSPI();
-bb_captouch touch;
+// Touch config for CYD_543 (your setup)
+// #define TOUCH_SDA 8
+// #define TOUCH_SCL 4
+// #define TOUCH_INT 3
+// #define TOUCH_RST 38
+// #ifdef CYD_28C
+#define TOUCH_SDA 33
+#define TOUCH_SCL 32
+#define TOUCH_INT 21
+#define TOUCH_RST 25
+#define LCD DISPLAY_CYD
+// #endif
 
-#define BUTTON_X 60
-#define BUTTON_Y 100
-#define BUTTON_W 120
-#define BUTTON_H 50
+TFT_eSPI tft = TFT_eSPI();
+BBCapTouch touch;
 
 bool touchedState = false;
+
+// Button area
+#define BUTTON_X 40
+#define BUTTON_Y 120
+#define BUTTON_W 160
+#define BUTTON_H 50
 
 void drawButton(const char *label, uint16_t bgColor) {
   tft.fillRect(BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, bgColor);
   tft.drawRect(BUTTON_X, BUTTON_Y, BUTTON_W, BUTTON_H, TFT_WHITE);
   tft.setTextColor(TFT_WHITE, bgColor);
   tft.setTextSize(2);
-  int16_t x = BUTTON_X + 10;
-  int16_t y = BUTTON_Y + (BUTTON_H / 2) - 8;
-  tft.setCursor(x, y);
+  tft.setCursor(BUTTON_X + 10, BUTTON_Y + 15);
   tft.print(label);
 }
 
 void setup() {
   Serial.begin(115200);
+  Wire.begin(TOUCH_SDA, TOUCH_SCL);
+  delay(300);  // Let power stabilize
+
   tft.init();
   tft.setRotation(0); // Portrait
   tft.fillScreen(TFT_BLACK);
-
   pinMode(TFT_BL, OUTPUT);
   digitalWrite(TFT_BL, HIGH);
 
-  // Initialize touch
-  if (!touch.begin()) {
-    Serial.println("Touch init failed!");
-    tft.setCursor(10, 10);
-    tft.setTextColor(TFT_RED);
-    tft.print("Touch init failed!");
-  } else {
-    Serial.println("Touch OK");
-  }
+  // Init touch
+  touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
+  Serial.printf("Touch sensor type: %d\n", touch.sensorType());
+
+  tft.setTextColor(TFT_GREEN);
+  tft.setTextSize(2);
+  tft.setCursor(10, 20);
+  tft.println("Touch Test");
 
   drawButton("Touch me", TFT_BLUE);
 }
 
 void loop() {
-  if (touch.touched()) {
-    int x, y;
-    touch.getPoint(&x, &y);
-
-
-    Serial.printf("Touch: %d, %d\n", x, y);
+  TOUCHINFO ti;
+  if (touch.getSamples(&ti)) {
+    int x = ti.x[0];
+    int y = ti.y[0];
+    Serial.printf("Touch x=%d y=%d\n", x, y);
 
     if (x > BUTTON_X && x < BUTTON_X + BUTTON_W &&
         y > BUTTON_Y && y < BUTTON_Y + BUTTON_H) {
       if (!touchedState) {
-        touchedState = true;
         drawButton("Touched!", TFT_RED);
+        touchedState = true;
       }
-    } else if (touchedState) {
-      touchedState = false;
-      drawButton("Touch me", TFT_BLUE);
+    } else {
+      if (touchedState) {
+        drawButton("Touch me", TFT_BLUE);
+        touchedState = false;
+      }
     }
 
-    delay(200); // debounce touch
+    delay(200);  // Debounce
   }
 }
