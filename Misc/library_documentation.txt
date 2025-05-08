@@ -1,0 +1,3 @@
+https://github.com/fbiego/CST816S
+https://doc-tft-espi.readthedocs.io/tft_espi/methods/drawfastline/#example
+https://www.reddit.com/r/esp32/comments/1dy5k11/working_cyd_jc2432w328_display_240x320_28_usbc/?rdt=57233
