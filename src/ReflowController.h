@@ -1,0 +1,50 @@
+#ifndef REFLOW_CONTROLLER_H
+#define REFLOW_CONTROLLER_H
+
+#include <Arduino.h>
+#include "LGFX_Config.h"
+#include <bb_captouch.h>
+#include "UIManager.h"
+#include "GraphManager.h"
+#include "TempManager.h"
+
+class ReflowController {
+public:
+  // Constructor
+  ReflowController();
+  
+  // Initialize all components
+  void init();
+  
+  // Main loop
+  void loop();
+  
+  // Action methods
+  void goToSettings();
+  void goToMain();
+  void toggleLightMode();
+  void toggleInvertAccent();
+  void toggleGraphSize();
+  
+  // Getters for components
+  UIManager* getUIManager() { return &uiManager; }
+  GraphManager* getGraphManager() { return &graphManager; }
+  TempManager* getTempManager() { return &tempManager; }
+  
+private:
+  // Components
+  LGFX myTFT;
+  BBCapTouch touch;
+  UIManager uiManager;
+  GraphManager graphManager;
+  TempManager tempManager;
+  
+  // Debounce variables
+  unsigned long lastTouchTime;
+  const unsigned long debounceDelay = 200; // 200ms debounce delay
+  
+  // Initialize interface buttons
+  void setupButtons();
+};
+
+#endif // REFLOW_CONTROLLER_H
