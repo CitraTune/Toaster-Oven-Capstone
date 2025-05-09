@@ -25,3 +25,4 @@ void setup() {
 void loop() {
   // Nothing needed here
 }
+// this just checks which pin was the backlight pin, 21 or 27. it was 27.

@@ -1,3 +1,5 @@
+//This is not even for my capstone project but a fellow steam student wanted to take my screen computer board so I made some code for them and sold them the board.
+
 #include <TFT_eSPI.h>
 #include <Wire.h>
 #include <bb_captouch.h>
