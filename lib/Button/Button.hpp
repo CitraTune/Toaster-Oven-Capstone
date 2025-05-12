@@ -1,6 +1,4 @@
-#ifndef BUTTON_H
-#define BUTTON_H
-
+#pragma once
 #include <Arduino.h>
 #include "LGFX_Config.h"
 
@@ -34,4 +32,3 @@ public:
   bool contains(int touchX, int touchY);
 };
 
-#endif // BUTTON_H

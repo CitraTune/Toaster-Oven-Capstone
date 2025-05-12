@@ -1,5 +1,4 @@
-#ifndef TEMP_MANAGER_H
-#define TEMP_MANAGER_H
+#pragma once
 
 #include <Arduino.h>
 #include "LGFX_Config.h"
@@ -31,4 +30,3 @@ private:
   LGFX& _tft;
 };
 
-#endif // TEMP_MANAGER_H

@@ -1,9 +1,8 @@
-#ifndef UI_MANAGER_H
-#define UI_MANAGER_H
+#pragma once
 
 #include <Arduino.h>
 #include "LGFX_Config.h"
-#include "Button.h"
+#include "Button.hpp"
 
 // Screen constants
 #define SCREEN_MAIN 0
@@ -58,4 +57,3 @@ private:
   LGFX& _tft;
 };
 
-#endif // UI_MANAGER_H

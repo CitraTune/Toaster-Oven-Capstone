@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "ReflowController.h"
+#include "ReflowController.hpp"
 
 // Create the main controller instance
 ReflowController controller;

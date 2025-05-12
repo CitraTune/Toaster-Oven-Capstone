@@ -1,4 +1,4 @@
-#include "ReflowController.h"
+#include "ReflowController.hpp"
 
 // Pin definitions for capacitive touch
 #define TOUCH_SDA 33

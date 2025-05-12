@@ -1,12 +1,10 @@
-#ifndef REFLOW_CONTROLLER_H
-#define REFLOW_CONTROLLER_H
-
+#pragma once
 #include <Arduino.h>
 #include "LGFX_Config.h"
 #include <bb_captouch.h>
-#include "UIManager.h"
-#include "GraphManager.h"
-#include "TempManager.h"
+#include "UIManager.hpp"
+#include "GraphManager.hpp"
+#include "TempManager.hpp"
 
 class ReflowController {
 public:
@@ -47,4 +45,3 @@ private:
   void setupButtons();
 };
 
-#endif // REFLOW_CONTROLLER_H

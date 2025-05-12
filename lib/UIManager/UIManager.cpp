@@ -1,4 +1,4 @@
-#include "UIManager.h"
+#include "UIManager.hpp"
 
 // Constructor
 UIManager::UIManager(LGFX& tft) : _tft(tft) {
