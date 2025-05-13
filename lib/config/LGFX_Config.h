@@ -57,7 +57,7 @@ public:
       _panel.config(cfg);
     }
 
-      
+
 
     { // Backlight control (PWM on GPIO 27)
       auto cfg = _light_instance.config();

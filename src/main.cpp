@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "ReflowController.hpp"
+#include "ReflowGUI.hpp"
 
 // Create the main controller instance
-ReflowController controller;
+ReflowGUI controller;
 
 void setup() {
   // setup the controller

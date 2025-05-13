@@ -32,6 +32,8 @@ public:
   
   // setup the UI
   void setup();
+
+  void loop();
   
   // Create a new button and return its index
   int createButton(int x, int y, int width, int height, int radius, 

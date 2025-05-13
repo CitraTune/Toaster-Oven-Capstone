@@ -1,8 +1,8 @@
 #include <LovyanGFX.hpp>
 #include "UIManager.hpp"
 #include "Button.hpp"
-#include "FontSelector.hpp"
-#include "ReflowController.hpp"
+#include "FontSelectorGUI.hpp"
+#include "ReflowGUI.hpp"
 
 
 LGFX display;
@@ -14,16 +14,29 @@ UIManager uiManager(display);
 // also creates the buttons and handles the touch events and actions
 // also manages switching lightmode and dark mode
 
-// Create an instance of FontSelector with the required parameters
-FontSelector fontSelector(display, uiManager);
+// Create an instance of FontSelectorGUI with the required parameters
+FontSelectorGUI _FontSelectorGUI(display, uiManager);
 
-void setup() {
+
+void testAction() {
+    Serial.println("testAction called");
+}
+
+void setup(){
+  
+  Serial.println("Font Selector Begin");
   // setup the controller
-  fontSelector.setup(); 
+  //UI manager test
+  uiManager.createButton(10, display.height() - 60, 60, 40, 8, 
+                          TFT_DARKGREY, TFT_WHITE, "<", 0, testAction);
+  
+
+
+  _FontSelectorGUI.setup();
 }
 
 void loop() {
   // Run the controller's main loop
-  fontSelector.loop();
+  //FontSelectorGUI.loop();
 }
 

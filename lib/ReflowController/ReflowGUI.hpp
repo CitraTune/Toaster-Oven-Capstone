@@ -6,10 +6,10 @@
 #include "GraphManager.hpp"
 #include "TempManager.hpp"
 
-class ReflowController {
+class ReflowGUI {
 public:
   // Constructor
-  ReflowController();
+  ReflowGUI();
   
   // setup all components
   void setup();

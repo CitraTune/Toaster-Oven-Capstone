@@ -1,5 +1,6 @@
 #include "UIManager.hpp"
-
+//This allows you to pass in functions as arguments
+typedef void (*ButtonAction)();
 // Constructor
 UIManager::UIManager(LGFX& tft) : _tft(tft) {
   buttonCount = 0;
@@ -15,15 +16,20 @@ void UIManager::setup() {
   _tft.setFont(&lgfx::fonts::FreeSans9pt7b);
 }
 
+void UIManager::loop(){
+
+  
+}
+
 // Create a new button and return its index
 int UIManager::createButton(int x, int y, int width, int height, int radius, 
                           uint16_t color, uint16_t textColor, String label, 
-                          int screen, void (*action)()) {
+                          int screen, ButtonAction action) {
   if (buttonCount >= MAX_BUTTONS) {
     Serial.println("Warning: Maximum button count reached!");
     return -1;
   }
-  
+  Serial.println("Creating button: " + label);
   Button newButton(x, y, width, height, radius, color, textColor, label, screen, action);
   newButton.active = (screen == currentScreen);
   

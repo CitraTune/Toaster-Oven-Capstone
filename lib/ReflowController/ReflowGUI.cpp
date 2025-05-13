@@ -1,4 +1,4 @@
-#include "ReflowController.hpp"
+#include "ReflowGUI.hpp"
 
 // Pin defsetupions for capacitive touch
 #define TOUCH_SDA 33
@@ -8,7 +8,7 @@
 
 // Global reference to the controller instance
 // This is needed for button callbacks
-ReflowController* g_controller = nullptr;
+ReflowGUI* g_controller = nullptr;
 
 // Button action callbacks
 void goToSettingsCallback() {
@@ -89,7 +89,7 @@ void decreaseReflowTempFineCallback() {
 }
 
 // Constructor
-ReflowController::ReflowController() 
+ReflowGUI::ReflowGUI() 
   : uiManager(myTFT), graphManager(myTFT), tempManager(myTFT) {
   lastTouchTime = 0;
   
@@ -98,7 +98,7 @@ ReflowController::ReflowController()
 }
 
 // setup all components
-void ReflowController::setup() {
+void ReflowGUI::setup() {
   Serial.begin(115200);
   
   // setup the TFT display
@@ -122,7 +122,7 @@ void ReflowController::setup() {
 }
 
 // Main loop
-void ReflowController::loop() {
+void ReflowGUI::loop() {
   TOUCHINFO ti;
   
   // Get touch samples
@@ -146,17 +146,17 @@ void ReflowController::loop() {
 }
 
 // Action methods
-void ReflowController::goToSettings() {
+void ReflowGUI::goToSettings() {
   uiManager.navigateToScreen(SCREEN_SETTINGS);
   tempManager.displayTemperatures(uiManager.lightMode);
 }
 
-void ReflowController::goToMain() {
+void ReflowGUI::goToMain() {
   uiManager.navigateToScreen(SCREEN_MAIN);
   graphManager.draw(uiManager.lightMode);
 }
 
-void ReflowController::toggleLightMode() {
+void ReflowGUI::toggleLightMode() {
   uiManager.lightMode = !uiManager.lightMode;
   // Find the light mode button and update its label
   for (int i = 0; i < uiManager.buttonCount; i++) {
@@ -178,7 +178,7 @@ void ReflowController::toggleLightMode() {
   }
 }
 
-void ReflowController::toggleInvertAccent() {
+void ReflowGUI::toggleInvertAccent() {
   uiManager.invertAccent = !uiManager.invertAccent;
   uiManager.updateButtonColors();
   uiManager.drawActiveScreen();
@@ -194,14 +194,18 @@ void ReflowController::toggleInvertAccent() {
   }
 }
 
-void ReflowController::toggleGraphSize() {
+void ReflowGUI::toggleGraphSize() {
   graphManager.toggleFullScreen();
   uiManager.drawActiveScreen();
   graphManager.draw(uiManager.lightMode);
 }
 
+
+//okay this is interesting its a method that runs once for setting up buttons..
+//but it is called once in the setup, its just a little cleaner way to write
+//the real setup function
 // setup interface buttons
-void ReflowController::setupButtons() {
+void ReflowGUI::setupButtons() {
   // Get font height for dynamic button sizing
   myTFT.setFont(&lgfx::fonts::FreeSans9pt7b);
   int fontHeight = myTFT.fontHeight();
