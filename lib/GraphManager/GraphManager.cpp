@@ -1,5 +1,5 @@
-#include "GraphManager.h"
-#include "UIManager.h" // For screen dimensions
+#include "GraphManager.hpp"
+#include "UIManager.hpp" // For screen dimensions
 
 // Constructor
 GraphManager::GraphManager(LGFX& tft) : _tft(tft) {

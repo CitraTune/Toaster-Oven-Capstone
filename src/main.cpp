@@ -5,8 +5,8 @@
 ReflowController controller;
 
 void setup() {
-  // Initialize the controller
-  controller.init();
+  // setup the controller
+  controller.setup();
 }
 
 void loop() {

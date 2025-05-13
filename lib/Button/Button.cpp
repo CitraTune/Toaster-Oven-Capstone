@@ -1,4 +1,4 @@
-#include "Button.h"
+#include "Button.hpp"
 
 // Default constructor
 Button::Button() {

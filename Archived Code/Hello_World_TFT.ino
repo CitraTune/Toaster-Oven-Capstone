@@ -7,7 +7,7 @@ TFT_eSPI tft = TFT_eSPI();  // Create TFT object
 
 void setup() {
   Serial.begin(115200);
-  tft.init();               // Initialize the display
+  tft.setup();               // setup the display
   tft.setRotation(1);       // Landscape orientation. Use 0–3 to rotate.
   tft.fillScreen(TFT_BLACK); // Clear the screen to black
 

@@ -40,14 +40,14 @@ void setup() {
   Wire.begin(TOUCH_SDA, TOUCH_SCL);
   delay(300);  // Let power stabilize
 
-  tft.init();
+  tft.setup();
   tft.setRotation(0); // Portrait
   tft.fillScreen(TFT_BLACK);
   pinMode(TFT_BL, OUTPUT);
   digitalWrite(TFT_BL, HIGH);
 
-  // Init touch
-  touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
+  // setup touch
+  touch.setup(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
   Serial.printf("Touch sensor type: %d\n", touch.sensorType());
 
   tft.setTextColor(TFT_GREEN);

@@ -87,15 +87,15 @@ void toggleGraphSize();
 void setup() {
   Serial.begin(115200);
   
-  // Initialize the TFT display
+  // setup the TFT display
   myTFT.begin();
   myTFT.setRotation(7);     // Adjust based on your display orientation
   myTFT.invertDisplay(true); // Optionally invert colors
   myTFT.setBrightness(128);
   myTFT.setColorDepth(24);
   
-  // Initialize touch controller
-  touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
+  // setup touch controller
+  touch.setup(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
   
   // Set the default font
   myTFT.setFont(&lgfx::fonts::FreeSans9pt7b);
@@ -166,7 +166,7 @@ void setup() {
     (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10, TFT_ORANGE, TFT_WHITE, "Font Test", SCREEN_MAIN, NULL
   );
 
-  // Initial screen setup
+  // setupial screen setup
   navigateToScreen(SCREEN_MAIN);
 }
 

@@ -1,6 +1,6 @@
 #include "ReflowController.hpp"
 
-// Pin definitions for capacitive touch
+// Pin defsetupions for capacitive touch
 #define TOUCH_SDA 33
 #define TOUCH_SCL 32
 #define TOUCH_INT 21
@@ -97,22 +97,22 @@ ReflowController::ReflowController()
   g_controller = this;
 }
 
-// Initialize all components
-void ReflowController::init() {
+// setup all components
+void ReflowController::setup() {
   Serial.begin(115200);
   
-  // Initialize the TFT display
+  // setup the TFT display
   myTFT.begin();
   myTFT.setRotation(7);     // Adjust based on your display orientation
   myTFT.invertDisplay(true); // Optionally invert colors
   myTFT.setBrightness(128);
   myTFT.setColorDepth(24);
   
-  // Initialize touch controller
+  // setup touch controller
   touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
   
-  // Initialize UI manager
-  uiManager.init();
+  // setup UI manager
+  uiManager.setup();
   
   // Set up buttons
   setupButtons();
@@ -200,7 +200,7 @@ void ReflowController::toggleGraphSize() {
   graphManager.draw(uiManager.lightMode);
 }
 
-// Initialize interface buttons
+// setup interface buttons
 void ReflowController::setupButtons() {
   // Get font height for dynamic button sizing
   myTFT.setFont(&lgfx::fonts::FreeSans9pt7b);

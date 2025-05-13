@@ -9,8 +9,8 @@ UIManager::UIManager(LGFX& tft) : _tft(tft) {
   outlineColor = TFT_DARKGRAY;
 }
 
-// Initialize the UI
-void UIManager::init() {
+// setup the UI
+void UIManager::setup() {
   // Set the default font
   _tft.setFont(&lgfx::fonts::FreeSans9pt7b);
 }

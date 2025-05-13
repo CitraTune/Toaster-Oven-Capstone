@@ -11,8 +11,8 @@ public:
   // Constructor
   ReflowController();
   
-  // Initialize all components
-  void init();
+  // setup all components
+  void setup();
   
   // Main loop
   void loop();
@@ -41,7 +41,7 @@ private:
   unsigned long lastTouchTime;
   const unsigned long debounceDelay = 200; // 200ms debounce delay
   
-  // Initialize interface buttons
+  // setup interface buttons
   void setupButtons();
 };
 

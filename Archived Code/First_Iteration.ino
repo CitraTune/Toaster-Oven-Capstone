@@ -2,7 +2,7 @@
 #include <PID_v1.h>
 
 
-// Pin definitions
+// Pin defsetupions
 #define SSR_PIN 9      // PWM output to SSR
 #define MAX6675_CLK 13
 #define MAX6675_CS 10

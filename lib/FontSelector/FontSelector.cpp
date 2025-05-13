@@ -1,6 +1,6 @@
 #include "FontSelector.hpp"
 
-// Initialize static instance pointer
+// setup static instance pointer
 FontSelector* FontSelector::instance = nullptr;
 
 // Define the static font array

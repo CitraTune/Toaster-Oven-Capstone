@@ -44,7 +44,7 @@ int currentHour = 8;  // 24-hour format
 int currentMinute = 0;
 bool currentAM = true;  // This will be derived from currentHour
 
-// Button definitions
+// Button defsetupions
 #define SETTINGS_BTN_X 10
 #define SETTINGS_BTN_Y (tft.height() - 60)
 #define SETTINGS_BTN_W (tft.width()/2 - 20)  // Half screen width minus margins
@@ -74,12 +74,12 @@ uint16_t oldCountdownMins = 99;
 int oldFoodAmount = -1;
 
 // Function prototypes
-void initMainScreen();
+void setupMainScreen();
 void updateMainScreen();
 void updateClock(bool forceRedraw = false);
 void updateCountdown(bool forceRedraw = false);
-void initSettingsScreen();
-void initTimeSettingScreen();
+void setupSettingsScreen();
+void setupTimeSettingScreen();
 void drawSettingsButton();
 void drawSetTimeButton();
 void drawButton(int x, int y, int w, int h, const char* label, uint16_t bgColor, uint16_t textColor);
@@ -109,8 +109,8 @@ void setup() {
   Wire.begin(TOUCH_SDA, TOUCH_SCL);
   delay(300);  // Let power stabilize
 
-  // Initialize display
-  tft.init();
+  // setup display
+  tft.setup();
   tft.setRotation(0); // Portrait
   tft.fillScreen(BG_COLOR);
   
@@ -118,15 +118,15 @@ void setup() {
   pinMode(TFT_BL, OUTPUT);
   digitalWrite(TFT_BL, HIGH);
   
-  // Initialize touch
-  touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
+  // setup touch
+  touch.setup(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
   Serial.printf("Touch sensor type: %d\n", touch.sensorType());
   
-  // Set initial time (would use RTC or NTP in real implementation)
+  // Set setupial time (would use RTC or NTP in real implementation)
   setTime(8, 0, 0, 1, 1, 2023);
   
-  // Draw initial screen
-  initMainScreen();
+  // Draw setupial screen
+  setupMainScreen();
 }
 
 void loop() {
@@ -161,7 +161,7 @@ void loop() {
   if (currentScreen != MAIN_SCREEN) {
     if (millis() - lastTouchTime > 30000) { // 30 seconds timeout
       currentScreen = MAIN_SCREEN;
-      initMainScreen();
+      setupMainScreen();
     }
   } else {
     lastTouchTime = millis();
@@ -179,7 +179,7 @@ void loop() {
   delay(50);
 }
 
-void initMainScreen() {
+void setupMainScreen() {
   tft.fillScreen(BG_COLOR);
   
   // Draw settings button
@@ -376,7 +376,7 @@ void drawValueBox(int x, int y, int w, int h, const char* value, uint16_t bgColo
   tft.print(value);
 }
 
-void initSettingsScreen() {
+void setupSettingsScreen() {
   tft.fillScreen(BG_COLOR);
   
   // Title
@@ -441,7 +441,7 @@ void initSettingsScreen() {
              BACK_BUTTON_W, BACK_BUTTON_H, "Back", ACCENT_COLOR, BUTTON_TEXT_COLOR, 2);
 }
 
-void initTimeSettingScreen() {
+void setupTimeSettingScreen() {
   tft.fillScreen(BG_COLOR);
   
   // Title
@@ -525,7 +525,7 @@ void handleMainScreenTouch(int x, int y) {
     
     // Switch to settings screen
     currentScreen = SETTINGS_SCREEN;
-    initSettingsScreen();
+    setupSettingsScreen();
     return;
   }
   
@@ -539,7 +539,7 @@ void handleMainScreenTouch(int x, int y) {
     
     // Switch directly to time setting screen
     currentScreen = TIME_SETTING_SCREEN;
-    initTimeSettingScreen();
+    setupTimeSettingScreen();
     return;
   }
 }
@@ -550,7 +550,7 @@ void handleSettingsScreenTouch(int x, int y) {
       y > tft.height() - BACK_BUTTON_H - 10 && y < tft.height() - 10) {
     // Return to main screen
     currentScreen = MAIN_SCREEN;
-    initMainScreen();
+    setupMainScreen();
     return;
   }
   
@@ -644,7 +644,7 @@ void handleTimeSettingScreenTouch(int x, int y) {
       y > tft.height() - BACK_BUTTON_H - 10 && y < tft.height() - 10) {
     // Return to main screen
     currentScreen = MAIN_SCREEN;
-    initMainScreen();
+    setupMainScreen();
     return;
   }
   
@@ -748,7 +748,7 @@ void activateServo() {
   
   // Clear notification and force redraw of main screen
   currentScreen = MAIN_SCREEN;
-  initMainScreen();
+  setupMainScreen();
 }
 
 // Helper functions for time conversion

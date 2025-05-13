@@ -13,7 +13,7 @@ void setup() {
   digitalWrite(TFT_BL, HIGH); // Try to turn on backlight
 
   // Setup TFT
-  tft.init();
+  tft.setup();
   tft.setRotation(1);
   tft.fillScreen(TFT_BLACK);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);

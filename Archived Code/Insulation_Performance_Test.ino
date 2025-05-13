@@ -1,7 +1,7 @@
 #include <MAX6675.h>
 
 
-// Pin definitions
+// Pin defsetupions
 #define SSR_PIN 9  // SSR control pin
 #define SO_PIN 4   // MAX6675 SO pin
 #define CS_PIN 5   // MAX6675 CS pin
@@ -18,7 +18,7 @@ void setup() {
  
   Serial.println("Starting heating test...");
  
-  // Read initial room temperature
+  // Read setupial room temperature
   double roomTemp = thermocouple.readCelsius();
   double targetTemp = roomTemp + 10;  // Target is 10°C above room temp
 

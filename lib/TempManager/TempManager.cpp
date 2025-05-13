@@ -1,4 +1,4 @@
-#include "TempManager.h"
+#include "TempManager.hpp"
 
 // Constructor
 TempManager::TempManager(LGFX& tft) : _tft(tft) {

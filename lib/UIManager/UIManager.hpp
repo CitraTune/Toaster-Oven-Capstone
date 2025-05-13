@@ -30,8 +30,8 @@ public:
   bool invertAccent;
   uint16_t outlineColor;
   
-  // Initialize the UI
-  void init();
+  // setup the UI
+  void setup();
   
   // Create a new button and return its index
   int createButton(int x, int y, int width, int height, int radius, 
