@@ -63,10 +63,6 @@ void FontSelectorGUI::setup()
 
     // Start with the main screen
 
-    //from testing, it looked like this flashed, then we went to the bonfire screen, 
-    // the bonfire screen was blank, then the bonfire text was drawn
-    //no buttons appeared
-    //lets make sure UIManager buttons work?
     uiManager.navigateToScreen(SCREEN_MAIN);
 
 
@@ -99,7 +95,6 @@ void FontSelectorGUI::incrementFont()
 void FontSelectorGUI::loop()
 {
     TOUCHINFO ti;
-
     // Get touch samples
     if (touch.getSamples(&ti))
     {

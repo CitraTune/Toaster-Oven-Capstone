@@ -71,7 +71,7 @@ void UIManager::drawTextElements() {
   }
 }
 
-// Check if a button was pressed
+// Check if a button was pressed. Activates action if it's pressed.
 void UIManager::checkButtonPress(int touchX, int touchY) {
   for (int i = 0; i < buttonCount; i++) {
     // Only check active buttons

@@ -67,7 +67,7 @@ LGFX tft;
 
 void setup() {
   Serial.begin(115200);
-  tft.setup();
+  tft.init();
   tft.setRotation(0);
   tft.setTextSize(2);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);

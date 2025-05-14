@@ -24,17 +24,11 @@ void testAction() {
 
 void setup(){
   _FontSelectorGUI.setup();
-  
-  // setup the controller
-  //UI manager test
-  uiManager.createButton(10, display.height() - 60, 60, 40, 8, 
-                          TFT_DARKGREY, TFT_WHITE, "<", 0, testAction);
-  Serial.println("button created");
-  
+
 }
 
 void loop() {
   // Run the controller's main loop
-  //FontSelectorGUI.loop();
+  _FontSelectorGUI.loop();
 }
 
