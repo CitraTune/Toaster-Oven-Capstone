@@ -81,6 +81,7 @@ void UIManager::checkButtonPress(int touchX, int touchY) {
     if (buttons[i].contains(touchX, touchY)) {
       // Execute button action if assigned
       if (buttons[i].action != NULL) {
+        Serial.println("Button pressed: " + buttons[i].label);
         buttons[i].action();
       }
       

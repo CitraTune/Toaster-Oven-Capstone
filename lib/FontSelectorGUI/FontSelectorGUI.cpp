@@ -48,34 +48,33 @@ void FontSelectorGUI::setup()
     Serial.begin(115200);
     Serial.println("Setting up FontSelectorGUI");
 
-    // setup the TFT display
+    // Setup the TFT display
     display.begin();
     display.setRotation(7);      // Adjust based on your display orientation
     display.invertDisplay(true); // Optionally invert colors
     display.setBrightness(128);
     display.setColorDepth(24);
 
-    // setup touch controller
+    // Setup touch controller
     touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
 
-    // setup UI manager
+    // Setup UI manager
     uiManager.setup();
 
     // Start with the main screen
-
     uiManager.navigateToScreen(SCREEN_MAIN);
-
 
     // Create navigation buttons
     uiManager.createButton(10, display.height() - 60, 60, 40, 8,
-                           TFT_DARKGREY, TFT_WHITE, "<", 0, handleLeftPress);
-    
+                           TFT_DARKGREY, TFT_WHITE, "<", SCREEN_MAIN, handleLeftPress);
+    uiManager.createButton(display.width() - 70, display.height() - 60, 60, 40, 8,
+                           TFT_DARKGREY, TFT_WHITE, ">", SCREEN_MAIN, handleRightPress);
+
+    // Create the "bonfire" text element
+    uiManager.createTextElement(0, 0, TFT_WHITE, "bonfire", SCREEN_MAIN, fonts[currentFontIndex]);
+
+    // Draw the initial screen
     uiManager.drawActiveScreen();
-
-    // uiManager.createButton(display.width() - 70, display.height() - 60, 60, 40, 8,
-    //                        TFT_DARKGREY, TFT_WHITE, ">", 0, handleRightPress);
-
-    //drawBonfireText();
 }
 
 void FontSelectorGUI::decrementFont()
@@ -117,27 +116,14 @@ void FontSelectorGUI::loop()
     delay(10); // Reduced delay for smoother UI
 }
 
-void FontSelectorGUI::drawBonfireText()
-{
-    Serial.println("Drawing bonfire text with font index: " + String(currentFontIndex));
-    display.setFont(fonts[currentFontIndex]);
-    display.fillScreen(TFT_BLACK);
-    display.setTextColor(TFT_WHITE);
 
-    // Get text dimensions using LovyanGFX methods
-    const char *text = "bonfire";
-    int textWidth = display.textWidth(text);
-    int textHeight = display.fontHeight();
-
-    // Calculate center position
-    int centerX = (display.width() - textWidth) / 2;
-    int centerY = (display.height() + textHeight) / 2;
-
-    display.setCursor(centerX, centerY);
-    display.print(text);
-}
 
 void FontSelectorGUI::updateDisplay()
 {
-    drawBonfireText();
+    // Update the font of the "bonfire" text element
+    int textElementIndex = 0; // Assuming the "bonfire" text element is the first one created
+    uiManager.textElements[textElementIndex].font = fonts[currentFontIndex];
+
+    // Redraw the active screen to reflect the font change
+    uiManager.drawActiveScreen();
 }
