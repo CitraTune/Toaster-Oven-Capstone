@@ -90,7 +90,7 @@ void decreaseReflowTempFineCallback() {
 
 // Constructor
 ReflowGUI::ReflowGUI() 
-  : uiManager(myTFT), graphManager(myTFT), tempManager(myTFT) {
+  : uiManager(display), graphManager(display), tempManager(display) {
   lastTouchTime = 0;
   
   // Set the global reference
@@ -102,11 +102,11 @@ void ReflowGUI::setup() {
   Serial.begin(115200);
   
   // setup the TFT display
-  myTFT.begin();
-  myTFT.setRotation(7);     // Adjust based on your display orientation
-  myTFT.invertDisplay(true); // Optionally invert colors
-  myTFT.setBrightness(128);
-  myTFT.setColorDepth(24);
+  display.begin();
+  display.setRotation(7);     // Adjust based on your display orientation
+  display.invertDisplay(true); // Optionally invert colors
+  display.setBrightness(128);
+  display.setColorDepth(24);
   
   // setup touch controller
   touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
@@ -207,8 +207,8 @@ void ReflowGUI::toggleGraphSize() {
 // setup interface buttons
 void ReflowGUI::setupButtons() {
   // Get font height for dynamic button sizing
-  myTFT.setFont(&lgfx::fonts::FreeSans9pt7b);
-  int fontHeight = myTFT.fontHeight();
+  display.setFont(&lgfx::fonts::FreeSans9pt7b);
+  int fontHeight = display.fontHeight();
   int buttonTextMargin = 10; // Margin around text (top and bottom)
   int buttonHeight = fontHeight + 2 * buttonTextMargin; // Dynamic height based on font
   

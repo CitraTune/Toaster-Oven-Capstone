@@ -1,9 +1,11 @@
 #include "UIManager.hpp"
 //This allows you to pass in functions as arguments
 typedef void (*ButtonAction)();
+
 // Constructor
 UIManager::UIManager(LGFX& tft) : _tft(tft) {
   buttonCount = 0;
+  textElementCount = 0;  // Initialize text element count
   currentScreen = SCREEN_MAIN;
   lightMode = false;
   invertAccent = false;
@@ -37,12 +39,35 @@ int UIManager::createButton(int x, int y, int width, int height, int radius,
   return buttonCount++;
 }
 
+// Create a new text element and return its index
+int UIManager::createTextElement(int x, int y, uint16_t color, String content,
+                                int screen, const lgfx::IFont* font) {
+  if (textElementCount >= MAX_TEXT_ELEMENTS) {
+    Serial.println("Warning: Maximum text element count reached!");
+    return -1;
+  }
+
+  Serial.println("Creating text element: " + content);
+  TextElement newElement(x, y, color, content, screen, font);
+  newElement.active = (screen == currentScreen);
+
+  textElements[textElementCount] = newElement;
+  return textElementCount++;
+}
+
 // Draw all active buttons for the current screen
 void UIManager::drawButtons() {
   for (int i = 0; i < buttonCount; i++) {
     if (buttons[i].active) {
       buttons[i].draw(_tft);
     }
+  }
+}
+
+// Draw all active text elements for the current screen
+void UIManager::drawTextElements() {
+  for (int i = 0; i < textElementCount; i++) {
+    textElements[i].draw(_tft);
   }
 }
 
@@ -73,51 +98,27 @@ void UIManager::navigateToScreen(int screen) {
     buttons[i].active = (buttons[i].screen == currentScreen);
   }
   
+  // Update text element active states
+  for (int i = 0; i < textElementCount; i++) {
+    textElements[i].active = (textElements[i].screen == currentScreen);
+  }
+
   // Draw the new screen
   drawActiveScreen();
 }
 
 // Draw the active screen with all its elements
 void UIManager::drawActiveScreen() {
-  uint16_t bgColor = lightMode ? TFT_WHITE : TFT_BLACK;
-  uint16_t textColor = lightMode ? TFT_BLACK : TFT_WHITE;
-  
-  _tft.fillScreen(bgColor);  // Clear screen
-  
-  // Define small margin for titles
-  const int MARGIN = 10;
-  
-  if (currentScreen == SCREEN_MAIN) {
-    // Draw main screen title in top left with margin
-    _tft.setTextColor(textColor);
-    _tft.setFont(&lgfx::fonts::FreeSans12pt7b);  // Increased font size
-    _tft.setCursor(MARGIN, MARGIN);  // Adjusted position
-    _tft.print("Main Menu");
-    // Note: Graph will be drawn by the GraphManager after this
-  } 
-  else if (currentScreen == SCREEN_SETTINGS) {
-    // Draw settings screen title in top left with margin
-    _tft.setTextColor(textColor);
-    _tft.setFont(&lgfx::fonts::FreeSans12pt7b);  // Increased font size
-    _tft.setCursor(MARGIN, MARGIN);  // Adjusted position
-    _tft.print("Settings");
-  }
+  // Clear the screen
+  _tft.fillScreen(lightMode ? TFT_WHITE : TFT_BLACK);
 
-  // Draw a white outline around the text for the screen label box
-  int textWidth = _tft.textWidth(currentScreen == SCREEN_MAIN ? "Main Menu" : "Settings");
-  int textHeight = _tft.fontHeight();
-  int outlineOffset = 5; // Offset for the outline
-  
-  uint16_t boxColor = lightMode ? TFT_BLACK : TFT_WHITE;
+  // First draw the text elements
+  drawTextElements();
 
-  // Draw the right angle outline
-  _tft.drawLine(0, MARGIN + textHeight + outlineOffset, MARGIN + textWidth + outlineOffset, 
-                MARGIN + textHeight + outlineOffset, boxColor); // Top line
-  _tft.drawLine(MARGIN + textWidth + outlineOffset, 0, MARGIN + textWidth + outlineOffset, 
-                MARGIN + textHeight + outlineOffset, boxColor); // Left line
-  
-  // Draw all active buttons for this screen
+  // Then draw the buttons on top
   drawButtons();
+
+  // Note: Other components like graphs would be drawn after this
 }
 
 // Update button colors based on theme

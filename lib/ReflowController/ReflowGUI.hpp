@@ -31,7 +31,7 @@ public:
   
 private:
   // Components
-  LGFX myTFT;
+  LGFX display;
   BBCapTouch touch;
   UIManager uiManager;
   GraphManager graphManager;
