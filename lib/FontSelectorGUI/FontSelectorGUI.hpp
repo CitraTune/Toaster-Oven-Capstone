@@ -20,6 +20,11 @@ public:
   void incrementFont();
   void updateDisplay();
   
+  // Static instance for button callbacks
+  static FontSelectorGUI* instance;
+  static void handleLeftPress();
+  static void handleRightPress();
+
 private:
   // Components
   LGFX& display;
@@ -30,15 +35,10 @@ private:
   // Debounce variables
   unsigned long lastTouchTime;
   const unsigned long debounceDelay = 200; // 200ms debounce delay
-  
+
   // Font related variables
   static const GFXfont* fonts[];
-  
+
   // Display methods
   void drawBonfireText();
-  
-  // Static instance for button callbacks
-  static FontSelectorGUI* instance;
-  static void handleLeftPress();
-  static void handleRightPress();
 };

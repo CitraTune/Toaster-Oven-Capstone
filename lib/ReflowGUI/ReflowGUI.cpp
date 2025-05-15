@@ -1,6 +1,6 @@
 #include "ReflowGUI.hpp"
 
-// Pin defsetupions for capacitive touch
+// Pin definitions for capacitive touch
 #define TOUCH_SDA 33
 #define TOUCH_SCL 32
 #define TOUCH_INT 21
@@ -159,11 +159,9 @@ void ReflowGUI::goToMain() {
 void ReflowGUI::toggleLightMode() {
   uiManager.lightMode = !uiManager.lightMode;
   // Find the light mode button and update its label
-  for (int i = 0; i < uiManager.buttonCount; i++) {
-    if (uiManager.buttons[i].label == "Light Mode" || uiManager.buttons[i].label == "Dark Mode") {
-      uiManager.buttons[i].label = !uiManager.lightMode ? "Light Mode" : "Dark Mode";
-      break;
-    }
+  Button* lightModeButton = uiManager.getButton("light_mode_btn");
+  if (lightModeButton) {
+    lightModeButton->label = !uiManager.lightMode ? "Light Mode" : "Dark Mode";
   }
   uiManager.drawActiveScreen();
   
@@ -200,13 +198,9 @@ void ReflowGUI::toggleGraphSize() {
   graphManager.draw(uiManager.lightMode);
 }
 
-
-//okay this is interesting its a method that runs once for setting up buttons..
-//but it is called once in the setup, its just a little cleaner way to write
-//the real setup function
-// setup interface buttons
+// Setup interface buttons
 void ReflowGUI::setupButtons() {
-  // Get font height for dynamic button sizing
+  // Set font for button sizing calculations
   display.setFont(&lgfx::fonts::FreeSans9pt7b);
   int fontHeight = display.fontHeight();
   int buttonTextMargin = 10; // Margin around text (top and bottom)
@@ -214,6 +208,7 @@ void ReflowGUI::setupButtons() {
   
   // Main screen buttons
   uiManager.createButton(
+    "settings_btn",           // key - unique identifier
     (SCREEN_WIDTH - 160) / 2, // x - centered
     SCREEN_HEIGHT - buttonHeight - 10, // y - positioned from bottom with margin
     160,                      // width
@@ -228,6 +223,7 @@ void ReflowGUI::setupButtons() {
   
   // Settings screen back button
   uiManager.createButton(
+    "back_btn",               // key - unique identifier
     (SCREEN_WIDTH - 160) / 2, // x - centered
     SCREEN_HEIGHT - buttonHeight - 10, // y - positioned from bottom with margin
     160,                      // width
@@ -245,38 +241,38 @@ void ReflowGUI::setupButtons() {
   int tempBoxY = 10;
   
   // Soak Temp Controls
-  uiManager.createButton(tempBoxX, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+10", 
+  uiManager.createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+10", 
                        SCREEN_SETTINGS, increaseSoakTempCoarseCallback);
-  uiManager.createButton(tempBoxX, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-10", 
+  uiManager.createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-10", 
                        SCREEN_SETTINGS, decreaseSoakTempCoarseCallback);
-  uiManager.createButton(tempBoxX + 60, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+1", 
+  uiManager.createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+1", 
                        SCREEN_SETTINGS, increaseSoakTempFineCallback);
-  uiManager.createButton(tempBoxX + 60, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-1", 
+  uiManager.createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-1", 
                        SCREEN_SETTINGS, decreaseSoakTempFineCallback);
   
   // Reflow Temp Controls
   tempBoxY += 100;
-  uiManager.createButton(tempBoxX, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+10", 
+  uiManager.createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+10", 
                        SCREEN_SETTINGS, increaseReflowTempCoarseCallback);
-  uiManager.createButton(tempBoxX, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-10", 
+  uiManager.createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-10", 
                        SCREEN_SETTINGS, decreaseReflowTempCoarseCallback);
-  uiManager.createButton(tempBoxX + 60, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+1", 
+  uiManager.createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+1", 
                        SCREEN_SETTINGS, increaseReflowTempFineCallback);
-  uiManager.createButton(tempBoxX + 60, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-1", 
+  uiManager.createButton("reflow_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-1", 
                        SCREEN_SETTINGS, decreaseReflowTempFineCallback);
 
   // Accent Invert Button
-  uiManager.createButton(3, SCREEN_HEIGHT - 100, 112, 40, 10, TFT_ORANGE, TFT_WHITE, 
+  uiManager.createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100, 112, 40, 10, TFT_ORANGE, TFT_WHITE, 
                        "Invert Accent", SCREEN_SETTINGS, toggleInvertAccentCallback);
 
   // Light Mode Toggle Button
-  uiManager.createButton((SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10, 
+  uiManager.createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10, 
                        TFT_ORANGE, TFT_WHITE, "Light Mode", SCREEN_SETTINGS, toggleLightModeCallback);
 
-  // Add buttons for "Font Test" and "Swap Graph"
-  uiManager.createButton(3, SCREEN_HEIGHT - 100, 112, 40, 10, TFT_ORANGE, TFT_WHITE, 
+  // Add buttons for "Swap Graph" and "Font Test"
+  uiManager.createButton("swap_graph_btn", 3, SCREEN_HEIGHT - 100, 112, 40, 10, TFT_ORANGE, TFT_WHITE, 
                        "Swap Graph", SCREEN_MAIN, toggleGraphSizeCallback);
 
-  uiManager.createButton((SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10, 
+  uiManager.createButton("font_test_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10, 
                        TFT_ORANGE, TFT_WHITE, "Font Test", SCREEN_MAIN, NULL);
 }

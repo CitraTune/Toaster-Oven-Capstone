@@ -1,9 +1,11 @@
 #pragma once
 
 #include <Arduino.h>
+#include <unordered_map>
+#include <string>
 #include "LGFX_Config.h"
 #include "Button.hpp"
-#include "TextElement.hpp"  // Add this include
+#include "TextElement.hpp"
 
 // Screen constants
 #define SCREEN_MAIN 0
@@ -18,16 +20,11 @@ public:
   // Constructor
   UIManager(LGFX& tft);
   
-  // Button management
-  static const int MAX_BUTTONS = 14;
-  Button buttons[MAX_BUTTONS];
-  int buttonCount;
-  
-  // Text element management
-  static const int MAX_TEXT_ELEMENTS = 10;
-  TextElement textElements[MAX_TEXT_ELEMENTS];
-  int textElementCount;
-  
+  // Button management using unordered_map
+  std::unordered_map<std::string, Button> buttons;
+
+  // Text element management using unordered_map
+  std::unordered_map<std::string, TextElement> textElements;
   // Screen management
   int currentScreen;
   
@@ -41,13 +38,13 @@ public:
 
   void loop();
   
-  // Create a new button and return its index
-  int createButton(int x, int y, int width, int height, int radius, 
+  // Create a new button with a key
+  bool createButton(const std::string& key, int x, int y, int width, int height, int radius,
                    uint16_t color, uint16_t textColor, String label, 
                    int screen, void (*action)());
                    
-  // Create a new text element and return its index
-  int createTextElement(int x, int y, uint16_t color, String content, 
+  // Create a new text element with a key
+  bool createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
                        int screen, const lgfx::IFont* font = nullptr);
   
   // Draw all active buttons for the current screen
@@ -67,6 +64,12 @@ public:
   
   // Update button colors based on theme
   void updateButtonColors();
+
+  // Get button by key (returns nullptr if not found)
+  Button* getButton(const std::string& key);
+
+  // Get text element by key (returns nullptr if not found)
+  TextElement* getTextElement(const std::string& key);
 
 private:
   LGFX& _tft;

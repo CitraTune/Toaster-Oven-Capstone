@@ -1,7 +1,7 @@
 #include <MAX6675.h>
 
 
-// Pin defsetupions
+// Pin definitions
 #define SSR_PIN 9  // SSR control pin
 #define SO_PIN 4   // MAX6675 SO pin
 #define CS_PIN 5   // MAX6675 CS pin

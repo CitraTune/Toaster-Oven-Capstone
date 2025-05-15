@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Arduino.h>
+#include <unordered_map>
+#include <string>
 #include "LGFX_Config.h"
 
 class TextElement {
@@ -21,7 +23,6 @@ public:
   tft.print(content);
 }
 
-  
   int x, y;
   uint16_t color;
   String content;

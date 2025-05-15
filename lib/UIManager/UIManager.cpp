@@ -4,8 +4,6 @@ typedef void (*ButtonAction)();
 
 // Constructor
 UIManager::UIManager(LGFX& tft) : _tft(tft) {
-  buttonCount = 0;
-  textElementCount = 0;  // Initialize text element count
   currentScreen = SCREEN_MAIN;
   lightMode = false;
   invertAccent = false;
@@ -18,71 +16,77 @@ void UIManager::setup() {
   _tft.setFont(&lgfx::fonts::FreeSans9pt7b);
 }
 
-void UIManager::loop(){
-
-  
+void UIManager::loop() {
+  // Implementation here
 }
 
-// Create a new button and return its index
-int UIManager::createButton(int x, int y, int width, int height, int radius, 
+// Create a new button with a key
+bool UIManager::createButton(const std::string& key, int x, int y, int width, int height, int radius,
                           uint16_t color, uint16_t textColor, String label, 
                           int screen, ButtonAction action) {
-  if (buttonCount >= MAX_BUTTONS) {
-    Serial.println("Warning: Maximum button count reached!");
-    return -1;
+  // Check if key already exists
+  if (buttons.find(key) != buttons.end()) {
+    Serial.println("Warning: Button with key '" + String(key.c_str()) + "' already exists!");
+    return false;
   }
-  Serial.println("Creating button: " + label);
+  Serial.println("Creating button: " + label + " with key: " + String(key.c_str()));
   Button newButton(x, y, width, height, radius, color, textColor, label, screen, action);
   newButton.active = (screen == currentScreen);
   
-  buttons[buttonCount] = newButton;
-  return buttonCount++;
+  buttons[key] = newButton;
+  return true;
 }
 
-// Create a new text element and return its index
-int UIManager::createTextElement(int x, int y, uint16_t color, String content,
+// Create a new text element with a key
+bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
                                 int screen, const lgfx::IFont* font) {
-  if (textElementCount >= MAX_TEXT_ELEMENTS) {
-    Serial.println("Warning: Maximum text element count reached!");
-    return -1;
+  // Check if key already exists
+  if (textElements.find(key) != textElements.end()) {
+    Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
+    return false;
   }
 
-  Serial.println("Creating text element: " + content);
+  Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
   TextElement newElement(x, y, color, content, screen, font);
   newElement.active = (screen == currentScreen);
 
-  textElements[textElementCount] = newElement;
-  return textElementCount++;
+  textElements[key] = newElement;
+  return true;
 }
 
 // Draw all active buttons for the current screen
 void UIManager::drawButtons() {
-  for (int i = 0; i < buttonCount; i++) {
-    if (buttons[i].active) {
-      buttons[i].draw(_tft);
+  for (auto& pair : buttons) {
+    Button& button = pair.second;
+    if (button.active) {
+      button.draw(_tft);
     }
   }
 }
 
 // Draw all active text elements for the current screen
 void UIManager::drawTextElements() {
-  for (int i = 0; i < textElementCount; i++) {
-    textElements[i].draw(_tft);
+  for (auto& pair : textElements) {
+    TextElement& element = pair.second;
+    if (element.active) {
+      element.draw(_tft);
+    }
   }
 }
 
 // Check if a button was pressed. Activates action if it's pressed.
 void UIManager::checkButtonPress(int touchX, int touchY) {
-  for (int i = 0; i < buttonCount; i++) {
+  for (auto& pair : buttons) {
+    Button& button = pair.second;
     // Only check active buttons
-    if (!buttons[i].active) continue;
+    if (!button.active) continue;
     
     // Check if touch is within button boundaries
-    if (buttons[i].contains(touchX, touchY)) {
+    if (button.contains(touchX, touchY)) {
       // Execute button action if assigned
-      if (buttons[i].action != NULL) {
-        Serial.println("Button pressed: " + buttons[i].label);
-        buttons[i].action();
+      if (button.action != NULL) {
+        Serial.println("Button pressed: " + button.label);
+        button.action();
       }
       
       break;  // Exit after handling one button press
@@ -95,13 +99,15 @@ void UIManager::navigateToScreen(int screen) {
   currentScreen = screen;
   
   // Update button active states
-  for (int i = 0; i < buttonCount; i++) {
-    buttons[i].active = (buttons[i].screen == currentScreen);
+  for (auto& pair : buttons) {
+    Button& button = pair.second;
+    button.active = (button.screen == currentScreen);
   }
   
   // Update text element active states
-  for (int i = 0; i < textElementCount; i++) {
-    textElements[i].active = (textElements[i].screen == currentScreen);
+  for (auto& pair : textElements) {
+    TextElement& element = pair.second;
+    element.active = (element.screen == currentScreen);
   }
 
   // Draw the new screen
@@ -126,7 +132,26 @@ void UIManager::drawActiveScreen() {
 void UIManager::updateButtonColors() {
   outlineColor = invertAccent ? TFT_ORANGE : TFT_DARKGRAY;
   
-  for (int i = 0; i < buttonCount; i++) {
-    buttons[i].color = invertAccent ? TFT_LIGHTGRAY : TFT_ORANGE;
+  for (auto& pair : buttons) {
+    Button& button = pair.second;
+    button.color = invertAccent ? TFT_LIGHTGRAY : TFT_ORANGE;
   }
+}
+
+// Get button by key (returns nullptr if not found)
+Button* UIManager::getButton(const std::string& key) {
+  auto it = buttons.find(key);
+  if (it != buttons.end()) {
+    return &(it->second);
+  }
+  return nullptr;
+}
+
+// Get text element by key (returns nullptr if not found)
+TextElement* UIManager::getTextElement(const std::string& key) {
+  auto it = textElements.find(key);
+  if (it != textElements.end()) {
+    return &(it->second);
+  }
+  return nullptr;
 }

@@ -44,7 +44,7 @@ int currentHour = 8;  // 24-hour format
 int currentMinute = 0;
 bool currentAM = true;  // This will be derived from currentHour
 
-// Button defsetupions
+// Button definitions
 #define SETTINGS_BTN_X 10
 #define SETTINGS_BTN_Y (tft.height() - 60)
 #define SETTINGS_BTN_W (tft.width()/2 - 20)  // Half screen width minus margins

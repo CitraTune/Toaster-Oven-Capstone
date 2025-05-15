@@ -1,5 +1,5 @@
 #include "FontSelectorGUI.hpp"
-// Pin defsetupions for capacitive touch
+// Pin definitions for capacitive touch
 #define TOUCH_SDA 33
 #define TOUCH_SCL 32
 #define TOUCH_INT 21
@@ -25,6 +25,8 @@ FontSelectorGUI::FontSelectorGUI(LGFX &display, UIManager &uiManager)
     : display(display), uiManager(uiManager), currentFontIndex(0)
 {
     lastTouchTime = 0;
+    // Set the instance pointer in the constructor
+    instance = this;
 }
 
 void FontSelectorGUI::handleLeftPress()
@@ -64,14 +66,14 @@ void FontSelectorGUI::setup()
     // Start with the main screen
     uiManager.navigateToScreen(SCREEN_MAIN);
 
-    // Create navigation buttons
-    uiManager.createButton(10, display.height() - 60, 60, 40, 8,
+    // Create navigation buttons using string keys
+    uiManager.createButton("left_btn", 10, display.height() - 60, 60, 40, 8,
                            TFT_DARKGREY, TFT_WHITE, "<", SCREEN_MAIN, handleLeftPress);
-    uiManager.createButton(display.width() - 70, display.height() - 60, 60, 40, 8,
+    uiManager.createButton("right_btn", display.width() - 70, display.height() - 60, 60, 40, 8,
                            TFT_DARKGREY, TFT_WHITE, ">", SCREEN_MAIN, handleRightPress);
 
-    // Create the "bonfire" text element
-    uiManager.createTextElement(0, 0, TFT_WHITE, "bonfire", SCREEN_MAIN, fonts[currentFontIndex]);
+    // Create the "bonfire" text element with a specific key
+    uiManager.createTextElement("bonfire", 0, 0, TFT_WHITE, "bonfire", SCREEN_MAIN, fonts[currentFontIndex]);
 
     // Draw the initial screen
     uiManager.drawActiveScreen();
@@ -116,14 +118,15 @@ void FontSelectorGUI::loop()
     delay(10); // Reduced delay for smoother UI
 }
 
-
-
 void FontSelectorGUI::updateDisplay()
 {
-    // Update the font of the "bonfire" text element
-    int textElementIndex = 0; // Assuming the "bonfire" text element is the first one created
-    uiManager.textElements[textElementIndex].font = fonts[currentFontIndex];
-
+    // Update the font of the "bonfire" text element using its key
+    TextElement* bonfireText = uiManager.getTextElement("bonfire");
+    if (bonfireText) {
+        bonfireText->font = fonts[currentFontIndex];
     // Redraw the active screen to reflect the font change
     uiManager.drawActiveScreen();
+    } else {
+        Serial.println("Error: 'bonfire' text element not found!");
+}
 }
