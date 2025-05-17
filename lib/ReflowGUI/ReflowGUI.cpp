@@ -133,25 +133,25 @@ void ReflowGUI::goToSettings() {
 
 void ReflowGUI::goToMain() {
     uiManager.navigateToScreen(SCREEN_MAIN);
-    graphManager.draw(uiManager.getLightMode());
+    graphManager.draw();
 }
 
 void ReflowGUI::toggleLightMode() {
     uiManager.toggleLightMode();
     if (graphManager.isVisibleOnScreen(SCREEN_MAIN)) {
-        graphManager.draw(uiManager.getLightMode());
+        graphManager.draw();
     }
 }
 
 void ReflowGUI::toggleInvertAccent() {
     uiManager.toggleInvertAccent();
     if (graphManager.isVisibleOnScreen(SCREEN_MAIN)) {
-        graphManager.draw(uiManager.getLightMode());
+        graphManager.draw();
     }
 }
 
 void ReflowGUI::toggleGraphSize() {
-    graphManager.draw(uiManager.getLightMode());
+    graphManager.draw();
 }
 
 // Temperature control methods

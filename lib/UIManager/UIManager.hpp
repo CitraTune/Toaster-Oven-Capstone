@@ -24,6 +24,7 @@ private:
     bool lightMode;
     bool invertAccent;
     uint16_t outlineColor;
+    const lgfx::IFont* currentFont;  // Track current font
     
     // Add temperature variables
     int soakTemp = 150;
@@ -40,8 +41,7 @@ public:
   
   // Create a new button with a key
   bool createButton(const std::string& key, int x, int y, int width, int height, int radius,
-                   uint16_t color, uint16_t textColor, String label, 
-                   int screen, void (*action)());
+                   String label, int screen, void (*action)());
                    
   // Create a new text element with a key
   bool createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
@@ -62,9 +62,6 @@ public:
   // Draw the active screen with all its elements
   void drawActiveScreen();
   
-  // Update button colors based on theme
-  void updateButtonColors();
-
   // Get button by key (returns nullptr if not found)
   Button* getButton(const std::string& key);
 
@@ -108,7 +105,6 @@ public:
     
     void toggleInvertAccent() {
         invertAccent = !invertAccent;
-        updateButtonColors();
         drawActiveScreen();
     }
     
@@ -119,4 +115,17 @@ public:
     bool getLightMode() const {
         return lightMode;
     }
+    
+    bool getInvertAccent() const {
+        return invertAccent;
+    }
+
+    void setFont(const lgfx::IFont* font);
+    const lgfx::IFont* getCurrentFont() const { return currentFont; }
+    void redraw();
+
+  // Add getter for text elements
+  std::unordered_map<std::string, TextElement>& getTextElements() {
+    return textElements;
+  }
 };

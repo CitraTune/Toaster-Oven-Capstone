@@ -8,12 +8,13 @@ UIManager::UIManager(LGFX& tft) : _tft(tft) {
   lightMode = false;
   invertAccent = false;
   outlineColor = TFT_DARKGRAY;
+  Button::setUIManager(this);
 }
 
 // setup the UI
 void UIManager::setup() {
-  // Set the default font
-  _tft.setFont(&lgfx::fonts::FreeSans9pt7b);
+  currentFont = &lgfx::fonts::FreeSans9pt7b;
+  _tft.setFont(currentFont);
 }
 
 void UIManager::loop() {
@@ -22,15 +23,14 @@ void UIManager::loop() {
 
 // Create a new button with a key
 bool UIManager::createButton(const std::string& key, int x, int y, int width, int height, int radius,
-                          uint16_t color, uint16_t textColor, String label, 
-                          int screen, ButtonAction action) {
+                          String label, int screen, ButtonAction action) {
   // Check if key already exists
   if (buttons.find(key) != buttons.end()) {
     Serial.println("Warning: Button with key '" + String(key.c_str()) + "' already exists!");
     return false;
   }
   Serial.println("Creating button: " + label + " with key: " + String(key.c_str()));
-  Button newButton(x, y, width, height, radius, color, textColor, label, screen, action);
+  Button newButton(x, y, width, height, radius, label, screen, action);
   newButton.active = (screen == currentScreen);
   
   buttons[key] = newButton;
@@ -56,18 +56,18 @@ bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t
 
 // Draw all active buttons for the current screen
 void UIManager::drawButtons() {
-  for (auto& pair : buttons) {
-    Button& button = pair.second;
+  for (const auto& pair : buttons) {
+    const Button& button = pair.second;
     if (button.active) {
-      button.draw(_tft, outlineColor); // Pass the current accent/neutral color
+      button.draw(_tft);
     }
   }
 }
 
 // Draw all active text elements for the current screen
 void UIManager::drawTextElements() {
-  for (auto& pair : textElements) {
-    TextElement& element = pair.second;
+  for (const auto& pair : textElements) {
+    const TextElement& element = pair.second;
     if (element.active) {
       element.draw(_tft);
     }
@@ -76,17 +76,28 @@ void UIManager::drawTextElements() {
 
 // Check if a button was pressed. Activates action if it's pressed.
 void UIManager::checkButtonPress(int touchX, int touchY) {
+  Serial.printf("Checking touch at X: %d, Y: %d for screen %d\n", touchX, touchY, currentScreen);
+  
   for (auto& pair : buttons) {
     Button& button = pair.second;
     // Only check active buttons
-    if (!button.active) continue;
+    if (!button.active) {
+      Serial.printf("Skipping inactive button: %s (screen: %d)\n", button.label.c_str(), button.screen);
+      continue;
+    }
+    
+    Serial.printf("Checking button '%s' at X:%d Y:%d W:%d H:%d\n", 
+                 button.label.c_str(), button.x, button.y, button.width, button.height);
     
     // Check if touch is within button boundaries
     if (button.contains(touchX, touchY)) {
+      Serial.printf("Touch hit detected on button: %s!\n", button.label.c_str());
       // Execute button action if assigned
       if (button.action != NULL) {
-        Serial.println("Button pressed: " + button.label);
+        Serial.printf("Executing action for button: %s\n", button.label.c_str());
         button.action();
+      } else {
+        Serial.printf("Warning: No action assigned to button: %s\n", button.label.c_str());
       }
       
       break;  // Exit after handling one button press
@@ -128,14 +139,7 @@ void UIManager::drawActiveScreen() {
   // Note: Other components like graphs would be drawn after this
 }
 
-// Update button colors based on theme
-void UIManager::updateButtonColors() {
-  outlineColor = invertAccent ? TFT_RED : TFT_DARKGRAY;
-  for (auto& pair : buttons) {
-    Button& button = pair.second;
-    button.color = invertAccent ? TFT_LIGHTGRAY : TFT_ORANGE;
-  }
-}
+
 
 // Get button by key (returns nullptr if not found)
 Button* UIManager::getButton(const std::string& key) {
@@ -153,4 +157,37 @@ TextElement* UIManager::getTextElement(const std::string& key) {
     return &(it->second);
   }
   return nullptr;
+}
+
+void UIManager::setFont(const lgfx::IFont* font) {
+  _tft.setFont(font);
+  currentFont = font;
+  
+  // Update all text elements to use the new font while maintaining their relative sizes
+  for (auto& pair : textElements) {
+    pair.second.updateFont(font);
+  }
+  
+  // Force a redraw of all active elements
+  redraw();
+}
+
+void UIManager::redraw() {
+  _tft.fillScreen(lightMode ? TFT_WHITE : TFT_BLACK);
+  
+  // Draw all active buttons
+  for (const auto& pair : buttons) {
+    const Button& button = pair.second;
+    if (button.active) {
+      button.draw(_tft);
+    }
+  }
+  
+  // Draw all active text elements
+  for (const auto& pair : textElements) {
+    const TextElement& element = pair.second;
+    if (element.active) {
+      element.draw(_tft);
+    }
+  }
 }

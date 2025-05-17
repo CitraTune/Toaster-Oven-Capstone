@@ -49,7 +49,8 @@ void FontSelectorGUI::handleLeftPress()
 {
     if (instance)
     {
-        instance->decrementFont();
+        instance->currentFontIndex = (instance->currentFontIndex - 1 + NUM_FONTS) % NUM_FONTS;
+        instance->updateFont();
     }
 }
 
@@ -57,7 +58,8 @@ void FontSelectorGUI::handleRightPress()
 {
     if (instance)
     {
-        instance->incrementFont();
+        instance->currentFontIndex = (instance->currentFontIndex + 1) % NUM_FONTS;
+        instance->updateFont();
     }
 }
 
@@ -110,18 +112,18 @@ void FontSelectorGUI::setup()
     uiManager.drawActiveScreen();
 }
 
-void FontSelectorGUI::decrementFont()
+void FontSelectorGUI::updateFont()
 {
-    int fontCount = sizeof(fonts) / sizeof(fonts[0]);
-    currentFontIndex = (currentFontIndex - 1 + fontCount) % fontCount;
-    updateDisplay();
-}
-
-void FontSelectorGUI::incrementFont()
-{
-    int fontCount = sizeof(fonts) / sizeof(fonts[0]);
-    currentFontIndex = (currentFontIndex + 1) % fontCount;
-    updateDisplay();
+    // Update the font in UIManager which will handle updating all text elements
+    uiManager.setFont(fonts[currentFontIndex]);
+    
+    // Update the display to show the current font name
+    display.fillRect(0, 0, display.width(), 30, uiManager.getLightMode() ? TFT_WHITE : TFT_BLACK);
+    display.setFont(labelFont);
+    display.setTextColor(uiManager.getLightMode() ? TFT_BLACK : TFT_WHITE);
+    display.setCursor(10, 20);
+    display.print("Current Font: ");
+    display.print(fontNames[currentFontIndex]);
 }
 
 void FontSelectorGUI::loop()
@@ -147,50 +149,4 @@ void FontSelectorGUI::loop()
     }
 
     delay(10); // Reduced delay for smoother UI
-}
-
-void FontSelectorGUI::updateDisplay()
-{
-    int fontCount = sizeof(fonts) / sizeof(fonts[0]);
-    
-    // Update the font of the "bonfire" text element
-    TextElement* bonfireText = uiManager.getTextElement("bonfire");
-    if (bonfireText) {
-        bonfireText->font = fonts[currentFontIndex];
-        
-        // Center text horizontally - calculate position based on text width
-        display.setFont(fonts[currentFontIndex]);
-        int textWidth = display.textWidth("bonfire");
-        bonfireText->x = (display.width() - textWidth) / 2;
-    } else {
-        Serial.println("Error: 'bonfire' text element not found!");
-        return;
-    }
-    
-    // Update the font label content
-    TextElement* fontLabel = uiManager.getTextElement("font_label");
-    if (fontLabel) {
-        fontLabel->content = fontNames[currentFontIndex];
-        
-        // Center the font label using our label font
-        display.setFont(labelFont);
-        int labelWidth = display.textWidth(fontNames[currentFontIndex]);
-        fontLabel->x = (display.width() - labelWidth) / 2;
-    } else {
-        Serial.println("Error: 'font_label' text element not found!");
-        return;
-    }
-    
-    // Update the font counter (e.g., "1/10")
-    TextElement* fontCounter = uiManager.getTextElement("font_counter");
-    if (fontCounter) {
-        String counterText = String(currentFontIndex + 1) + "/" + String(fontCount);
-        fontCounter->content = counterText;
-    } else {
-        Serial.println("Error: 'font_counter' text element not found!");
-        return;
-    }
-    
-    // Redraw the active screen to reflect the changes
-    uiManager.drawActiveScreen();
 }

@@ -3,39 +3,40 @@
 // Define constants
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320
+#define TOUCH_SDA 33
+#define TOUCH_SCL 32
+#define TOUCH_INT 21
+#define TOUCH_RST 25
 
 // Initialize LGFX display
 LGFX IntegratedFontReflowGUI::display;
 
-// Initialize sample text
-const char* IntegratedFontReflowGUI::sampleText = "bonfire";
-
 // Define the static font array and font names
 const GFXfont* IntegratedFontReflowGUI::fonts[] = {
-    &FreeMono9pt7b,
     &FreeMono12pt7b,
-    &FreeSans9pt7b,
-    &FreeSans12pt7b,
-    &FreeSansBold9pt7b,
-    &FreeSansBold12pt7b,
-    &FreeSansBoldOblique9pt7b,
     &FreeSansBoldOblique12pt7b,
-    &FreeMonoBold9pt7b,
-    &FreeMonoBold12pt7b
+    &FreeSans12pt7b,
+    &FreeSansBold12pt7b,
+    &FreeMonoBold12pt7b,
+    &FreeMonoOblique12pt7b,
+    &FreeSerif12pt7b,
+    &FreeSerifBold12pt7b,
+    &FreeSerifBoldItalic12pt7b,
+    &FreeSerifItalic12pt7b
 };
 
-// Define font names array for display
+// Define font names array for display ALL 12PT
 const char* IntegratedFontReflowGUI::fontNames[] = {
-    "FreeMono9pt",
-    "FreeMono12pt",
-    "FreeSans9pt",
-    "FreeSans12pt",
-    "FreeSansBold9pt",
-    "FreeSansBold12pt",
-    "FreeSansBoldOblique9pt",
-    "FreeSansBoldOblique12pt",
-    "FreeMonoBold9pt",
-    "FreeMonoBold12pt"
+    "FreeMono",
+    "FreeSansBoldOblique",
+    "FreeSans",
+    "FreeSansBold",
+    "FreeMonoBold",
+    "FreeMonoOblique",
+    "FreeSerif",
+    "FreeSerifBold",
+    "FreeSerifBoldItalic",
+    "FreeSerifItalic"
 };
 
 // Initialize font count
@@ -46,14 +47,17 @@ IntegratedFontReflowGUI* g_controller = nullptr;
 
 // Button action callbacks
 void goToSettingsCallback() {
+  Serial.println("Settings button pressed!");
   if (g_controller) g_controller->goToSettings();
 }
 
 void goToMainCallback() {
+  Serial.println("Back/Main button pressed!");
   if (g_controller) g_controller->goToMain();
 }
 
 void goToFontsCallback() {
+  Serial.println("Font Test button pressed!");
   if (g_controller) g_controller->goToFonts();
 }
 
@@ -120,6 +124,7 @@ IntegratedFontReflowGUI::IntegratedFontReflowGUI()
 // Setup all components
 void IntegratedFontReflowGUI::setup() {
   Serial.begin(115200);
+  Serial.println("Starting setup...");
   
   // Setup the TFT display
   display.begin();
@@ -127,6 +132,15 @@ void IntegratedFontReflowGUI::setup() {
   display.invertDisplay(true); // Optionally invert colors
   display.setBrightness(128);
   display.setColorDepth(24);
+  
+  // Initialize touch
+  Serial.println("Initializing touch...");
+  touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
+  if (display.touch()) {
+    Serial.println("Touch initialized successfully");
+  } else {
+    Serial.println("ERROR: Touch initialization failed!");
+  }
   
   // Setup UI manager
   uiManager.setup();
@@ -142,12 +156,31 @@ void IntegratedFontReflowGUI::setup() {
   
   // Start with the main screen
   uiManager.navigateToScreen(SCREEN_MAIN);
+  Serial.println("Setup complete!");
 }
 
 // Main loop
 void IntegratedFontReflowGUI::loop() {
-  // Note: Touch detection is handled externally by your touch system
-  // This loop is kept simple to ensure compatibility
+  // Check for touch input
+  TOUCHINFO ti;
+    // Get touch samples
+    if (touch.getSamples(&ti))
+    {
+        unsigned long currentTime = millis();
+        if (currentTime - lastTouchTime > debounceDelay)
+        {
+            lastTouchTime = currentTime;
+
+            int x = ti.x[0];
+            int y = ti.y[0];
+
+            // Debugging output
+            Serial.printf("Touch x=%d y=%d\n", x, y);
+
+            // Check if any button was pressed
+            uiManager.checkButtonPress(x, y);
+        }
+    }
   delay(10);  // Reduced delay for smoother UI
 }
 
@@ -192,36 +225,70 @@ void IntegratedFontReflowGUI::prevFont() {
 
 // Update font display elements
 void IntegratedFontReflowGUI::updateFontDisplay() {
-  // Update sample text font
-  TextElement* sampleTextElement = uiManager.getTextElement("sample_text");
-  if (sampleTextElement) {
-    sampleTextElement->font = fonts[currentFontIndex];
-    
-    // Center text horizontally - calculate position based on text width
-    display.setFont(fonts[currentFontIndex]);
-    int textWidth = display.textWidth(sampleText);
-    sampleTextElement->x = (display.width() - textWidth) / 2;
-  }
-  
-  // Update font name label
+  // Keep special fonts for certain elements
+  const std::unordered_map<std::string, const lgfx::IFont*> specialFonts = {
+    {"font_name", &lgfx::fonts::Font2},
+    {"font_counter", &lgfx::fonts::Font2},
+    {"main_menu_label", fonts[currentFontIndex]},
+    {"settings_menu_label", fonts[currentFontIndex]},
+    {"font_menu_label", fonts[currentFontIndex]},
+  };
+
+  // Update font name and counter content
   TextElement* fontNameElement = uiManager.getTextElement("font_name");
   if (fontNameElement) {
     fontNameElement->content = fontNames[currentFontIndex];
-    
-    // Center the font label
-    display.setFont(&lgfx::fonts::Font2);  // Use a small font for the label
-    int labelWidth = display.textWidth(fontNames[currentFontIndex]);
-    fontNameElement->x = (display.width() - labelWidth) / 2;
   }
-  
-  // Update counter label
+
   TextElement* counterElement = uiManager.getTextElement("font_counter");
   if (counterElement) {
     String counterText = String(currentFontIndex + 1) + "/" + String(fontCount);
     counterElement->content = counterText;
   }
-  
-  // Redraw screen
+
+  // Update all text elements in all screens
+  for (auto& pair : uiManager.getTextElements()) {
+    TextElement& element = const_cast<TextElement&>(pair.second);
+    const std::string& key = pair.first;
+
+    // Check if this element has a special font
+    auto specialFont = specialFonts.find(key);
+    if (specialFont != specialFonts.end()) {
+      element.font = specialFont->second;
+    } else {
+      // Use the current font from the fonts array for all other text elements
+      // Adjust font size to match previous height as closely as possible
+      int prevFontHeight = 0;
+      if (element.font) {
+        display.setFont(element.font);
+        prevFontHeight = display.fontHeight();
+      }
+      const lgfx::IFont* bestFont = fonts[currentFontIndex];
+      int bestDiff = 10000;
+      // Try to match font height if possible
+      for (int i = 0; i < fontCount; ++i) {
+        display.setFont(fonts[i]);
+        int h = display.fontHeight();
+        if (prevFontHeight > 0 && abs(h - prevFontHeight) < bestDiff) {
+          bestDiff = abs(h - prevFontHeight);
+          bestFont = fonts[i];
+        }
+      }
+      element.font = bestFont;
+    }
+
+    // Recalculate center position for certain elements
+    if (element.font) {
+      display.setFont(element.font);
+      if (key == "font_name" || key == "sample_text" || key == "font_menu_label") {
+        int textWidth = display.textWidth(element.content);
+        element.x = (display.width() - textWidth) / 2;
+      }
+      // For main_menu_label and settings_menu_label, keep x as originally set (top left)
+    }
+  }
+
+  // Redraw screen (this will redraw all buttons with the new font, since Button::draw uses display.setFont)
   uiManager.drawActiveScreen();
 }
 
@@ -286,8 +353,6 @@ void IntegratedFontReflowGUI::setupButtons() {
       buttonWidth,          // width - same as back button
       buttonHeight,         // height
       10,                   // radius
-      TFT_ORANGE,          // color
-      TFT_WHITE,           // text color
       "Settings",          // label
       SCREEN_MAIN,         // screen
       goToSettingsCallback // action
@@ -301,8 +366,6 @@ void IntegratedFontReflowGUI::setupButtons() {
       buttonWidth,         // width
       buttonHeight,        // height
       10,                  // radius
-      TFT_ORANGE,         // color
-      TFT_WHITE,          // text color
       "Font Test",        // label
       SCREEN_MAIN,        // screen
       goToFontsCallback   // action
@@ -316,8 +379,6 @@ void IntegratedFontReflowGUI::setupButtons() {
       buttonWidth,         // width
       buttonHeight,        // height
       10,                  // radius
-      TFT_ORANGE,         // color
-      TFT_WHITE,          // text color
       "Back",             // label
       SCREEN_SETTINGS,    // screen
       goToMainCallback    // action
@@ -330,8 +391,6 @@ void IntegratedFontReflowGUI::setupButtons() {
       buttonWidth,         // width
       buttonHeight,        // height
       10,                  // radius
-      TFT_ORANGE,         // color
-      TFT_WHITE,          // text color
       "Back",             // label
       SCREEN_FONTS,       // screen
       goToMainCallback    // action
@@ -342,33 +401,33 @@ void IntegratedFontReflowGUI::setupButtons() {
   int tempBoxY = 10;
   
   // Soak Temp Controls
-  uiManager.createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+10", 
+  uiManager.createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10", 
                        SCREEN_SETTINGS, increaseSoakTempCoarseCallback);
-  uiManager.createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-10", 
+  uiManager.createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10", 
                        SCREEN_SETTINGS, decreaseSoakTempCoarseCallback);
-  uiManager.createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+1", 
+  uiManager.createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1", 
                        SCREEN_SETTINGS, increaseSoakTempFineCallback);
-  uiManager.createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-1", 
+  uiManager.createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1", 
                        SCREEN_SETTINGS, decreaseSoakTempFineCallback);
   
   // Reflow Temp Controls
   tempBoxY += 100;
-  uiManager.createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+10", 
+  uiManager.createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10", 
                        SCREEN_SETTINGS, increaseReflowTempCoarseCallback);
-  uiManager.createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-10", 
+  uiManager.createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10", 
                        SCREEN_SETTINGS, decreaseReflowTempCoarseCallback);
-  uiManager.createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "+1", 
+  uiManager.createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1", 
                        SCREEN_SETTINGS, increaseReflowTempFineCallback);
-  uiManager.createButton("reflow_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, TFT_ORANGE, TFT_WHITE, "-1", 
+  uiManager.createButton("reflow_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1", 
                        SCREEN_SETTINGS, decreaseReflowTempFineCallback);
 
   // Accent Invert Button
-  uiManager.createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100, 112, 40, 10, TFT_ORANGE, TFT_WHITE, 
+  uiManager.createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100, 112, 40, 10,
                        "Invert Accent", SCREEN_SETTINGS, toggleInvertAccentCallback);
 
   // Light Mode Toggle Button
-  uiManager.createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10, 
-                       TFT_ORANGE, TFT_WHITE, "Light Mode", SCREEN_SETTINGS, toggleLightModeCallback);
+  uiManager.createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10,
+                       "Light Mode", SCREEN_SETTINGS, toggleLightModeCallback);
 }
 
 // Setup font screen buttons and elements
@@ -387,8 +446,6 @@ void IntegratedFontReflowGUI::setupFontScreenButtons() {
     160,                      // width
     buttonHeight,             // height - dynamically sized
     10,                       // radius - rounded corners
-    TFT_ORANGE,               // color
-    TFT_WHITE,                // text color
     "Back",                   // label
     SCREEN_FONTS,             // screen
     goToMainCallback          // action function
@@ -402,8 +459,6 @@ void IntegratedFontReflowGUI::setupFontScreenButtons() {
     60,                       // width
     buttonHeight,             // height
     10,                       // radius
-    TFT_DARKGREY,             // color
-    TFT_WHITE,                // text color
     "<",                      // label
     SCREEN_FONTS,             // screen
     prevFontCallback          // action function
@@ -416,8 +471,6 @@ void IntegratedFontReflowGUI::setupFontScreenButtons() {
     60,                       // width
     buttonHeight,             // height
     10,                       // radius
-    TFT_DARKGREY,             // color
-    TFT_WHITE,                // text color
     ">",                      // label
     SCREEN_FONTS,             // screen
     nextFontCallback          // action function
@@ -429,7 +482,7 @@ void IntegratedFontReflowGUI::setupFontScreenButtons() {
     0,                        // x - will be calculated in updateFontDisplay
     80,                       // y - about 1/4 down the screen
     TFT_WHITE,                // color
-    sampleText,               // content
+    "bonfire",               // content
     SCREEN_FONTS,             // screen
     fonts[currentFontIndex]   // font
   );
@@ -465,7 +518,7 @@ void IntegratedFontReflowGUI::setupTemperatureElements() {
         "soak_temp_label",
         10, 50,
         TFT_WHITE,
-        "Soak Temperature:",
+        "Soak Temp:",
         SCREEN_SETTINGS,
         &lgfx::fonts::FreeSans9pt7b
     );
@@ -483,7 +536,7 @@ void IntegratedFontReflowGUI::setupTemperatureElements() {
         "reflow_temp_label",
         10, 140,
         TFT_WHITE,
-        "Reflow Temperature:",
+        "Reflow Temp:",
         SCREEN_SETTINGS,
         &lgfx::fonts::FreeSans9pt7b
     );

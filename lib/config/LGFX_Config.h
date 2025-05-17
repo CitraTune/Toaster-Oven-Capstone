@@ -59,7 +59,7 @@ public:
 
 
 
-    { // Backlight control (PWM on GPIO 27)
+  { // Backlight control (PWM on GPIO 27)
       auto cfg = _light_instance.config();
       cfg.pin_bl = 27;
       cfg.invert = false;
@@ -69,7 +69,22 @@ public:
       _panel.setLight(&_light_instance);
     }
 
-
+    { // Touch controller configuration
+      auto cfg = _touch_instance.config();
+      cfg.pin_int  = 21;   // INT pin number
+      cfg.pin_sda  = 33;   // I2C SDA pin number
+      cfg.pin_scl  = 32;   // I2C SCL pin number
+      cfg.pin_rst  = 25;   // RST pin number (if you have one)
+      cfg.i2c_addr = 0x38; // I2C address
+      cfg.i2c_port = 0;    // I2C port number
+      cfg.freq     = 400000; // I2C freq
+      cfg.x_min    = 0;
+      cfg.x_max    = 320;
+      cfg.y_min    = 0;
+      cfg.y_max    = 240;
+      _touch_instance.config(cfg);
+      _panel.setTouch(&_touch_instance);
+    }
 
     setPanel(&_panel);
   }

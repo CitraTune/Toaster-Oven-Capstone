@@ -5,6 +5,7 @@
 #include <string>
 #include "Button.hpp"
 #include "UIManager.hpp"
+#include <bb_captouch.h>
 #include "GraphManager.hpp"
 
 // Screen definitions
@@ -17,7 +18,7 @@
 #define SCREEN_HEIGHT 320
 
 // Touch debounce time
-#define DEBOUNCE_DELAY 250
+#define DEBOUNCE_DELAY 200
 
 class IntegratedFontReflowGUI {
 public:
@@ -26,6 +27,10 @@ public:
     // Setup and main loop
     void setup();
     void loop();
+
+    // Make these public so main can access them
+    static LGFX display;
+    int touchX, touchY;
     
     // Touch input handling
     void handleTouch(int x, int y);
@@ -57,9 +62,9 @@ public:
     
 private:
     // Display and UI components
-    static LGFX display;
     UIManager uiManager;
     GraphManager graphManager;
+    BBCapTouch touch;
     
     // Touch handling
     unsigned long lastTouchTime;
