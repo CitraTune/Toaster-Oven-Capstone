@@ -8,7 +8,7 @@
 // setup static instance pointer
 FontSelectorGUI *FontSelectorGUI::instance = nullptr;
 
-// Define the static font array
+// Define the static font array and font names
 const GFXfont *FontSelectorGUI::fonts[] = {
     &FreeMono12pt7b,
     &FreeSansBoldOblique12pt7b,
@@ -21,10 +21,26 @@ const GFXfont *FontSelectorGUI::fonts[] = {
     &FreeSerifBoldItalic12pt7b,
     &FreeSerifItalic12pt7b};
 
+// Define font names array for display
+const char* FontSelectorGUI::fontNames[] = {
+    "FreeMono12pt",
+    "FreeSansBoldOblique12pt",
+    "FreeSans12pt",
+    "FreeSansBold12pt",
+    "FreeMonoBold12pt",
+    "FreeMonoOblique12pt",
+    "FreeSerif12pt",
+    "FreeSerifBold12pt",
+    "FreeSerifBoldItalic12pt",
+    "FreeSerifItalic12pt"
+};
+
 FontSelectorGUI::FontSelectorGUI(LGFX &display, UIManager &uiManager)
     : display(display), uiManager(uiManager), currentFontIndex(0)
 {
     lastTouchTime = 0;
+    // Use a small font for the label
+    labelFont = &fonts::Font2;
     // Set the instance pointer in the constructor
     instance = this;
 }
@@ -72,9 +88,24 @@ void FontSelectorGUI::setup()
     uiManager.createButton("right_btn", display.width() - 70, display.height() - 60, 60, 40, 8,
                            TFT_DARKGREY, TFT_WHITE, ">", SCREEN_MAIN, handleRightPress);
 
-    // Create the "bonfire" text element with a specific key
-    uiManager.createTextElement("bonfire", 0, 0, TFT_WHITE, "bonfire", SCREEN_MAIN, fonts[currentFontIndex]);
+    // Create the "bonfire" sample text element, calculating X to center text
+    // We'll calculate X position for centering in updateDisplay() since it depends on font
+    uiManager.createTextElement("bonfire", 0, 30, TFT_WHITE, "bonfire", 
+                               SCREEN_MAIN, fonts[currentFontIndex]);
 
+    // Create the font name label beneath the sample text
+    uiManager.createTextElement("font_label", 0, 60, TFT_YELLOW, 
+                               fontNames[currentFontIndex], SCREEN_MAIN, labelFont);
+                               
+    // Create the font counter label (e.g., "1/10")
+    int fontCount = sizeof(fonts) / sizeof(fonts[0]);
+    String counterText = String(currentFontIndex + 1) + "/" + String(fontCount);
+    uiManager.createTextElement("font_counter", 10, 10, TFT_CYAN, 
+                               counterText, SCREEN_MAIN, labelFont);
+
+    // Initialize positions for text elements (center them)
+    updateDisplay();
+    
     // Draw the initial screen
     uiManager.drawActiveScreen();
 }
@@ -120,13 +151,46 @@ void FontSelectorGUI::loop()
 
 void FontSelectorGUI::updateDisplay()
 {
-    // Update the font of the "bonfire" text element using its key
+    int fontCount = sizeof(fonts) / sizeof(fonts[0]);
+    
+    // Update the font of the "bonfire" text element
     TextElement* bonfireText = uiManager.getTextElement("bonfire");
     if (bonfireText) {
         bonfireText->font = fonts[currentFontIndex];
-    // Redraw the active screen to reflect the font change
-    uiManager.drawActiveScreen();
+        
+        // Center text horizontally - calculate position based on text width
+        display.setFont(fonts[currentFontIndex]);
+        int textWidth = display.textWidth("bonfire");
+        bonfireText->x = (display.width() - textWidth) / 2;
     } else {
         Serial.println("Error: 'bonfire' text element not found!");
-}
+        return;
+    }
+    
+    // Update the font label content
+    TextElement* fontLabel = uiManager.getTextElement("font_label");
+    if (fontLabel) {
+        fontLabel->content = fontNames[currentFontIndex];
+        
+        // Center the font label using our label font
+        display.setFont(labelFont);
+        int labelWidth = display.textWidth(fontNames[currentFontIndex]);
+        fontLabel->x = (display.width() - labelWidth) / 2;
+    } else {
+        Serial.println("Error: 'font_label' text element not found!");
+        return;
+    }
+    
+    // Update the font counter (e.g., "1/10")
+    TextElement* fontCounter = uiManager.getTextElement("font_counter");
+    if (fontCounter) {
+        String counterText = String(currentFontIndex + 1) + "/" + String(fontCount);
+        fontCounter->content = counterText;
+    } else {
+        Serial.println("Error: 'font_counter' text element not found!");
+        return;
+    }
+    
+    // Redraw the active screen to reflect the changes
+    uiManager.drawActiveScreen();
 }

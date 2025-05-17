@@ -38,7 +38,8 @@ private:
 
   // Font related variables
   static const GFXfont* fonts[];
-
-  // Display methods
-  void drawBonfireText();
+  // Font names array for display
+  static const char* fontNames[];
+  // Default font for the font name label
+  const lgfx::IFont* labelFont;
 };

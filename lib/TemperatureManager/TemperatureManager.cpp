@@ -1,46 +1,46 @@
-#include "TempManager.hpp"
+#include "TemperatureManager.hpp"
 
 // Constructor
-TempManager::TempManager(LGFX& tft) : _tft(tft) {
+TemperatureManager::TemperatureManager(LGFX& tft) : _tft(tft) {
   soakTemp = 150;  // Default soak temperature
   reflowTemp = 230;  // Default reflow temperature
 }
 
 // Temperature adjustment methods
-void TempManager::increaseSoakTempCoarse() { 
+void TemperatureManager::increaseSoakTempCoarse() { 
   soakTemp += 10; 
 }
 
-void TempManager::decreaseSoakTempCoarse() { 
+void TemperatureManager::decreaseSoakTempCoarse() { 
   soakTemp -= 10; 
 }
 
-void TempManager::increaseSoakTempFine() { 
+void TemperatureManager::increaseSoakTempFine() { 
   soakTemp += 1; 
 }
 
-void TempManager::decreaseSoakTempFine() { 
+void TemperatureManager::decreaseSoakTempFine() { 
   soakTemp -= 1; 
 }
 
-void TempManager::increaseReflowTempCoarse() { 
+void TemperatureManager::increaseReflowTempCoarse() { 
   reflowTemp += 10; 
 }
 
-void TempManager::decreaseReflowTempCoarse() { 
+void TemperatureManager::decreaseReflowTempCoarse() { 
   reflowTemp -= 10; 
 }
 
-void TempManager::increaseReflowTempFine() { 
+void TemperatureManager::increaseReflowTempFine() { 
   reflowTemp += 1; 
 }
 
-void TempManager::decreaseReflowTempFine() { 
+void TemperatureManager::decreaseReflowTempFine() { 
   reflowTemp -= 1; 
 }
 
 // Display temperature values on settings screen
-void TempManager::displayTemperatures(bool lightMode) {
+void TemperatureManager::displayTemperatures(bool lightMode) {
   _tft.setFont(&lgfx::fonts::FreeSans9pt7b);
   _tft.setTextColor(lightMode ? TFT_BLACK : TFT_WHITE);
   
@@ -54,7 +54,7 @@ void TempManager::displayTemperatures(bool lightMode) {
 }
 
 // Update only the reflow temperature display
-void TempManager::updateReflowTempDisplay(bool lightMode) {
+void TemperatureManager::updateReflowTempDisplay(bool lightMode) {
   int tempX = 10; // X position of the reflow temp text
   int tempY = 140; // Y position of the reflow temp text
   int tempWidth = 100; // Width of the area to clear

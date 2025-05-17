@@ -4,7 +4,7 @@
 #include <bb_captouch.h>
 #include "UIManager.hpp"
 #include "GraphManager.hpp"
-#include "TempManager.hpp"
+#include "TemperatureManager.hpp"
 
 class ReflowGUI {
 public:
@@ -27,7 +27,7 @@ public:
   // Getters for components
   UIManager* getUIManager() { return &uiManager; }
   GraphManager* getGraphManager() { return &graphManager; }
-  TempManager* getTempManager() { return &tempManager; }
+  TemperatureManager* getTemperatureManager() { return &TemperatureManager; }
   
 private:
   // Components
@@ -35,7 +35,7 @@ private:
   BBCapTouch touch;
   UIManager uiManager;
   GraphManager graphManager;
-  TempManager tempManager;
+  TemperatureManager TemperatureManager;
   
   // Debounce variables
   unsigned long lastTouchTime;

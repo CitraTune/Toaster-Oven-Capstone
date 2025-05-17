@@ -3,10 +3,10 @@
 #include <Arduino.h>
 #include "LGFX_Config.h"
 
-class TempManager {
+class TemperatureManager {
 public:
   // Constructor
-  TempManager(LGFX& tft);
+  TemperatureManager(LGFX& tft);
   
   // Properties
   int soakTemp;

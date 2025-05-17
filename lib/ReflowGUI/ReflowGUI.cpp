@@ -34,63 +34,63 @@ void toggleGraphSizeCallback() {
 // Temperature callbacks
 void increaseSoakTempCoarseCallback() {
   if (g_controller) {
-    g_controller->getTempManager()->increaseSoakTempCoarse();
+    g_controller->getTemperatureManager()->increaseSoakTempCoarse();
     g_controller->getUIManager()->drawActiveScreen();
   }
 }
 
 void decreaseSoakTempCoarseCallback() {
   if (g_controller) {
-    g_controller->getTempManager()->decreaseSoakTempCoarse();
+    g_controller->getTemperatureManager()->decreaseSoakTempCoarse();
     g_controller->getUIManager()->drawActiveScreen();
   }
 }
 
 void increaseSoakTempFineCallback() {
   if (g_controller) {
-    g_controller->getTempManager()->increaseSoakTempFine();
+    g_controller->getTemperatureManager()->increaseSoakTempFine();
     g_controller->getUIManager()->drawActiveScreen();
   }
 }
 
 void decreaseSoakTempFineCallback() {
   if (g_controller) {
-    g_controller->getTempManager()->decreaseSoakTempFine();
+    g_controller->getTemperatureManager()->decreaseSoakTempFine();
     g_controller->getUIManager()->drawActiveScreen();
   }
 }
 
 void increaseReflowTempCoarseCallback() {
   if (g_controller) {
-    g_controller->getTempManager()->increaseReflowTempCoarse();
-    g_controller->getTempManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
+    g_controller->getTemperatureManager()->increaseReflowTempCoarse();
+    g_controller->getTemperatureManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
   }
 }
 
 void decreaseReflowTempCoarseCallback() {
   if (g_controller) {
-    g_controller->getTempManager()->decreaseReflowTempCoarse();
-    g_controller->getTempManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
+    g_controller->getTemperatureManager()->decreaseReflowTempCoarse();
+    g_controller->getTemperatureManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
   }
 }
 
 void increaseReflowTempFineCallback() {
   if (g_controller) {
-    g_controller->getTempManager()->increaseReflowTempFine();
-    g_controller->getTempManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
+    g_controller->getTemperatureManager()->increaseReflowTempFine();
+    g_controller->getTemperatureManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
   }
 }
 
 void decreaseReflowTempFineCallback() {
   if (g_controller) {
-    g_controller->getTempManager()->decreaseReflowTempFine();
-    g_controller->getTempManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
+    g_controller->getTemperatureManager()->decreaseReflowTempFine();
+    g_controller->getTemperatureManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
   }
 }
 
 // Constructor
 ReflowGUI::ReflowGUI() 
-  : uiManager(display), graphManager(display), tempManager(display) {
+  : uiManager(display), graphManager(display), TemperatureManager(display) {
   lastTouchTime = 0;
   
   // Set the global reference
@@ -148,7 +148,7 @@ void ReflowGUI::loop() {
 // Action methods
 void ReflowGUI::goToSettings() {
   uiManager.navigateToScreen(SCREEN_SETTINGS);
-  tempManager.displayTemperatures(uiManager.lightMode);
+  TemperatureManager.displayTemperatures(uiManager.lightMode);
 }
 
 void ReflowGUI::goToMain() {
@@ -172,7 +172,7 @@ void ReflowGUI::toggleLightMode() {
   
   // Update temperature display if on settings screen
   if (uiManager.currentScreen == SCREEN_SETTINGS) {
-    tempManager.displayTemperatures(uiManager.lightMode);
+    TemperatureManager.displayTemperatures(uiManager.lightMode);
   }
 }
 
@@ -188,7 +188,7 @@ void ReflowGUI::toggleInvertAccent() {
   
   // Update temperature display if on settings screen
   if (uiManager.currentScreen == SCREEN_SETTINGS) {
-    tempManager.displayTemperatures(uiManager.lightMode);
+    TemperatureManager.displayTemperatures(uiManager.lightMode);
   }
 }
 
