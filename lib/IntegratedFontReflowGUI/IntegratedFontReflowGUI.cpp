@@ -65,10 +65,6 @@ void toggleInvertAccentCallback() {
   if (g_controller) g_controller->toggleInvertAccent();
 }
 
-void toggleGraphSizeCallback() {
-  if (g_controller) g_controller->toggleGraphSize();
-}
-
 void nextFontCallback() {
   if (g_controller) g_controller->nextFont();
 }
@@ -77,68 +73,45 @@ void prevFontCallback() {
   if (g_controller) g_controller->prevFont();
 }
 
-// Temperature callbacks
 void increaseSoakTempCoarseCallback() {
-  if (g_controller) {
-    g_controller->getTempManager()->increaseSoakTempCoarse();
-    g_controller->getUIManager()->drawActiveScreen();
-  }
+  if (g_controller) g_controller->increaseSoakTemp(true);
 }
 
 void decreaseSoakTempCoarseCallback() {
-  if (g_controller) {
-    g_controller->getTempManager()->decreaseSoakTempCoarse();
-    g_controller->getUIManager()->drawActiveScreen();
-  }
+  if (g_controller) g_controller->decreaseSoakTemp(true);
 }
 
 void increaseSoakTempFineCallback() {
-  if (g_controller) {
-    g_controller->getTempManager()->increaseSoakTempFine();
-    g_controller->getUIManager()->drawActiveScreen();
-  }
+  if (g_controller) g_controller->increaseSoakTemp(false);
 }
 
 void decreaseSoakTempFineCallback() {
-  if (g_controller) {
-    g_controller->getTempManager()->decreaseSoakTempFine();
-    g_controller->getUIManager()->drawActiveScreen();
-  }
+  if (g_controller) g_controller->decreaseSoakTemp(false);
 }
 
 void increaseReflowTempCoarseCallback() {
-  if (g_controller) {
-    g_controller->getTempManager()->increaseReflowTempCoarse();
-    g_controller->getTempManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
-  }
+  if (g_controller) g_controller->increaseReflowTemp(true);
 }
 
 void decreaseReflowTempCoarseCallback() {
-  if (g_controller) {
-    g_controller->getTempManager()->decreaseReflowTempCoarse();
-    g_controller->getTempManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
-  }
+  if (g_controller) g_controller->decreaseReflowTemp(true);
 }
 
 void increaseReflowTempFineCallback() {
-  if (g_controller) {
-    g_controller->getTempManager()->increaseReflowTempFine();
-    g_controller->getTempManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
-  }
+  if (g_controller) g_controller->increaseReflowTemp(false);
 }
 
 void decreaseReflowTempFineCallback() {
-  if (g_controller) {
-    g_controller->getTempManager()->decreaseReflowTempFine();
-    g_controller->getTempManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
-  }
+  if (g_controller) g_controller->decreaseReflowTemp(false);
 }
 
 // Constructor
 IntegratedFontReflowGUI::IntegratedFontReflowGUI() 
-  : uiManager(display), graphManager(display), tempManager(display) {
+  : uiManager(display), graphManager(display) {
   lastTouchTime = 0;
   currentFontIndex = 0;
+  soakTemp = 150;
+  reflowTemp = 230;
   
   // Set the global reference
   g_controller = this;
@@ -164,6 +137,9 @@ void IntegratedFontReflowGUI::setup() {
   // Set up font screen buttons and elements
   setupFontScreenButtons();
   
+  // Set up temperature labels
+  setupTemperatureElements();
+  
   // Start with the main screen
   uiManager.navigateToScreen(SCREEN_MAIN);
 }
@@ -178,12 +154,13 @@ void IntegratedFontReflowGUI::loop() {
 // Action methods for screen navigation
 void IntegratedFontReflowGUI::goToSettings() {
   uiManager.navigateToScreen(SCREEN_SETTINGS);
-  tempManager.displayTemperatures(uiManager.lightMode);
 }
 
 void IntegratedFontReflowGUI::goToMain() {
   uiManager.navigateToScreen(SCREEN_MAIN);
-  graphManager.draw(uiManager.lightMode);
+  if (graphManager.isVisibleOnScreen(SCREEN_MAIN)) {
+      graphManager.draw();
+  }
 }
 
 void IntegratedFontReflowGUI::goToFonts() {
@@ -193,23 +170,12 @@ void IntegratedFontReflowGUI::goToFonts() {
 
 // Theme toggle functions
 void IntegratedFontReflowGUI::toggleLightMode() {
-  uiManager.lightMode = !uiManager.lightMode;
-  // Find the light mode button and update its label
-  Button* lightModeButton = uiManager.getButton("light_mode_btn");
-  if (lightModeButton) {
-    lightModeButton->label = !uiManager.lightMode ? "Light Mode" : "Dark Mode";
-  }
+  uiManager.toggleLightMode();
   redrawCurrentScreen();
 }
 
 void IntegratedFontReflowGUI::toggleInvertAccent() {
-  uiManager.invertAccent = !uiManager.invertAccent;
-  uiManager.updateButtonColors();
-  redrawCurrentScreen();
-}
-
-void IntegratedFontReflowGUI::toggleGraphSize() {
-  graphManager.toggleFullScreen();
+  uiManager.toggleInvertAccent();
   redrawCurrentScreen();
 }
 
@@ -263,12 +229,8 @@ void IntegratedFontReflowGUI::updateFontDisplay() {
 void IntegratedFontReflowGUI::redrawCurrentScreen() {
   uiManager.drawActiveScreen();
   
-  if (uiManager.currentScreen == SCREEN_MAIN) {
-    graphManager.draw(uiManager.lightMode);
-  } else if (uiManager.currentScreen == SCREEN_SETTINGS) {
-    tempManager.displayTemperatures(uiManager.lightMode);
-  } else if (uiManager.currentScreen == SCREEN_FONTS) {
-    updateFontDisplay();
+  if (graphManager.isVisibleOnScreen(uiManager.getScreen())) {
+      graphManager.draw();
   }
 }
 
@@ -277,52 +239,102 @@ void IntegratedFontReflowGUI::setupButtons() {
   // Set font for button sizing calculations
   display.setFont(&lgfx::fonts::FreeSans9pt7b);
   int fontHeight = display.fontHeight();
-  int buttonTextMargin = 10; // Margin around text (top and bottom)
-  int buttonHeight = fontHeight + 2 * buttonTextMargin; // Dynamic height based on font
+  int buttonTextMargin = 10;
+  int buttonHeight = fontHeight + 2 * buttonTextMargin;
   
-  // Main screen buttons
+  // Add menu labels for each screen
+  uiManager.createTextElement(
+      "main_menu_label",
+      10,                    // x - left margin
+      25,                    // y - top margin
+      TFT_WHITE,            // color
+      "Main Menu",          // content
+      SCREEN_MAIN,          // screen
+      &lgfx::fonts::FreeSans9pt7b  // font
+  );
+
+  uiManager.createTextElement(
+      "settings_menu_label",
+      10,                    // x
+      25,                    // y
+      TFT_WHITE,            // color
+      "Settings",           // content
+      SCREEN_SETTINGS,      // screen
+      &lgfx::fonts::FreeSans9pt7b  // font
+  );
+
+  uiManager.createTextElement(
+      "font_menu_label",
+      10,                    // x
+      25,                    // y
+      TFT_WHITE,            // color
+      "Font Selection",     // content
+      SCREEN_FONTS,         // screen
+      &lgfx::fonts::FreeSans9pt7b  // font
+  );
+
+  // Main screen buttons - Settings and Font Test buttons with same width
+  const int buttonWidth = 160;
+  const int buttonMargin = 10;
+  const int buttonX = (SCREEN_WIDTH - buttonWidth) / 2;
+  
+  // Settings button at bottom
   uiManager.createButton(
-    "settings_btn",           // key - unique identifier
-    10,                       // x - left side
-    SCREEN_HEIGHT - buttonHeight - 10, // y - positioned from bottom with margin
-    100,                      // width
-    buttonHeight,             // height - dynamically sized
-    10,                       // radius - rounded corners
-    TFT_ORANGE,               // color - orange
-    TFT_WHITE,                // text color
-    "Settings",               // label
-    SCREEN_MAIN,              // screen
-    goToSettingsCallback      // action function
+      "settings_btn",
+      buttonX,              // x - centered
+      SCREEN_HEIGHT - buttonHeight - buttonMargin, // y - bottom with margin
+      buttonWidth,          // width - same as back button
+      buttonHeight,         // height
+      10,                   // radius
+      TFT_ORANGE,          // color
+      TFT_WHITE,           // text color
+      "Settings",          // label
+      SCREEN_MAIN,         // screen
+      goToSettingsCallback // action
   );
   
-  // Font test button on main screen
+  // Font Test button above Settings
   uiManager.createButton(
-    "font_test_btn",          // key
-    SCREEN_WIDTH - 110,       // x - right side
-    SCREEN_HEIGHT - buttonHeight - 10, // y - same height as settings
-    100,                      // width
-    buttonHeight,             // height
-    10,                       // radius
-    TFT_ORANGE,               // color
-    TFT_WHITE,                // text color
-    "Font Test",              // label
-    SCREEN_MAIN,              // screen
-    goToFontsCallback         // action function
+      "font_test_btn",
+      buttonX,             // x - centered
+      SCREEN_HEIGHT - (2 * buttonHeight) - (2 * buttonMargin), // y - above settings
+      buttonWidth,         // width
+      buttonHeight,        // height
+      10,                  // radius
+      TFT_ORANGE,         // color
+      TFT_WHITE,          // text color
+      "Font Test",        // label
+      SCREEN_MAIN,        // screen
+      goToFontsCallback   // action
   );
-  
-  // Settings screen back button
+
+  // Back buttons for Settings and Fonts screens (same position as Settings button)
   uiManager.createButton(
-    "back_from_settings_btn", // key - unique identifier
-    (SCREEN_WIDTH - 160) / 2, // x - centered
-    SCREEN_HEIGHT - buttonHeight - 10, // y - positioned from bottom with margin
-    160,                      // width
-    buttonHeight,             // height - dynamically sized
-    10,                       // radius - rounded corners
-    TFT_ORANGE,               // color - orange
-    TFT_WHITE,                // text color
-    "Back",                   // label
-    SCREEN_SETTINGS,          // screen
-    goToMainCallback          // action function
+      "back_from_settings_btn",
+      buttonX,             // x - centered
+      SCREEN_HEIGHT - buttonHeight - buttonMargin,
+      buttonWidth,         // width
+      buttonHeight,        // height
+      10,                  // radius
+      TFT_ORANGE,         // color
+      TFT_WHITE,          // text color
+      "Back",             // label
+      SCREEN_SETTINGS,    // screen
+      goToMainCallback    // action
+  );
+
+  uiManager.createButton(
+      "back_from_fonts_btn",
+      buttonX,             // x - centered
+      SCREEN_HEIGHT - buttonHeight - buttonMargin,
+      buttonWidth,         // width
+      buttonHeight,        // height
+      10,                  // radius
+      TFT_ORANGE,         // color
+      TFT_WHITE,          // text color
+      "Back",             // label
+      SCREEN_FONTS,       // screen
+      goToMainCallback    // action
   );
   
   // Temperature controls in settings screen
@@ -357,10 +369,6 @@ void IntegratedFontReflowGUI::setupButtons() {
   // Light Mode Toggle Button
   uiManager.createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10, 
                        TFT_ORANGE, TFT_WHITE, "Light Mode", SCREEN_SETTINGS, toggleLightModeCallback);
-
-  // Add button for "Swap Graph" on Main Screen
-  uiManager.createButton("swap_graph_btn", (SCREEN_WIDTH - 160) / 2, SCREEN_HEIGHT - 55, 160, 40, 10, 
-                       TFT_ORANGE, TFT_WHITE, "Swap Graph", SCREEN_MAIN, toggleGraphSizeCallback);
 }
 
 // Setup font screen buttons and elements
@@ -377,8 +385,8 @@ void IntegratedFontReflowGUI::setupFontScreenButtons() {
     (SCREEN_WIDTH - 160) / 2, // x - centered
     SCREEN_HEIGHT - buttonHeight - 10, // y - positioned from bottom with margin
     160,                      // width
-    buttonHeight,             // height
-    10,                       // radius
+    buttonHeight,             // height - dynamically sized
+    10,                       // radius - rounded corners
     TFT_ORANGE,               // color
     TFT_WHITE,                // text color
     "Back",                   // label
@@ -449,3 +457,78 @@ void IntegratedFontReflowGUI::setupFontScreenButtons() {
     &lgfx::fonts::Font2       // font (small font for counter)
   );
 }
+
+// Setup temperature display elements in settings screen
+void IntegratedFontReflowGUI::setupTemperatureElements() {
+    // Create temperature labels and values
+    uiManager.createTextElement(
+        "soak_temp_label",
+        10, 50,
+        TFT_WHITE,
+        "Soak Temperature:",
+        SCREEN_SETTINGS,
+        &lgfx::fonts::FreeSans9pt7b
+    );
+
+    uiManager.createTextElement(
+        "soak_temp_value",
+        10, 75,
+        TFT_YELLOW,
+        String(soakTemp) + " C",
+        SCREEN_SETTINGS,
+        &lgfx::fonts::FreeSans12pt7b
+    );
+
+    uiManager.createTextElement(
+        "reflow_temp_label",
+        10, 140,
+        TFT_WHITE,
+        "Reflow Temperature:",
+        SCREEN_SETTINGS,
+        &lgfx::fonts::FreeSans9pt7b
+    );
+
+    uiManager.createTextElement(
+        "reflow_temp_value",
+        10, 165,
+        TFT_YELLOW,
+        String(reflowTemp) + " C",
+        SCREEN_SETTINGS,
+        &lgfx::fonts::FreeSans12pt7b
+    );
+}
+
+// Increase or decrease soak temperature
+void IntegratedFontReflowGUI::increaseSoakTemp(bool coarse) {
+    soakTemp += (coarse ? 10 : 1);
+    if (TextElement* element = uiManager.getTextElement("soak_temp_value")) {
+        element->content = String(soakTemp) + " C";
+        uiManager.drawActiveScreen();
+    }
+}
+
+void IntegratedFontReflowGUI::decreaseSoakTemp(bool coarse) {
+    soakTemp -= (coarse ? 10 : 1);
+    if (TextElement* element = uiManager.getTextElement("soak_temp_value")) {
+        element->content = String(soakTemp) + " C";
+        uiManager.drawActiveScreen();
+    }
+}
+
+// Increase or decrease reflow temperature
+void IntegratedFontReflowGUI::increaseReflowTemp(bool coarse) {
+    reflowTemp += (coarse ? 10 : 1);
+    if (TextElement* element = uiManager.getTextElement("reflow_temp_value")) {
+        element->content = String(reflowTemp) + " C";
+        uiManager.drawActiveScreen();
+    }
+}
+
+void IntegratedFontReflowGUI::decreaseReflowTemp(bool coarse) {
+    reflowTemp -= (coarse ? 10 : 1);
+    if (TextElement* element = uiManager.getTextElement("reflow_temp_value")) {
+        element->content = String(reflowTemp) + " C";
+        uiManager.drawActiveScreen();
+    }
+}
+

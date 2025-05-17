@@ -6,7 +6,6 @@
 #include "Button.hpp"
 #include "UIManager.hpp"
 #include "GraphManager.hpp"
-#include "TemperatureManager.hpp"
 
 // Screen definitions
 #define SCREEN_MAIN 0
@@ -47,14 +46,20 @@ public:
     
     // Getters for component managers
     UIManager* getUIManager() { return &uiManager; }
-    TemperatureManager* getTempManager() { return &tempManager; }
+    
+    void setupTemperatureElements();
+    void updateTemperatureDisplay();
+    
+    void increaseSoakTemp(bool coarse = false);
+    void decreaseSoakTemp(bool coarse = false);
+    void increaseReflowTemp(bool coarse = false);
+    void decreaseReflowTemp(bool coarse = false);
     
 private:
     // Display and UI components
     static LGFX display;
     UIManager uiManager;
     GraphManager graphManager;
-    TemperatureManager tempManager;
     
     // Touch handling
     unsigned long lastTouchTime;
@@ -79,5 +84,9 @@ private:
     // Helper functions for UI
     void updateButtonVisibility();
     void redrawCurrentScreen();
+    
+    // Temperature settings
+    int soakTemp = 150;
+    int reflowTemp = 230;
 };
 

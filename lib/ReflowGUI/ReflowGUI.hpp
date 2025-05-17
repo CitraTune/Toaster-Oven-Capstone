@@ -4,7 +4,7 @@
 #include <bb_captouch.h>
 #include "UIManager.hpp"
 #include "GraphManager.hpp"
-#include "TemperatureManager.hpp"
+
 
 class ReflowGUI {
 public:
@@ -24,10 +24,21 @@ public:
   void toggleInvertAccent();
   void toggleGraphSize();
   
+  // Temperature methods
+  void increaseSoakTemp(bool coarse);
+  void decreaseSoakTemp(bool coarse);
+  void increaseReflowTemp(bool coarse);
+  void decreaseReflowTemp(bool coarse);
+  void setupTemperatureElements();
+  
   // Getters for components
   UIManager* getUIManager() { return &uiManager; }
   GraphManager* getGraphManager() { return &graphManager; }
-  TemperatureManager* getTemperatureManager() { return &TemperatureManager; }
+
+private:
+  int soakTemp;
+  int reflowTemp;
+
   
 private:
   // Components
@@ -35,7 +46,7 @@ private:
   BBCapTouch touch;
   UIManager uiManager;
   GraphManager graphManager;
-  TemperatureManager TemperatureManager;
+
   
   // Debounce variables
   unsigned long lastTouchTime;

@@ -26,7 +26,7 @@ public:
          int screen, void (*action)());
   
   // Method to draw the button on the TFT
-  void draw(LGFX& tft);
+  void draw(LGFX& tft, uint16_t outlineColor);
   
   // Method to check if a point is inside the button
   bool contains(int touchX, int touchY);

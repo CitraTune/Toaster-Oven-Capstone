@@ -13,6 +13,7 @@ Button::Button() {
   screen = 0;
   active = false;
   action = NULL;
+
 }
 
 // Constructor with parameters
@@ -30,10 +31,11 @@ Button::Button(int x, int y, int width, int height, int radius,
   this->screen = screen;
   this->active = (screen == 0); // Default to active on main screen
   this->action = action;
+  
 }
 
 // Draw the button on the TFT
-void Button::draw(LGFX& tft) {
+void Button::draw(LGFX& tft, uint16_t outlineColor) {
   // Calculate text dimensions for this particular button text
   tft.setFont(&lgfx::fonts::FreeSans9pt7b);
   int textWidth = tft.textWidth(label);
@@ -43,7 +45,6 @@ void Button::draw(LGFX& tft) {
   tft.fillRoundRect(x, y, width, height, radius, color);
   
   // Draw thicker outline
-  uint16_t outlineColor = TFT_DARKGRAY; // You might want to make this configurable
   tft.drawRoundRect(x, y, width, height, radius, outlineColor);
   tft.drawRoundRect(x - 1, y - 1, width + 2, height + 2, radius + 1, outlineColor);
   

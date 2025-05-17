@@ -33,65 +33,43 @@ void toggleGraphSizeCallback() {
 
 // Temperature callbacks
 void increaseSoakTempCoarseCallback() {
-  if (g_controller) {
-    g_controller->getTemperatureManager()->increaseSoakTempCoarse();
-    g_controller->getUIManager()->drawActiveScreen();
-  }
+  if (g_controller) g_controller->increaseSoakTemp(true);
 }
 
 void decreaseSoakTempCoarseCallback() {
-  if (g_controller) {
-    g_controller->getTemperatureManager()->decreaseSoakTempCoarse();
-    g_controller->getUIManager()->drawActiveScreen();
-  }
+  if (g_controller) g_controller->decreaseSoakTemp(true);
 }
 
 void increaseSoakTempFineCallback() {
-  if (g_controller) {
-    g_controller->getTemperatureManager()->increaseSoakTempFine();
-    g_controller->getUIManager()->drawActiveScreen();
-  }
+  if (g_controller) g_controller->increaseSoakTemp(false);
 }
 
 void decreaseSoakTempFineCallback() {
-  if (g_controller) {
-    g_controller->getTemperatureManager()->decreaseSoakTempFine();
-    g_controller->getUIManager()->drawActiveScreen();
-  }
+  if (g_controller) g_controller->decreaseSoakTemp(false);
 }
 
 void increaseReflowTempCoarseCallback() {
-  if (g_controller) {
-    g_controller->getTemperatureManager()->increaseReflowTempCoarse();
-    g_controller->getTemperatureManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
-  }
+  if (g_controller) g_controller->increaseReflowTemp(true);
 }
 
 void decreaseReflowTempCoarseCallback() {
-  if (g_controller) {
-    g_controller->getTemperatureManager()->decreaseReflowTempCoarse();
-    g_controller->getTemperatureManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
-  }
+  if (g_controller) g_controller->decreaseReflowTemp(true);
 }
 
 void increaseReflowTempFineCallback() {
-  if (g_controller) {
-    g_controller->getTemperatureManager()->increaseReflowTempFine();
-    g_controller->getTemperatureManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
-  }
+  if (g_controller) g_controller->increaseReflowTemp(false);
 }
 
 void decreaseReflowTempFineCallback() {
-  if (g_controller) {
-    g_controller->getTemperatureManager()->decreaseReflowTempFine();
-    g_controller->getTemperatureManager()->updateReflowTempDisplay(g_controller->getUIManager()->lightMode);
-  }
+  if (g_controller) g_controller->decreaseReflowTemp(false);
 }
 
 // Constructor
 ReflowGUI::ReflowGUI() 
-  : uiManager(display), graphManager(display), TemperatureManager(display) {
+  : uiManager(display), graphManager(display) {
   lastTouchTime = 0;
+  soakTemp = 150;
+  reflowTemp = 230;
   
   // Set the global reference
   g_controller = this;
@@ -116,6 +94,9 @@ void ReflowGUI::setup() {
   
   // Set up buttons
   setupButtons();
+  
+  // Set up temperature display elements
+  setupTemperatureElements();
   
   // Start with the main screen
   uiManager.navigateToScreen(SCREEN_MAIN);
@@ -147,55 +128,63 @@ void ReflowGUI::loop() {
 
 // Action methods
 void ReflowGUI::goToSettings() {
-  uiManager.navigateToScreen(SCREEN_SETTINGS);
-  TemperatureManager.displayTemperatures(uiManager.lightMode);
+    uiManager.navigateToScreen(SCREEN_SETTINGS);
 }
 
 void ReflowGUI::goToMain() {
-  uiManager.navigateToScreen(SCREEN_MAIN);
-  graphManager.draw(uiManager.lightMode);
+    uiManager.navigateToScreen(SCREEN_MAIN);
+    graphManager.draw(uiManager.getLightMode());
 }
 
 void ReflowGUI::toggleLightMode() {
-  uiManager.lightMode = !uiManager.lightMode;
-  // Find the light mode button and update its label
-  Button* lightModeButton = uiManager.getButton("light_mode_btn");
-  if (lightModeButton) {
-    lightModeButton->label = !uiManager.lightMode ? "Light Mode" : "Dark Mode";
-  }
-  uiManager.drawActiveScreen();
-  
-  // Redraw the graph if on main screen
-  if (uiManager.currentScreen == SCREEN_MAIN) {
-    graphManager.draw(uiManager.lightMode);
-  }
-  
-  // Update temperature display if on settings screen
-  if (uiManager.currentScreen == SCREEN_SETTINGS) {
-    TemperatureManager.displayTemperatures(uiManager.lightMode);
-  }
+    uiManager.toggleLightMode();
+    if (graphManager.isVisibleOnScreen(SCREEN_MAIN)) {
+        graphManager.draw(uiManager.getLightMode());
+    }
 }
 
 void ReflowGUI::toggleInvertAccent() {
-  uiManager.invertAccent = !uiManager.invertAccent;
-  uiManager.updateButtonColors();
-  uiManager.drawActiveScreen();
-  
-  // Redraw the graph if on main screen
-  if (uiManager.currentScreen == SCREEN_MAIN) {
-    graphManager.draw(uiManager.lightMode);
-  }
-  
-  // Update temperature display if on settings screen
-  if (uiManager.currentScreen == SCREEN_SETTINGS) {
-    TemperatureManager.displayTemperatures(uiManager.lightMode);
-  }
+    uiManager.toggleInvertAccent();
+    if (graphManager.isVisibleOnScreen(SCREEN_MAIN)) {
+        graphManager.draw(uiManager.getLightMode());
+    }
 }
 
 void ReflowGUI::toggleGraphSize() {
-  graphManager.toggleFullScreen();
-  uiManager.drawActiveScreen();
-  graphManager.draw(uiManager.lightMode);
+    graphManager.draw(uiManager.getLightMode());
+}
+
+// Temperature control methods
+void ReflowGUI::increaseSoakTemp(bool coarse) {
+    soakTemp += (coarse ? 10 : 1);
+    if (TextElement* element = uiManager.getTextElement("soak_temp_value")) {
+        element->content = String(soakTemp) + " C";
+        uiManager.drawActiveScreen();
+    }
+}
+
+void ReflowGUI::decreaseSoakTemp(bool coarse) {
+    soakTemp -= (coarse ? 10 : 1);
+    if (TextElement* element = uiManager.getTextElement("soak_temp_value")) {
+        element->content = String(soakTemp) + " C";
+        uiManager.drawActiveScreen();
+    }
+}
+
+void ReflowGUI::increaseReflowTemp(bool coarse) {
+    reflowTemp += (coarse ? 10 : 1);
+    if (TextElement* element = uiManager.getTextElement("reflow_temp_value")) {
+        element->content = String(reflowTemp) + " C";
+        uiManager.drawActiveScreen();
+    }
+}
+
+void ReflowGUI::decreaseReflowTemp(bool coarse) {
+    reflowTemp -= (coarse ? 10 : 1);
+    if (TextElement* element = uiManager.getTextElement("reflow_temp_value")) {
+        element->content = String(reflowTemp) + " C";
+        uiManager.drawActiveScreen();
+    }
 }
 
 // Setup interface buttons
@@ -275,4 +264,44 @@ void ReflowGUI::setupButtons() {
 
   uiManager.createButton("font_test_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10, 
                        TFT_ORANGE, TFT_WHITE, "Font Test", SCREEN_MAIN, NULL);
+}
+
+// Setup temperature display elements
+void ReflowGUI::setupTemperatureElements() {
+    // Create temperature labels and values
+    uiManager.createTextElement(
+        "soak_temp_label",
+        10, 50,
+        TFT_WHITE,
+        "Soak Temperature:",
+        SCREEN_SETTINGS,
+        &lgfx::fonts::FreeSans9pt7b
+    );
+
+    uiManager.createTextElement(
+        "soak_temp_value",
+        10, 75,
+        TFT_YELLOW,
+        String(soakTemp) + " C",
+        SCREEN_SETTINGS,
+        &lgfx::fonts::FreeSans12pt7b
+    );
+
+    uiManager.createTextElement(
+        "reflow_temp_label",
+        10, 140,
+        TFT_WHITE,
+        "Reflow Temperature:",
+        SCREEN_SETTINGS,
+        &lgfx::fonts::FreeSans9pt7b
+    );
+
+    uiManager.createTextElement(
+        "reflow_temp_value",
+        10, 165,
+        TFT_YELLOW,
+        String(reflowTemp) + " C",
+        SCREEN_SETTINGS,
+        &lgfx::fonts::FreeSans12pt7b
+    );
 }

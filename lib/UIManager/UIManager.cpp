@@ -59,7 +59,7 @@ void UIManager::drawButtons() {
   for (auto& pair : buttons) {
     Button& button = pair.second;
     if (button.active) {
-      button.draw(_tft);
+      button.draw(_tft, outlineColor); // Pass the current accent/neutral color
     }
   }
 }
@@ -130,8 +130,7 @@ void UIManager::drawActiveScreen() {
 
 // Update button colors based on theme
 void UIManager::updateButtonColors() {
-  outlineColor = invertAccent ? TFT_ORANGE : TFT_DARKGRAY;
-  
+  outlineColor = invertAccent ? TFT_RED : TFT_DARKGRAY;
   for (auto& pair : buttons) {
     Button& button = pair.second;
     button.color = invertAccent ? TFT_LIGHTGRAY : TFT_ORANGE;

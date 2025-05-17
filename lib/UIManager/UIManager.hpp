@@ -16,22 +16,22 @@
 #define SCREEN_HEIGHT 320
 
 class UIManager {
+private:
+    LGFX& _tft;
+    std::unordered_map<std::string, Button> buttons;
+    std::unordered_map<std::string, TextElement> textElements;
+    int currentScreen;
+    bool lightMode;
+    bool invertAccent;
+    uint16_t outlineColor;
+    
+    // Add temperature variables
+    int soakTemp = 150;
+    int reflowTemp = 230;
+
 public:
   // Constructor
   UIManager(LGFX& tft);
-  
-  // Button management using unordered_map
-  std::unordered_map<std::string, Button> buttons;
-
-  // Text element management using unordered_map
-  std::unordered_map<std::string, TextElement> textElements;
-  // Screen management
-  int currentScreen;
-  
-  // Theme settings
-  bool lightMode;
-  bool invertAccent;
-  uint16_t outlineColor;
   
   // setup the UI
   void setup();
@@ -71,6 +71,52 @@ public:
   // Get text element by key (returns nullptr if not found)
   TextElement* getTextElement(const std::string& key);
 
-private:
-  LGFX& _tft;
+  // Add temperature methods
+  void increaseSoakTemp(bool coarse = false) {
+      soakTemp += (coarse ? 10 : 1);
+      updateTemperatureDisplay("soakTemp");
+  }
+  
+  void decreaseSoakTemp(bool coarse = false) {
+      soakTemp -= (coarse ? 10 : 1);
+      updateTemperatureDisplay("soakTemp");
+  }
+  
+  void increaseReflowTemp(bool coarse = false) {
+      reflowTemp += (coarse ? 10 : 1);
+      updateTemperatureDisplay("reflowTemp");
+  }
+  
+  void decreaseReflowTemp(bool coarse = false) {
+      reflowTemp -= (coarse ? 10 : 1);
+      updateTemperatureDisplay("reflowTemp");
+  }
+
+  void updateTemperatureDisplay(const std::string& tempType) {
+      TextElement* element = getTextElement(tempType);
+      if (element) {
+          element->content = String(tempType == "soakTemp" ? soakTemp : reflowTemp) + " C";
+          drawActiveScreen();
+      }
+  }
+  
+  public:
+    void toggleLightMode() {
+        lightMode = !lightMode;
+        drawActiveScreen();
+    }
+    
+    void toggleInvertAccent() {
+        invertAccent = !invertAccent;
+        updateButtonColors();
+        drawActiveScreen();
+    }
+    
+    int getScreen() {
+        return currentScreen;
+    }
+    
+    bool getLightMode() const {
+        return lightMode;
+    }
 };
