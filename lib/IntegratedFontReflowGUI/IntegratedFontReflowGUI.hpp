@@ -93,5 +93,7 @@ private:
     // Temperature settings
     int soakTemp = 150;
     int reflowTemp = 230;
-};
 
+    // Button setup methods
+    int buttonHeight = BUTTON_HEIGHT; // Add this to match the constant in ButtonSetup.hpp
+};
