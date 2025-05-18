@@ -28,8 +28,8 @@ class IntegratedFontReflowGUI {
 public:
     
     // Setup and main loop
-    static void setup();
-    static void loop();
+    void setup();
+    void loop();
 
     // Make these public so main can access them
     static LGFX display;
@@ -66,9 +66,9 @@ public:
     static void updateFontDisplay();
     static void updateButtonVisibility();
     static void redrawCurrentScreen();
-    static BBCapTouch touch;
+    
     
 private:
-    
+    BBCapTouch touch;
  
 };

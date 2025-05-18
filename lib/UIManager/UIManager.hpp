@@ -1,10 +1,9 @@
 #pragma once
-
+#include "Button.hpp"
 #include <Arduino.h>
 #include <unordered_map>
 #include <string>
 #include "LGFX_Config.h"
-#include "Button.hpp"
 #include "TextElement.hpp"
 
 // Screen constants
@@ -34,10 +33,8 @@ public:
 
     static int soakTemp;
     static int reflowTemp;
-    // Initialize the UI system
-    static void initialize(LGFX& tft);
   // setup the UI
-    static void setup();
+    static void setup(LGFX& tft);
     static LGFX& display(); // Getter for access
     static void loop();
   

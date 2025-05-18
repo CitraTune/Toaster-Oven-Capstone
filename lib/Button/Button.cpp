@@ -2,13 +2,7 @@
 #include "UIManager.hpp"
 #include "TextElement.hpp" // Include for access to font mapping functions
 
-// Initialize static members
-UIManager* Button::uiManager = nullptr;
 
-// Set the UI manager reference
-void Button::setUIManager(UIManager* manager) {
-    uiManager = manager;
-}
 
 // Default constructor
 Button::Button() {
@@ -67,14 +61,13 @@ const lgfx::IFont* Button::get9ptFont(const lgfx::IFont* font) {
 
 // Draw the button on the TFT
 void Button::draw(LGFX& tft) const {
-  if (!uiManager) return;  // Safety check
   
   // Get current state from UIManager
-  bool isLightMode = uiManager->getLightMode();
-  bool isInvertedAccent = uiManager->getInvertAccent();
+  bool isLightMode = UIManager::getLightMode();
+  bool isInvertedAccent = UIManager::getInvertAccent();
   
   // Use current system font family but always 9pt size
-  const lgfx::IFont* currentFont = uiManager->getCurrentFont();
+  const lgfx::IFont* currentFont = UIManager::getCurrentFont();
   const lgfx::IFont* font9pt = get9ptFont(currentFont);
   
   // Set button font for text measurements

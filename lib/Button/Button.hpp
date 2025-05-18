@@ -3,8 +3,6 @@
 #include <Arduino.h>
 #include "LGFX_Config.h"
 
-// Forward declaration to avoid circular dependency
-class UIManager;
 
 class Button {
 public:
@@ -19,9 +17,6 @@ public:
   // Check if a point is inside the button
   bool contains(int touchX, int touchY);
   
-  // Set the UI manager reference
-  static void setUIManager(UIManager* manager);
-  
   // Public members - could be made private with getters/setters
   int x, y, width, height, radius, screen;
   String label;
@@ -30,7 +25,6 @@ public:
   
 private:
   // Static reference to the UI manager
-  static UIManager* uiManager;
   
   // Store the current font family but always use 9pt size
   const lgfx::IFont* buttonFont;

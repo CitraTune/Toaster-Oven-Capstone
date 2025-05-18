@@ -1,6 +1,7 @@
 #include "IntegratedFontReflowGUI.hpp"
 #include "ButtonSetup.hpp"
 #include "TextSetup.hpp"
+#include "UIManager.hpp"
 
 // Define constants
 #define SCREEN_WIDTH 240
@@ -12,7 +13,7 @@
 
 // Initialize LGFX display
 LGFX IntegratedFontReflowGUI::display;
-BBCapTouch IntegratedFontReflowGUI::touch;
+
 
 
 // Define the static font array and font names
@@ -77,18 +78,20 @@ void IntegratedFontReflowGUI::setup()
   display.setColorDepth(24);
 
   // Initialize touch
-  Serial.println("Initializing touch...");
+  
   touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
-
+  Serial.println("Initialized touch...");
 
   // Setup UI manager
-  UIManager::setup();
-
+  UIManager::setup(display);
+  Serial.println("Setup UI manager...");
   ButtonSetup::setupAllButtons();
+  Serial.println("Setup buttons...");
   TextSetup::setupTemperatureElements();
-
+  Serial.println("Setup temperature elements...");
   UIManager::navigateToScreen(SCREEN_MAIN);
-  Serial.println("Setup complete!");
+  Serial.println("Navigated to main screen...");
+  Serial.println("Setup complete.");
 }
 
 // Main loop

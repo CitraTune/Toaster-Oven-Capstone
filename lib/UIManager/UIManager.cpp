@@ -19,24 +19,21 @@ LGFX& UIManager::display() {
     return _display;
 }
 
-// Initialize the UI system
-void UIManager::initialize(LGFX& tft) {
+
+
+// setup the UI
+void UIManager::setup(LGFX& tft) {
+    Serial.println("UISetup1");
+    currentFont = &lgfx::fonts::FreeSans9pt7b;
+    Serial.println("UISetup2");
+    //crashed here
     _tft = &tft;
     currentScreen = SCREEN_MAIN;
     lightMode = false;
     invertAccent = false;
     outlineColor = TFT_DARKGRAY;
-    Button::setUIManager(nullptr); // We'll need to adjust Button class to use static methods
-}
-
-// setup the UI
-void UIManager::setup() {
-    currentFont = &lgfx::fonts::FreeSans9pt7b;
     _tft->setFont(currentFont);
-}
-
-void UIManager::loop() {
-    // Implementation here
+    Serial.println("UISetup3");
 }
 
 // Create a new button with a key

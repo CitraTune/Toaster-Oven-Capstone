@@ -1,14 +1,15 @@
 #include "IntegratedFontReflowGUI.hpp"
 
-
+// Create the main controller instance
+IntegratedFontReflowGUI controller;
 
 void setup() {
   // setup the controller
   
-  IntegratedFontReflowGUI::setup();
+  controller.setup();
 }
 
 void loop() {
   // Run the controller's main loop
-  IntegratedFontReflowGUI::loop();
+  controller.loop();
 }

@@ -82,7 +82,7 @@ void FontSelectorGUI::setup()
     touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
 
     // Setup UI manager with initial font
-    uiManager.setup();
+    uiManager.setup(display);
     uiManager.setFont(fonts[currentFontIndex]);
 
     // Start with the main screen
