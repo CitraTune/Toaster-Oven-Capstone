@@ -12,6 +12,8 @@
 
 // Initialize LGFX display
 LGFX IntegratedFontReflowGUI::display;
+BBCapTouch IntegratedFontReflowGUI::touch;
+
 
 // Define the static font array and font names
 const GFXfont *IntegratedFontReflowGUI::fonts[] = {
@@ -77,19 +79,13 @@ void IntegratedFontReflowGUI::setup()
   // Initialize touch
   Serial.println("Initializing touch...");
   touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
-  if (display.touch()){
-    Serial.println("Touch initialized successfully");
-  }
-  else{
-    Serial.println("ERROR: Touch initialization failed!");
-  }
+
 
   // Setup UI manager
   UIManager::setup();
 
-  // Set up text elements and buttons for all screens
-  setupTextElements();
-  setupButtons();
+  ButtonSetup::setupAllButtons();
+  TextSetup::setupTemperatureElements();
 
   UIManager::navigateToScreen(SCREEN_MAIN);
   Serial.println("Setup complete!");
@@ -98,20 +94,16 @@ void IntegratedFontReflowGUI::setup()
 // Main loop
 void IntegratedFontReflowGUI::loop()
 {
-  auto &delay = IntegratedFontReflowGUI::debounceDelay;
-  auto &last = IntegratedFontReflowGUI::lastTouchTime;
 
-  if (currentTime - last > delay)
+  // Check for touch input
+  TOUCHINFO ti;
+  // Get touch samples
+  if (IntegratedFontReflowGUI::touch.getSamples(&ti))
   {
-
-    // Check for touch input
-    TOUCHINFO ti;
-    // Get touch samples
-    if (touch.getSamples(&ti))
+    unsigned long currentTime = millis();
+    if (currentTime - IntegratedFontReflowGUI::lastTouchTime > IntegratedFontReflowGUI::debounceDelay)
     {
-      unsigned long currentTime = millis();
-      if (currentTime - last > delay)
-        lastTouchTime = currentTime;
+      lastTouchTime = currentTime;
 
       int x = ti.x[0];
       int y = ti.y[0];
@@ -218,44 +210,3 @@ void IntegratedFontReflowGUI::redrawCurrentScreen()
   }
 }
 
-// Temperature control functions
-void IntegratedFontReflowGUI::increaseSoakTemp(bool coarse)
-{
-  soakTemp += (coarse ? 10 : 1);
-  if (TextElement *element = UIManager::getTextElement("soak_temp_value"))
-  {
-    element->content = String(soakTemp) + " C";
-    UIManager::drawActiveScreen();
-  }
-}
-
-void IntegratedFontReflowGUI::decreaseSoakTemp(bool coarse)
-{
-  soakTemp -= (coarse ? 10 : 1);
-  if (TextElement *element = UIManager::getTextElement("soak_temp_value"))
-  {
-    element->content = String(soakTemp) + " C";
-    UIManager::drawActiveScreen();
-  }
-}
-
-// Increase or decrease reflow temperature
-void IntegratedFontReflowGUI::increaseReflowTemp(bool coarse)
-{
-  reflowTemp += (coarse ? 10 : 1);
-  if (TextElement *element = UIManager::getTextElement("reflow_temp_value"))
-  {
-    element->content = String(reflowTemp) + " C";
-    UIManager::drawActiveScreen();
-  }
-}
-
-void IntegratedFontReflowGUI::decreaseReflowTemp(bool coarse)
-{
-  reflowTemp -= (coarse ? 10 : 1);
-  if (TextElement *element = UIManager::getTextElement("reflow_temp_value"))
-  {
-    element->content = String(reflowTemp) + " C";
-    UIManager::drawActiveScreen();
-  }
-}

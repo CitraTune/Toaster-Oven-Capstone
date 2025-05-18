@@ -66,17 +66,9 @@ public:
     static void updateFontDisplay();
     static void updateButtonVisibility();
     static void redrawCurrentScreen();
-
-
+    static BBCapTouch touch;
+    
 private:
-    // Display and UI components
-    BBCapTouch touch;
     
-
-
-    // Sample text for font display
-    static const char* sampleText;
-    
-    // Helper functions for UI
  
 };
