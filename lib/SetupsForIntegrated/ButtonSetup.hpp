@@ -36,29 +36,30 @@ public:
   }
 }
 
-void goToFonts() {
+static void goToFonts() {
   UIManager::navigateToScreen(SCREEN_FONTS);
   IntegratedFontReflowGUI::updateFontDisplay();
 }
 
-// Theme toggle functions
-void toggleLightMode() {
-  UIManager::toggleLightMode();
-  IntegratedFontReflowGUI::redrawCurrentScreen();
+static void goToMain() {
+  UIManager::navigateToScreen(SCREEN_MAIN);
+  IntegratedFontReflowGUI::updateFontDisplay();
 }
 
-void toggleInvertAccent() {
-  UIManager::toggleInvertAccent();
-  IntegratedFontReflowGUI::redrawCurrentScreen();
+static void goToSettings() {
+  UIManager::navigateToScreen(SCREEN_SETTINGS);
+  IntegratedFontReflowGUI::updateFontDisplay();
 }
+
+
 
 // Font navigation functions
-void nextFont() {
+static void nextFont() {
   IntegratedFontReflowGUI::currentFontIndex = (IntegratedFontReflowGUI::currentFontIndex + 1) % IntegratedFontReflowGUI::fontCount;
   IntegratedFontReflowGUI::updateFontDisplay();
 }
 
-void prevFont() {
+static void prevFont() {
   IntegratedFontReflowGUI::currentFontIndex = (IntegratedFontReflowGUI::currentFontIndex - 1 + IntegratedFontReflowGUI::fontCount) % IntegratedFontReflowGUI::fontCount;
   IntegratedFontReflowGUI::updateFontDisplay();
 }
@@ -81,7 +82,7 @@ private:
             10,
             "Font Test",
             SCREEN_MAIN,
-            IntegratedFontReflowGUI::goToFonts
+            goToFonts
         );
 
         // Settings button on the right
@@ -94,7 +95,7 @@ private:
             10,
             "Settings",
             SCREEN_MAIN,
-            UIManager::goToSettings()
+            goToSettings
         );
     }
 
@@ -114,7 +115,7 @@ private:
             10,
             "Back",
             SCREEN_SETTINGS,
-            UIManager::goToMain
+            goToMain
         );
 
         int tempBoxX = 130;
@@ -122,18 +123,18 @@ private:
 
         // Soak Temp Controls
         UIManager::createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
-                                SCREEN_SETTINGS, UIManager::increaseSoakTempCoarse);
+                                SCREEN_SETTINGS, increaseSoakTempCoarse);
         UIManager::createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
-                                SCREEN_SETTINGS, UIManager::decreaseSoakTempCoarse);
+                                SCREEN_SETTINGS, decreaseSoakTempCoarse);
         UIManager::createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
-                                SCREEN_SETTINGS, UIManager::increaseSoakTempFine);
+                                SCREEN_SETTINGS, increaseSoakTempFine);
         UIManager::createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
-                                SCREEN_SETTINGS, UIManager::decreaseSoakTempFine);
+                                SCREEN_SETTINGS, decreaseSoakTempFine);
 
         // Reflow Temp Controls
         tempBoxY += 100;
         UIManager::createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
-                                SCREEN_SETTINGS, UIManager::increaseReflowTempCoarse);
+                                SCREEN_SETTINGS, increaseReflowTempCoarse);
         UIManager::createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
                                 SCREEN_SETTINGS, UIManager::decreaseReflowTempCoarse);
         UIManager::createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
@@ -166,7 +167,7 @@ private:
             10,
             "Back",
             SCREEN_FONTS,
-            UIManager::goToMain
+            goToMain
         );
 
         // Font navigation buttons (left/right)
@@ -179,7 +180,7 @@ private:
             10,
             "<",
             SCREEN_FONTS,
-            UIManager::prevFont
+            prevFont
         );
 
         UIManager::createButton(
@@ -191,7 +192,7 @@ private:
             10,
             ">",
             SCREEN_FONTS,
-            UIManager::nextFont();
+            nextFont
         );
     }
 };

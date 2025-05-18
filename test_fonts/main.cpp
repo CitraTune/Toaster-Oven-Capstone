@@ -1,34 +1,26 @@
-#include <LovyanGFX.hpp>
-#include "UIManager.hpp"
-#include "Button.hpp"
-#include "FontSelectorGUI.hpp"
-#include "ReflowGUI.hpp"
+// #include <LovyanGFX.hpp>
+// #include "UIManager.hpp"
+// #include "Button.hpp"
+// #include "FontSelectorGUI.hpp"
+// #include "ReflowGUI.hpp"
 
 
-LGFX display;
-//This display instance is for the LGFX library. 
-//It will be used for all classes that want to interact with the display.
-UIManager uiManager(display);
-// Create UIManager instance that handles the touchscreen interface,
-// manages multiple screens (main and settings),
-// also creates the buttons and handles the touch events and actions
-// also manages switching lightmode and dark mode
 
-// Create an instance of FontSelectorGUI with the required parameters
-FontSelectorGUI _FontSelectorGUI(display, uiManager);
+// // Create an instance of FontSelectorGUI with the required parameters
 
 
-void testAction() {
-    Serial.println("testAction called");
-}
 
-void setup(){
-  _FontSelectorGUI.setup();
+// void testAction() {
+//     Serial.println("testAction called");
+// }
 
-}
+// void setup(){
+//   FontSelectorGUI::setup();
 
-void loop() {
-  // Run the controller's main loop
-  _FontSelectorGUI.loop();
-}
+// }
+
+// void loop() {
+//   // Run the controller's main loop
+//   FontSelectorGUI::loop();
+// }
 

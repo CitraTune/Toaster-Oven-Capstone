@@ -20,9 +20,12 @@
 // Touch debounce time
 #define DEBOUNCE_DELAY 200
 
+// Button dimensions
+#define BUTTON_WIDTH 110
+#define BUTTON_HEIGHT 40
+
 class IntegratedFontReflowGUI {
 public:
-    IntegratedFontReflowGUI();
     
     // Setup and main loop
     static void setup();
@@ -35,18 +38,17 @@ public:
     // Touch input handling
     static void handleTouch(int x, int y);
     
-    // Screen navigation functions
-
-
-    
-    // Make uiManager public so TextSetup.hpp can access it
-    UIManager uiManager;
-    
     // Font management variables (moved to public)
-    static int currentFontIndex;
     static const GFXfont* fonts[];
     static const char* fontNames[];
     static const int fontCount;
+
+    static int lastTouchTime;
+    static int currentFontIndex;
+    static int soakTemp;
+    static int reflowTemp;
+    static int buttonHeight;
+    static int debounceDelay;
     
     // Text setup methods
     static void setupTextElements();
@@ -56,9 +58,6 @@ public:
     static void setupButtons();
     static void setupFontScreenButtons();
     
-    // Temperature settings (moved to public)
-    static int soakTemp;
-    static int reflowTemp;
     
     static void increaseSoakTemp(bool coarse = false);
     static void decreaseSoakTemp(bool coarse = false);
@@ -67,22 +66,17 @@ public:
     static void updateFontDisplay();
     static void updateButtonVisibility();
     static void redrawCurrentScreen();
-    
+
+
 private:
     // Display and UI components
-    GraphManager graphManager;
     BBCapTouch touch;
     
-    // Touch handling
-    unsigned long lastTouchTime;
-    const unsigned long debounceDelay = DEBOUNCE_DELAY;
+
 
     // Sample text for font display
     static const char* sampleText;
     
     // Helper functions for UI
-    
-
-    // Button setup methods
-    int buttonHeight = 40; // Add this to match the constant in ButtonSetup.hpp
+ 
 };
