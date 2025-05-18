@@ -25,75 +25,64 @@ public:
     IntegratedFontReflowGUI();
     
     // Setup and main loop
-    void setup();
-    void loop();
+    static void setup();
+    static void loop();
 
     // Make these public so main can access them
     static LGFX display;
     int touchX, touchY;
     
     // Touch input handling
-    void handleTouch(int x, int y);
+    static void handleTouch(int x, int y);
     
     // Screen navigation functions
-    void goToSettings();
-    void goToMain();
-    void goToFonts();
+
+
     
-    // Theme toggle functions
-    void toggleLightMode();
-    void toggleInvertAccent();
-    void toggleGraphSize();
+    // Make uiManager public so TextSetup.hpp can access it
+    UIManager uiManager;
     
-    // Font navigation functions
-    void nextFont();
-    void prevFont();
+    // Font management variables (moved to public)
+    static int currentFontIndex;
+    static const GFXfont* fonts[];
+    static const char* fontNames[];
+    static const int fontCount;
     
-    // Getters for component managers
-    UIManager* getUIManager() { return &uiManager; }
+    // Text setup methods
+    static void setupTextElements();
+    static void setupTemperatureElements();
+    static void updateTemperatureDisplay();
+    // Button setup methods
+    static void setupButtons();
+    static void setupFontScreenButtons();
     
-    void setupTemperatureElements();
-    void updateTemperatureDisplay();
+    // Temperature settings (moved to public)
+    static int soakTemp;
+    static int reflowTemp;
     
-    void increaseSoakTemp(bool coarse = false);
-    void decreaseSoakTemp(bool coarse = false);
-    void increaseReflowTemp(bool coarse = false);
-    void decreaseReflowTemp(bool coarse = false);
+    static void increaseSoakTemp(bool coarse = false);
+    static void decreaseSoakTemp(bool coarse = false);
+    static void increaseReflowTemp(bool coarse = false);
+    static void decreaseReflowTemp(bool coarse = false);
+    static void updateFontDisplay();
+    static void updateButtonVisibility();
+    static void redrawCurrentScreen();
     
 private:
     // Display and UI components
-    UIManager uiManager;
     GraphManager graphManager;
     BBCapTouch touch;
     
     // Touch handling
     unsigned long lastTouchTime;
     const unsigned long debounceDelay = DEBOUNCE_DELAY;
-    
-    // Button setup methods
-    void setupButtons();
-    void setupFontScreenButtons();
-    
-    // Font management
-    int currentFontIndex;
-    void updateFontDisplay();
-    
-    // Font definitions
-    static const GFXfont* fonts[];
-    static const char* fontNames[];
-    static const int fontCount;
-    
+
     // Sample text for font display
     static const char* sampleText;
     
     // Helper functions for UI
-    void updateButtonVisibility();
-    void redrawCurrentScreen();
     
-    // Temperature settings
-    int soakTemp = 150;
-    int reflowTemp = 230;
 
     // Button setup methods
-    int buttonHeight = BUTTON_HEIGHT; // Add this to match the constant in ButtonSetup.hpp
+    int buttonHeight = 40; // Add this to match the constant in ButtonSetup.hpp
 };

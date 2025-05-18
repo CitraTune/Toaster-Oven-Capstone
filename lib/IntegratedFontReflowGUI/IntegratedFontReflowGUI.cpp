@@ -1,5 +1,6 @@
 #include "IntegratedFontReflowGUI.hpp"
 #include "ButtonSetup.hpp"
+#include "TextSetup.hpp"
 
 // Define constants
 #define SCREEN_WIDTH 240
@@ -43,136 +44,20 @@ const char* IntegratedFontReflowGUI::fontNames[] = {
 // Initialize font count
 const int IntegratedFontReflowGUI::fontCount = sizeof(fonts) / sizeof(fonts[0]);
 
-// Global reference to the controller instance for callbacks
+// Function pointer type for class member functions
+typedef void (IntegratedFontReflowGUI::*MemberFunctionPtr)();
+typedef void (IntegratedFontReflowGUI::*MemberFunctionPtrBool)(bool);
+
+
+// Single callback handler for IntegratedFontReflowGUI member functions with bool parameter
+void callMemberFunctionBool(IntegratedFontReflowGUI* instance, MemberFunctionPtrBool func, bool param) {
+  if (instance) {
+    (instance->*func)(param);
+  }
+}
+
+// Global reference to the controller instance
 IntegratedFontReflowGUI* g_controller = nullptr;
-
-void goToSettingsCallback() {
-  Serial.println("Settings button pressed!");
-  if (g_controller) g_controller->goToSettings();
-}
-void goToMainCallback() {
-#include "ButtonSetup.hpp"
-#include "TextSetup.hpp"
-
-void IntegratedFontReflowGUI::setup() {
-  Serial.begin(115200);
-  Serial.println("Starting setup...");
-
-  // Setup the TFT display
-  display.begin();
-  display.setRotation(7);      // Adjust based on your display orientation
-  display.invertDisplay(true); // Optionally invert colors
-  display.setBrightness(128);
-  display.setColorDepth(24);
-
-  // Initialize touch
-  Serial.println("Initializing touch...");
-  touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
-  if (display.touch()) {
-    Serial.println("Touch initialized successfully");
-  } else {
-    Serial.println("ERROR: Touch initialization failed!");
-  }
-
-  // Setup UI manager
-  uiManager.setup();
-
-  // Set up text elements and buttons for all screens
-  setupTextElements();
-  setupButtons();
-
-  // Start with the main screen
-  uiManager.navigateToScreen(SCREEN_MAIN);
-  Serial.println("Setup complete!");
-}
-#include "ButtonSetup.hpp"
-#include "TextSetup.hpp"
-
-void IntegratedFontReflowGUI::setup() {
-  Serial.begin(115200);
-  Serial.println("Starting setup...");
-
-  // Setup the TFT display
-  display.begin();
-  display.setRotation(7);      // Adjust based on your display orientation
-  display.invertDisplay(true); // Optionally invert colors
-  display.setBrightness(128);
-  display.setColorDepth(24);
-
-  // Initialize touch
-  Serial.println("Initializing touch...");
-  touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
-  if (display.touch()) {
-    Serial.println("Touch initialized successfully");
-  } else {
-    Serial.println("ERROR: Touch initialization failed!");
-  }
-
-  // Setup UI manager
-  uiManager.setup();
-
-  // Set up text elements and buttons for all screens
-  setupTextElements();
-  setupButtons();
-
-  // Start with the main screen
-  uiManager.navigateToScreen(SCREEN_MAIN);
-  Serial.println("Setup complete!");
-}
-  if (g_controller) g_controller->goToMain();
-}
-void goToFontsCallback() {
-  Serial.println("Font Test button pressed!");
-  if (g_controller) g_controller->goToFonts();
-}
-
-void toggleLightModeCallback() {
-  if (g_controller) g_controller->toggleLightMode();
-}
-
-void toggleInvertAccentCallback() {
-  if (g_controller) g_controller->toggleInvertAccent();
-}
-
-void nextFontCallback() {
-  if (g_controller) g_controller->nextFont();
-}
-
-void prevFontCallback() {
-  if (g_controller) g_controller->prevFont();
-}
-
-void increaseSoakTempCoarseCallback() {
-  if (g_controller) g_controller->increaseSoakTemp(true);
-}
-
-void decreaseSoakTempCoarseCallback() {
-  if (g_controller) g_controller->decreaseSoakTemp(true);
-}
-
-void increaseSoakTempFineCallback() {
-  if (g_controller) g_controller->increaseSoakTemp(false);
-}
-
-void decreaseSoakTempFineCallback() {
-  if (g_controller) g_controller->decreaseSoakTemp(false);
-}
-
-void increaseReflowTempCoarseCallback() {
-  if (g_controller) g_controller->increaseReflowTemp(true);
-}
-
-void decreaseReflowTempCoarseCallback() {
-  if (g_controller) g_controller->decreaseReflowTemp(true);
-}
-
-void increaseReflowTempFineCallback() {
-  if (g_controller) g_controller->increaseReflowTemp(false);
-}
-
-void decreaseReflowTempFineCallback() {
-  if (g_controller) g_controller->decreaseReflowTemp(false);
-}
 
 // Constructor
 IntegratedFontReflowGUI::IntegratedFontReflowGUI() 
@@ -209,16 +94,13 @@ void IntegratedFontReflowGUI::setup() {
   }
   
   // Setup UI manager
-  uiManager.setup();
+  UIManager::setup();
   
-  // Set up main and settings screen buttons
-  // setupButtons(); // Moved to ButtonSetup.hpp
-  // Set up font screen buttons and elements
-  // setupFontScreenButtons(); // Moved to ButtonSetup.hpp
-  // Set up temperature labels
-  // setupTemperatureElements(); // Moved to ButtonSetup.hpp
-  // Start with the main screen
-  uiManager.navigateToScreen(SCREEN_MAIN);
+  // Set up text elements and buttons for all screens
+  setupTextElements();
+  setupButtons();
+
+  UIManager::navigateToScreen(SCREEN_MAIN);
   Serial.println("Setup complete!");
 }
 
@@ -226,52 +108,50 @@ void IntegratedFontReflowGUI::setup() {
 void IntegratedFontReflowGUI::loop() {
   // Check for touch input
   TOUCHINFO ti;
-    // Get touch samples
-    if (touch.getSamples(&ti))
-    {
-        unsigned long currentTime = millis();
-        if (currentTime - lastTouchTime > debounceDelay)
-        {
-            lastTouchTime = currentTime;
+  // Get touch samples
+  if (touch.getSamples(&ti)) {
+    unsigned long currentTime = millis();
+    if (currentTime - lastTouchTime > debounceDelay) {
+      lastTouchTime = currentTime;
 
-            int x = ti.x[0];
-            int y = ti.y[0];
+      int x = ti.x[0];
+      int y = ti.y[0];
 
-            // Debugging output
-            Serial.printf("Touch x=%d y=%d\n", x, y);
+      // Debugging output
+      Serial.printf("Touch x=%d y=%d\n", x, y);
 
-            // Check if any button was pressed
-            uiManager.checkButtonPress(x, y);
-        }
+      // Check if any button was pressed
+      UIManager::checkButtonPress(x, y);
     }
+  }
   delay(10);  // Reduced delay for smoother UI
 }
 
 // Action methods for screen navigation
 void IntegratedFontReflowGUI::goToSettings() {
-  uiManager.navigateToScreen(SCREEN_SETTINGS);
+  UIManager::navigateToScreen(SCREEN_SETTINGS);
 }
 
 void IntegratedFontReflowGUI::goToMain() {
-  uiManager.navigateToScreen(SCREEN_MAIN);
+  UIManager::navigateToScreen(SCREEN_MAIN);
   if (graphManager.isVisibleOnScreen(SCREEN_MAIN)) {
-      graphManager.draw();
+    graphManager.draw();
   }
 }
 
 void IntegratedFontReflowGUI::goToFonts() {
-  uiManager.navigateToScreen(SCREEN_FONTS);
+  UIManager::navigateToScreen(SCREEN_FONTS);
   updateFontDisplay();
 }
 
 // Theme toggle functions
 void IntegratedFontReflowGUI::toggleLightMode() {
-  uiManager.toggleLightMode();
+  UIManager::toggleLightMode();
   redrawCurrentScreen();
 }
 
 void IntegratedFontReflowGUI::toggleInvertAccent() {
-  uiManager.toggleInvertAccent();
+  UIManager::toggleInvertAccent();
   redrawCurrentScreen();
 }
 
@@ -298,19 +178,19 @@ void IntegratedFontReflowGUI::updateFontDisplay() {
   };
 
   // Update font name and counter content
-  TextElement* fontNameElement = uiManager.getTextElement("font_name");
+  TextElement* fontNameElement = UIManager::getTextElement("font_name");
   if (fontNameElement) {
     fontNameElement->content = fontNames[currentFontIndex];
   }
 
-  TextElement* counterElement = uiManager.getTextElement("font_counter");
+  TextElement* counterElement = UIManager::getTextElement("font_counter");
   if (counterElement) {
     String counterText = String(currentFontIndex + 1) + "/" + String(fontCount);
     counterElement->content = counterText;
   }
 
   // Update all text elements in all screens
-  for (auto& pair : uiManager.getTextElements()) {
+  for (auto& pair : UIManager::getTextElements()) {
     TextElement& element = const_cast<TextElement&>(pair.second);
     const std::string& key = pair.first;
 
@@ -352,54 +232,48 @@ void IntegratedFontReflowGUI::updateFontDisplay() {
   }
 
   // Redraw screen (this will redraw all buttons with the new font, since Button::draw uses display.setFont)
-  uiManager.drawActiveScreen();
+  UIManager::drawActiveScreen();
 }
 
 // Redraw current screen based on which screen is active
 void IntegratedFontReflowGUI::redrawCurrentScreen() {
-  uiManager.drawActiveScreen();
+  UIManager::drawActiveScreen();
   
-  if (graphManager.isVisibleOnScreen(uiManager.getScreen())) {
-      graphManager.draw();
+  if (graphManager.isVisibleOnScreen(UIManager::getScreen())) {
+    graphManager.draw();
   }
 }
 
-
+// Temperature control functions
 void IntegratedFontReflowGUI::increaseSoakTemp(bool coarse) {
-    soakTemp += (coarse ? 10 : 1);
-    if (TextElement* element = uiManager.getTextElement("soak_temp_value")) {
-        element->content = String(soakTemp) + " C";
-        uiManager.drawActiveScreen();
-    }
+  soakTemp += (coarse ? 10 : 1);
+  if (TextElement* element = UIManager::getTextElement("soak_temp_value")) {
+    element->content = String(soakTemp) + " C";
+    UIManager::drawActiveScreen();
+  }
 }
 
 void IntegratedFontReflowGUI::decreaseSoakTemp(bool coarse) {
-    soakTemp -= (coarse ? 10 : 1);
-    if (TextElement* element = uiManager.getTextElement("soak_temp_value")) {
-        element->content = String(soakTemp) + " C";
-        uiManager.drawActiveScreen();
-    }
+  soakTemp -= (coarse ? 10 : 1);
+  if (TextElement* element = UIManager::getTextElement("soak_temp_value")) {
+    element->content = String(soakTemp) + " C";
+    UIManager::drawActiveScreen();
+  }
 }
 
 // Increase or decrease reflow temperature
 void IntegratedFontReflowGUI::increaseReflowTemp(bool coarse) {
-    reflowTemp += (coarse ? 10 : 1);
-    if (TextElement* element = uiManager.getTextElement("reflow_temp_value")) {
-        element->content = String(reflowTemp) + " C";
-        uiManager.drawActiveScreen();
-    }
+  reflowTemp += (coarse ? 10 : 1);
+  if (TextElement* element = UIManager::getTextElement("reflow_temp_value")) {
+    element->content = String(reflowTemp) + " C";
+    UIManager::drawActiveScreen();
+  }
 }
 
 void IntegratedFontReflowGUI::decreaseReflowTemp(bool coarse) {
-    reflowTemp -= (coarse ? 10 : 1);
-    if (TextElement* element = uiManager.getTextElement("reflow_temp_value")) {
-        element->content = String(reflowTemp) + " C";
-        uiManager.drawActiveScreen();
-    }
+  reflowTemp -= (coarse ? 10 : 1);
+  if (TextElement* element = UIManager::getTextElement("reflow_temp_value")) {
+    element->content = String(reflowTemp) + " C";
+    UIManager::drawActiveScreen();
+  }
 }
-        element->content = String(reflowTemp) + " C";
-        uiManager.drawActiveScreen();
-    }
-}
-
-

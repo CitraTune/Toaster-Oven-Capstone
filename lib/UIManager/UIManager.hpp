@@ -17,115 +17,116 @@
 
 class UIManager {
 private:
-    LGFX& _tft;
-    std::unordered_map<std::string, Button> buttons;
-    std::unordered_map<std::string, TextElement> textElements;
-    int currentScreen;
-    bool lightMode;
-    bool invertAccent;
-    uint16_t outlineColor;
-    const lgfx::IFont* currentFont;  // Track current font
+    static LGFX* _tft;
+    static std::unordered_map<std::string, Button> buttons;
+    static std::unordered_map<std::string, TextElement> textElements;
+    static int currentScreen;
+    static bool lightMode;
+    static bool invertAccent;
+    static uint16_t outlineColor;
+    static const lgfx::IFont* currentFont;  // Track current font
+    static LGFX _display; // The global display object
+
     
-    // Add temperature variables
-    int soakTemp = 150;
-    int reflowTemp = 230;
-
+    // Private constructor to prevent instantiation
+    UIManager() {}
 public:
-  // Constructor
-  UIManager(LGFX& tft);
-  
-  // setup the UI
-  void setup();
 
-  void loop();
+    static int soakTemp;
+    static int reflowTemp;
+    // Initialize the UI system
+    static void initialize(LGFX& tft);
+  // setup the UI
+    static void setup();
+    static LGFX& display(); // Getter for access
+    static void loop();
   
   // Create a new button with a key
-  bool createButton(const std::string& key, int x, int y, int width, int height, int radius,
+    static bool createButton(const std::string& key, int x, int y, int width, int height, int radius,
                    String label, int screen, void (*action)());
                    
   // Create a new text element with a key
-  bool createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
+    static bool createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
                        int screen, const lgfx::IFont* font = nullptr);
   
   // Draw all active buttons for the current screen
-  void drawButtons();
+    static void drawButtons();
   
   // Draw all active text elements for the current screen
-  void drawTextElements();
+    static void drawTextElements();
   
   // Check if a button was pressed
-  void checkButtonPress(int touchX, int touchY);
+    static void checkButtonPress(int touchX, int touchY);
   
   // Navigate to a specific screen
-  void navigateToScreen(int screen);
+    static void navigateToScreen(int screen);
   
   // Draw the active screen with all its elements
-  void drawActiveScreen();
+    static void drawActiveScreen();
   
   // Get button by key (returns nullptr if not found)
-  Button* getButton(const std::string& key);
+    static Button* getButton(const std::string& key);
 
   // Get text element by key (returns nullptr if not found)
-  TextElement* getTextElement(const std::string& key);
+    static TextElement* getTextElement(const std::string& key);
 
   // Add temperature methods
-  void increaseSoakTemp(bool coarse = false) {
+    static void increaseSoakTemp(bool coarse = false) {
       soakTemp += (coarse ? 10 : 1);
-      updateTemperatureDisplay("soakTemp");
+      updateTemperatureDisplay("soakTemp", soakTemp);
   }
   
-  void decreaseSoakTemp(bool coarse = false) {
+    static void decreaseSoakTemp(bool coarse = false) {
       soakTemp -= (coarse ? 10 : 1);
-      updateTemperatureDisplay("soakTemp");
+      updateTemperatureDisplay("soakTemp", soakTemp);
   }
   
-  void increaseReflowTemp(bool coarse = false) {
+    static void increaseReflowTemp(bool coarse = false) {
       reflowTemp += (coarse ? 10 : 1);
-      updateTemperatureDisplay("reflowTemp");
+      updateTemperatureDisplay("reflowTemp", reflowTemp);
   }
   
-  void decreaseReflowTemp(bool coarse = false) {
+    static void decreaseReflowTemp(bool coarse = false) {
       reflowTemp -= (coarse ? 10 : 1);
-      updateTemperatureDisplay("reflowTemp");
+      updateTemperatureDisplay("reflowTemp", reflowTemp);
   }
 
-  void updateTemperatureDisplay(const std::string& tempType) {
+    static void updateTemperatureDisplay(const std::string& tempType, int tempValue) {
       TextElement* element = getTextElement(tempType);
       if (element) {
-          element->content = String(tempType == "soakTemp" ? soakTemp : reflowTemp) + " C";
+          element->content = String(tempValue) + " C";
           drawActiveScreen();
       }
   }
   
-  public:
-    void toggleLightMode() {
+    static void toggleLightMode() {
         lightMode = !lightMode;
         drawActiveScreen();
     }
     
-    void toggleInvertAccent() {
+    static void toggleInvertAccent() {
         invertAccent = !invertAccent;
         drawActiveScreen();
     }
     
-    int getScreen() {
+    static int getScreen() {
         return currentScreen;
     }
     
-    bool getLightMode() const {
+    static bool getLightMode() {
         return lightMode;
     }
     
-    bool getInvertAccent() const {
+    static bool getInvertAccent() {
         return invertAccent;
     }
 
-    void setFont(const lgfx::IFont* font);
-    const lgfx::IFont* getCurrentFont() const { return currentFont; }
-    void redraw();
+    static void setFont(const lgfx::IFont* font);
+    static const lgfx::IFont* getCurrentFont() { return currentFont; }
+    static void redraw();
 
   // Add getter for text elements
-  std::unordered_map<std::string, TextElement>& getTextElements() {
+    static std::unordered_map<std::string, TextElement>& getTextElements() {
     return textElements;
   }
 };
