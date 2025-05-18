@@ -303,17 +303,16 @@ void IntegratedFontReflowGUI::redrawCurrentScreen() {
 
 // Setup interface buttons
 void IntegratedFontReflowGUI::setupButtons() {
-  // Set font for button sizing calculations
-  display.setFont(&lgfx::fonts::FreeSans9pt7b);
-  int fontHeight = display.fontHeight();
-  int buttonTextMargin = 10;
-  int buttonHeight = fontHeight + 2 * buttonTextMargin;
-  
+  const int buttonMargin = 10; // Minimal margin between buttons and screen edges
+  const int buttonWidth = (SCREEN_WIDTH - (3 * buttonMargin)) / 2; // Dynamically calculated width
+  const int leftButtonX = buttonMargin;
+  const int rightButtonX = leftButtonX + buttonWidth + buttonMargin;
+
   // Add menu labels for each screen
   uiManager.createTextElement(
       "main_menu_label",
       10,                    // x - left margin
-      25,                    // y - top margin
+      10,                    // y - top margin
       TFT_WHITE,            // color
       "Main Menu",          // content
       SCREEN_MAIN,          // screen
@@ -323,7 +322,7 @@ void IntegratedFontReflowGUI::setupButtons() {
   uiManager.createTextElement(
       "settings_menu_label",
       10,                    // x
-      25,                    // y
+      10,                    // y
       TFT_WHITE,            // color
       "Settings",           // content
       SCREEN_SETTINGS,      // screen
@@ -340,29 +339,11 @@ void IntegratedFontReflowGUI::setupButtons() {
       &lgfx::fonts::FreeSans9pt7b  // font
   );
 
-  // Main screen buttons - Settings and Font Test buttons with same width
-  const int buttonWidth = 160;
-  const int buttonMargin = 10;
-  const int buttonX = (SCREEN_WIDTH - buttonWidth) / 2;
-  
-  // Settings button at bottom
-  uiManager.createButton(
-      "settings_btn",
-      buttonX,              // x - centered
-      SCREEN_HEIGHT - buttonHeight - buttonMargin, // y - bottom with margin
-      buttonWidth,          // width - same as back button
-      buttonHeight,         // height
-      10,                   // radius
-      "Settings",          // label
-      SCREEN_MAIN,         // screen
-      goToSettingsCallback // action
-  );
-  
-  // Font Test button above Settings
+  // Font Test button on the left
   uiManager.createButton(
       "font_test_btn",
-      buttonX,             // x - centered
-      SCREEN_HEIGHT - (2 * buttonHeight) - (2 * buttonMargin), // y - above settings
+      leftButtonX,         // x - left side
+      SCREEN_HEIGHT - buttonHeight - buttonMargin, // y - bottom with margin
       buttonWidth,         // width
       buttonHeight,        // height
       10,                  // radius
@@ -370,13 +351,29 @@ void IntegratedFontReflowGUI::setupButtons() {
       SCREEN_MAIN,        // screen
       goToFontsCallback   // action
   );
+  
+  // Settings button on the right
+  uiManager.createButton(
+      "settings_btn",
+      rightButtonX,        // x - right side
+      SCREEN_HEIGHT - buttonHeight - buttonMargin, // y - bottom with margin
+      buttonWidth,         // width - same as font test button
+      buttonHeight,        // height
+      10,                  // radius
+      "Settings",         // label
+      SCREEN_MAIN,        // screen
+      goToSettingsCallback // action
+  );
 
-  // Back buttons for Settings and Fonts screens (same position as Settings button)
+  // Back buttons for Settings and Fonts screens (full width, centered)
+  const int backButtonWidth = 160;  // Original width for back buttons
+  const int backButtonX = (SCREEN_WIDTH - backButtonWidth) / 2;
+
   uiManager.createButton(
       "back_from_settings_btn",
-      buttonX,             // x - centered
+      backButtonX,         // x - centered
       SCREEN_HEIGHT - buttonHeight - buttonMargin,
-      buttonWidth,         // width
+      backButtonWidth,     // width - full width
       buttonHeight,        // height
       10,                  // radius
       "Back",             // label
@@ -386,9 +383,9 @@ void IntegratedFontReflowGUI::setupButtons() {
 
   uiManager.createButton(
       "back_from_fonts_btn",
-      buttonX,             // x - centered
+      backButtonX,         // x - centered
       SCREEN_HEIGHT - buttonHeight - buttonMargin,
-      buttonWidth,         // width
+      backButtonWidth,     // width - full width
       buttonHeight,        // height
       10,                  // radius
       "Back",             // label
@@ -432,11 +429,7 @@ void IntegratedFontReflowGUI::setupButtons() {
 
 // Setup font screen buttons and elements
 void IntegratedFontReflowGUI::setupFontScreenButtons() {
-  // Set font for button sizing calculations
-  display.setFont(&lgfx::fonts::FreeSans9pt7b);
-  int fontHeight = display.fontHeight();
-  int buttonTextMargin = 10;
-  int buttonHeight = fontHeight + 2 * buttonTextMargin;
+
   
   // Font test screen back button
   uiManager.createButton(
@@ -482,7 +475,7 @@ void IntegratedFontReflowGUI::setupFontScreenButtons() {
     0,                        // x - will be calculated in updateFontDisplay
     80,                       // y - about 1/4 down the screen
     TFT_WHITE,                // color
-    "bonfire",               // content
+    "Sample Text",               // content
     SCREEN_FONTS,             // screen
     fonts[currentFontIndex]   // font
   );

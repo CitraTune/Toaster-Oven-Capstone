@@ -4,6 +4,9 @@
 #include <bb_captouch.h>
 #include "UIManager.hpp"
 
+// Number of fonts in the array
+#define NUM_FONTS 10
+
 class FontSelectorGUI {
 public:
   // Constructor
@@ -16,9 +19,7 @@ public:
   void loop();
   
   // Action methods
-  void decrementFont();
-  void incrementFont();
-  void updateDisplay();
+  void updateFont();  // New method to update font and refresh UI
   
   // Static instance for button callbacks
   static FontSelectorGUI* instance;

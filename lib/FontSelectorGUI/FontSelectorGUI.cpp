@@ -1,4 +1,7 @@
 #include "FontSelectorGUI.hpp"
+#include "LGFX_Config.h"
+#include <lgfx/v1/misc/enum.hpp>
+
 // Pin definitions for capacitive touch
 #define TOUCH_SDA 33
 #define TOUCH_SCL 32
@@ -40,7 +43,7 @@ FontSelectorGUI::FontSelectorGUI(LGFX &display, UIManager &uiManager)
 {
     lastTouchTime = 0;
     // Use a small font for the label
-    labelFont = &fonts::Font2;
+    labelFont = &lgfx::fonts::FreeSans9pt7b; // Changed to 9pt for consistency
     // Set the instance pointer in the constructor
     instance = this;
 }
@@ -78,52 +81,62 @@ void FontSelectorGUI::setup()
     // Setup touch controller
     touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
 
-    // Setup UI manager
+    // Setup UI manager with initial font
     uiManager.setup();
+    uiManager.setFont(fonts[currentFontIndex]);
 
     // Start with the main screen
     uiManager.navigateToScreen(SCREEN_MAIN);
 
     // Create navigation buttons using string keys
+    // Button colors are now managed by UIManager's light/dark mode
     uiManager.createButton("left_btn", 10, display.height() - 60, 60, 40, 8,
-                           TFT_DARKGREY, TFT_WHITE, "<", SCREEN_MAIN, handleLeftPress);
+                         "<", SCREEN_MAIN, handleLeftPress);
     uiManager.createButton("right_btn", display.width() - 70, display.height() - 60, 60, 40, 8,
-                           TFT_DARKGREY, TFT_WHITE, ">", SCREEN_MAIN, handleRightPress);
+                         ">", SCREEN_MAIN, handleRightPress);
 
-    // Create the "bonfire" sample text element, calculating X to center text
-    // We'll calculate X position for centering in updateDisplay() since it depends on font
-    uiManager.createTextElement("bonfire", 0, 30, TFT_WHITE, "bonfire", 
-                               SCREEN_MAIN, fonts[currentFontIndex]);
-
-    // Create the font name label beneath the sample text
-    uiManager.createTextElement("font_label", 0, 60, TFT_YELLOW, 
-                               fontNames[currentFontIndex], SCREEN_MAIN, labelFont);
-                               
-    // Create the font counter label (e.g., "1/10")
-    int fontCount = sizeof(fonts) / sizeof(fonts[0]);
-    String counterText = String(currentFontIndex + 1) + "/" + String(fontCount);
-    uiManager.createTextElement("font_counter", 10, 10, TFT_CYAN, 
-                               counterText, SCREEN_MAIN, labelFont);
-
-    // Initialize positions for text elements (center them)
-    updateDisplay();
+    // Create text elements with initial font
+    const int numFonts = sizeof(fonts) / sizeof(fonts[0]);
+    String counterText = String(currentFontIndex + 1) + "/" + String(numFonts);
     
+    // Create the sample text element for font preview
+    uiManager.createTextElement("sample_text", display.width() / 2, 30, TFT_WHITE, "Sample Text", 
+                             SCREEN_MAIN, fonts[currentFontIndex]);
+
+    // Create the font name label and counter
+    uiManager.createTextElement("font_label", display.width() / 2, 60, TFT_WHITE,
+                             fontNames[currentFontIndex], SCREEN_MAIN, labelFont);
+
+    // Create the font counter label (e.g., "1/10")
+    uiManager.createTextElement("font_counter", 10, 10, TFT_WHITE, 
+                             counterText, SCREEN_MAIN, labelFont);
+
     // Draw the initial screen
     uiManager.drawActiveScreen();
 }
 
 void FontSelectorGUI::updateFont()
 {
-    // Update the font in UIManager which will handle updating all text elements
+    // Update the font in UI manager
     uiManager.setFont(fonts[currentFontIndex]);
+
+    // Update text elements
+    const int numFonts = sizeof(fonts) / sizeof(fonts[0]);
+    String counterText = String(currentFontIndex + 1) + "/" + String(numFonts);
     
-    // Update the display to show the current font name
-    display.fillRect(0, 0, display.width(), 30, uiManager.getLightMode() ? TFT_WHITE : TFT_BLACK);
-    display.setFont(labelFont);
-    display.setTextColor(uiManager.getLightMode() ? TFT_BLACK : TFT_WHITE);
-    display.setCursor(10, 20);
-    display.print("Current Font: ");
-    display.print(fontNames[currentFontIndex]);
+    // Update counter and label texts
+    auto* counterElement = uiManager.getTextElement("font_counter");
+    if (counterElement) {
+        counterElement->content = counterText;
+    }
+    
+    auto* labelElement = uiManager.getTextElement("font_label");
+    if (labelElement) {
+        labelElement->content = fontNames[currentFontIndex];
+    }
+    
+    // Redraw everything
+    uiManager.redraw();
 }
 
 void FontSelectorGUI::loop()
