@@ -1,4 +1,6 @@
 #include "UIManager.hpp"
+#include "LineArtManager.hpp"
+
 //This allows you to pass in functions as arguments
 typedef void (*ButtonAction)();
 
@@ -52,22 +54,67 @@ bool UIManager::createButton(const std::string& key, int x, int y, int width, in
     return true;
 }
 
-// Create a new text element with a key
-bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
-                                int screen, const lgfx::IFont* font) {
+// Add this to UIManager class:
+
+// Original createTextElement method (unchanged)
+bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content, 
+                                 int screen, const lgfx::IFont* font) {
     // Check if key already exists
     if (textElements.find(key) != textElements.end()) {
         Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
         return false;
     }
-
+    
     Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
     TextElement newElement(x, y, color, content, screen, font);
     newElement.active = (screen == currentScreen);
-
+    
     textElements[key] = newElement;
     return true;
 }
+
+// New overloaded method using font string and size
+bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
+                                 int screen, const std::string& fontString, bool size9pt) {
+    // Check if key already exists
+    if (textElements.find(key) != textElements.end()) {
+        Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
+        return false;
+    }
+    
+    Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
+    TextElement newElement(x, y, color, content, screen, fontString, size9pt);
+    newElement.active = (screen == currentScreen);
+    
+    textElements[key] = newElement;
+    return true;
+}
+
+// New overloaded method with opt-out for font changes
+bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
+                                 int screen, const std::string& fontString, bool size9pt, bool allowFontChange) {
+    // Check if key already exists
+    if (textElements.find(key) != textElements.end()) {
+        Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
+        return false;
+    }
+    
+    Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
+    TextElement newElement(x, y, color, content, screen, fontString, size9pt, allowFontChange);
+    newElement.active = (screen == currentScreen);
+    
+    textElements[key] = newElement;
+    return true;
+}
+
+// Example of a method to update all text elements' fonts 
+// (Add this to UIManager class)
+void UIManager::updateAllTextElementFonts(const std::string& fontString, bool size9pt) {
+    for (auto it = textElements.begin(); it != textElements.end(); ++it) {
+    it->second.updateFontSettings(fontString, size9pt);
+}
+}
+
 
 // Draw all active buttons for the current screen
 void UIManager::drawButtons() {
@@ -86,6 +133,18 @@ void UIManager::drawTextElements() {
         if (element.active) {
             element.draw(*_tft);
         }
+    }
+}
+
+void UIManager::updateTextElement(const std::string& key, const String& newText) {
+    TextElement* element = getTextElement(key);
+    if (element) {
+        element->content = newText;
+        if (element->active) {
+            element->draw(*_tft);  // Redraw only if it's active on the current screen
+        }
+    } else {
+        Serial.println("Warning: Text element key not found: " + String(key.c_str()));
     }
 }
 
@@ -151,7 +210,7 @@ void UIManager::drawActiveScreen() {
     // Then draw the buttons on top
     drawButtons();
 
-    // Note: Other components like graphs would be drawn after this
+    LineArtManager::draw();
 }
 
 // Get button by key (returns nullptr if not found)

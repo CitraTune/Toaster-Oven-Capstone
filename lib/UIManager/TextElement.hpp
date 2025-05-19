@@ -9,10 +9,8 @@ class TextElement {
 public:
   TextElement() = default;
   
-  TextElement(int x, int y, uint16_t color, String content, int screen, 
-              const lgfx::IFont* font = nullptr) 
-      : x(x), y(y), color(color), content(content), screen(screen), 
-        font(font), originalFont(font), active(false) {}
+
+  
   
   void draw(LGFX& tft) const {
     if (!active) return;
@@ -26,6 +24,12 @@ public:
     tft.setTextColor(color);
     tft.setCursor(x, y);
     tft.print(content);
+  }
+
+  // Helper function to get a font object from a font name string and size
+  static const lgfx::IFont* getFontFromNameAndSize(const std::string& baseFontName, bool size9pt) {
+    std::string fullFontName = baseFontName + (size9pt ? "9" : "12");
+    return getFontFromName(fullFontName);
   }
 
   // Helper function to get a font object from a font name string
@@ -92,43 +96,57 @@ public:
     return ""; // Unknown font
   }
 
+  // Function to update font size and family
+  void updateFontSettings(const std::string& newFontString, bool newSize9pt) {
+    // Only update if this element allows font changes
+    if (!allowFontChange) return;
+    
+    // Store new font settings
+    fontString = newFontString;
+    size9pt = newSize9pt;
+    
+    // Update the font object
+    font = getFontFromNameAndSize(fontString, size9pt);
+    originalFont = font; // Also update original font reference
+  }
+  
   // Function to update font while maintaining size
   void updateFont(const std::string& baseFontName, bool use9pt = true) {
+    // Only update if this element allows font changes
+    if (!allowFontChange) return;
+    
     std::string fullFontName = baseFontName + (use9pt ? "9" : "12");
     const lgfx::IFont* newFont = getFontFromName(fullFontName);
     
     if (newFont) {
       font = newFont;
       originalFont = newFont;
+      
+      // Update stored settings
+      fontString = baseFontName;
+      size9pt = use9pt;
     }
   }
   
   // Function to update font from a font pointer
   void updateFont(const lgfx::IFont* newFont) {
+    // Only update if this element allows font changes
+    if (!allowFontChange) return;
+    
     if (newFont) {
-      // If we have an original font, try to maintain size
-      if (originalFont) {
-        std::string origName = getFontName(originalFont);
-        std::string newName = getFontName(newFont);
-        
-        if (!origName.empty() && !newName.empty()) {
-          // Extract the base name (without size) and whether it's 9pt
-          bool is9pt = origName.find("9") != std::string::npos;
-          size_t digitPos = newName.find_last_of("0123456789");
-          if (digitPos != std::string::npos) {
-            std::string baseName = newName.substr(0, digitPos);
-            // Get the appropriate font matching the original size
-            std::string targetName = baseName + (is9pt ? "9" : "12");
-            const lgfx::IFont* sizedFont = getFontFromName(targetName);
-            if (sizedFont) {
-              font = sizedFont;
-              return;
-            }
-          }
+      // Try to extract font name and size
+      std::string newFontName = getFontName(newFont);
+      if (!newFontName.empty()) {
+        // Extract base name and size
+        bool is9pt = newFontName.find("9") != std::string::npos;
+        size_t digitPos = newFontName.find_last_of("0123456789");
+        if (digitPos != std::string::npos) {
+          fontString = newFontName.substr(0, digitPos);
+          size9pt = is9pt;
         }
       }
       
-      // If we couldn't match sizes or there was no original font, use as-is
+      // Update the font object
       font = newFont;
       originalFont = newFont;
     }
@@ -136,17 +154,11 @@ public:
 
   // Update font preserving size from original font
   void updateFontPreserveSize(const std::string& baseFontName) {
-    if (originalFont) {
-      // Get current font's size
-      std::string currentFontName = getFontName(originalFont);
-      bool is9pt = currentFontName.find("9") != std::string::npos;
-      
-      // Update using the same size
-      updateFont(baseFontName, is9pt);
-    } else {
-      // Default to 9pt if no original font
-      updateFont(baseFontName, true);
-    }
+    // Only update if this element allows font changes
+    if (!allowFontChange) return;
+    
+    // Update using the stored size setting
+    updateFont(baseFontName, size9pt);
   }
 
 public:
@@ -157,4 +169,10 @@ public:
   const lgfx::IFont* font;
   const lgfx::IFont* originalFont; // Store the original font to maintain size ratio
   bool active;
+  
+  // New properties to store font information
+  std::string fontString;  // Base font name without size (e.g., "FreeSerif")
+  bool size9pt;           // Size flag: true for 9pt, false for 12pt
+  bool allowFontChange;   // Flag to allow/disallow font changes
 };
+

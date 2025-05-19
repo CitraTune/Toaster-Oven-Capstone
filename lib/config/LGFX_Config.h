@@ -1,5 +1,10 @@
 #include <LovyanGFX.hpp>
 #pragma once
+#define SCREEN_WIDTH 240
+#define SCREEN_HEIGHT 320
+#define SCREEN_MAIN 0
+#define SCREEN_SETTINGS 1
+#define SCREEN_FONTS 2
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ILI9341 _panel;

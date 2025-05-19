@@ -2,6 +2,7 @@
 #include "ButtonSetup.hpp"
 #include "TextSetup.hpp"
 #include "UIManager.hpp"
+#include "LineArtManager.hpp"
 
 // Define constants
 #define SCREEN_WIDTH 240
@@ -84,14 +85,10 @@ void IntegratedFontReflowGUI::setup()
 
   // Setup UI manager
   UIManager::setup(display);
-  Serial.println("Setup UI manager...");
+  LineArtManager::setup(display);
   ButtonSetup::setupAllButtons();
-  Serial.println("Setup buttons...");
-  TextSetup::setupTemperatureElements();
-  Serial.println("Setup temperature elements...");
+  TextSetup::setupAllTextElements();
   UIManager::navigateToScreen(SCREEN_MAIN);
-  Serial.println("Navigated to main screen...");
-  Serial.println("Setup complete.");
 }
 
 // Main loop
@@ -202,14 +199,4 @@ void IntegratedFontReflowGUI::updateFontDisplay()
   UIManager::drawActiveScreen();
 }
 
-// Redraw current screen based on which screen is active
-void IntegratedFontReflowGUI::redrawCurrentScreen()
-{
-  UIManager::drawActiveScreen();
-
-  if (GraphManager::isVisibleOnScreen(UIManager::getScreen()))
-  {
-    GraphManager::draw();
-  }
-}
 

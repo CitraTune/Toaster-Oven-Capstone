@@ -2,7 +2,7 @@
 
 #include "UIManager.hpp"
 #include "IntegratedFontReflowGUI.hpp"
-#include "GraphManager.hpp"
+
 
 // Constants for button dimensions
 #define BUTTON_HEIGHT 40
@@ -143,10 +143,6 @@ private:
   static void goToMain()
   {
     UIManager::navigateToScreen(SCREEN_MAIN);
-    if (GraphManager::isVisibleOnScreen(SCREEN_MAIN))
-    {
-      GraphManager::draw();
-    }
     IntegratedFontReflowGUI::updateFontDisplay();
   }
 

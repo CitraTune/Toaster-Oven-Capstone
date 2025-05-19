@@ -6,7 +6,6 @@
 #include "Button.hpp"
 #include "UIManager.hpp"
 #include <bb_captouch.h>
-#include "GraphManager.hpp"
 
 // Screen definitions
 #define SCREEN_MAIN 0
@@ -51,13 +50,8 @@ public:
     static int debounceDelay;
     
     // Text setup methods
-    static void setupTextElements();
-    static void setupTemperatureElements();
     static void updateTemperatureDisplay();
-    // Button setup methods
-    static void setupButtons();
-    static void setupFontScreenButtons();
-    
+
     
     static void increaseSoakTemp(bool coarse = false);
     static void decreaseSoakTemp(bool coarse = false);
@@ -65,7 +59,7 @@ public:
     static void decreaseReflowTemp(bool coarse = false);
     static void updateFontDisplay();
     static void updateButtonVisibility();
-    static void redrawCurrentScreen();
+
     
     
 private:
