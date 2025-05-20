@@ -3,154 +3,171 @@
 #include "IntegratedFontReflowGUI.hpp"
 #include "UIManager.hpp"
 
+#define pt12 false
+#define pt9 true
 class TextSetup
 {
 public:
     static void setupAllTextElements()
     {
-        setupTemperatureSettingsElements();
+        setupTemperatureAdjustElements();
         setupTitleElements();
         setupScreenLabelElements();
         setupTemperatureDisplayElements();
+        setupFontDisplayElements();
     }
+
     static void updateTemperatureDisplays(const String &tempStr)
     {
-        UIManager::updateTextElement("temp_display_settings", tempStr);
-        UIManager::updateTextElement("temp_display_main", tempStr);
-        UIManager::updateTextElement("temp_display_fonts", tempStr);
+        UIManager::updateTextElementContent("temp_display_settings", tempStr);
+        UIManager::updateTextElementContent("temp_display_main", tempStr);
+        UIManager::updateTextElementContent("temp_display_fonts", tempStr);
     }
 
 private:
-    // Set up temperature text elements in the settings screen
-    static void setupTemperatureSettingsElements()
+    static void setupTemperatureAdjustElements()
     {
-        // Soak Temperature Label
         UIManager::createTextElement(
             "soak_temp_label",
             10, 50,
             TFT_WHITE,
             "Soak Temp:",
             SCREEN_SETTINGS,
-            "FreeSans", true); // 9pt
+            "FreeSans", true);
 
-        // Soak Temperature Value
         UIManager::createTextElement(
             "soak_temp_value",
             10, 75,
             TFT_YELLOW,
             String(UIManager::soakTemp) + " C",
             SCREEN_SETTINGS,
-            "FreeSans", false); // 12pt
+            "FreeSans", false);
 
-        // Reflow Temperature Label
         UIManager::createTextElement(
             "reflow_temp_label",
             10, 140,
             TFT_WHITE,
             "Reflow Temp:",
             SCREEN_SETTINGS,
-            "FreeSans", true); // 9pt
+            "FreeSans", true);
 
-        // Reflow Temperature Value
         UIManager::createTextElement(
             "reflow_temp_value",
             10, 165,
             TFT_YELLOW,
             String(UIManager::reflowTemp) + " C",
             SCREEN_SETTINGS,
-            "FreeSans", false); // 12pt
+            "FreeSans", false);
     }
-    // Set up title text elements for all screens
+
     static void setupTitleElements()
     {
-        // Title for Settings Screen - Font2 opt-out
         UIManager::createTextElement(
             "title_settings",
-            SCREEN_WIDTH / 2 - 50, 2, // Centered with virtually no top margin
+            SCREEN_WIDTH / 2 - 50, 2,
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_SETTINGS,
-            "Font2", true, false); // opt-out of font changes
+            &lgfx::fonts::Font2);
 
-        // Title for Main Screen - Font2 opt-out
         UIManager::createTextElement(
             "title_main",
-            SCREEN_WIDTH / 2 - 50, 2, // Centered with virtually no top margin
+            SCREEN_WIDTH / 2 - 50, 2,
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_MAIN,
-            "Font2", true, false); // opt-out of font changes
+            &lgfx::fonts::Font2);
 
-        // Title for Fonts Screen - Font2 opt-out
         UIManager::createTextElement(
             "title_fonts",
-            SCREEN_WIDTH / 2 - 50, 2, // Centered with virtually no top margin
+            SCREEN_WIDTH / 2 - 50, 2,
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_FONTS,
-            "Font2", true, false); // opt-out of font changes
+            &lgfx::fonts::Font2);
     }
 
-    // Set up screen label elements
     static void setupScreenLabelElements()
     {
-        // Main Menu Screen Label
         UIManager::createTextElement(
             "main_screen_label",
-            8, 30, // Left side with 8px margin
+            8, 30,
             TFT_WHITE,
             "Main Menu",
             SCREEN_MAIN,
-            "FreeSans", false); // 12pt
+            "FreeSans", false);
 
-        // Font Test Selection Screen Label
         UIManager::createTextElement(
             "fonts_screen_label",
-            8, 30, // Left side with 8px margin
+            8, 30,
             TFT_WHITE,
             "Font Test Selection",
             SCREEN_FONTS,
-            "FreeSans", false); // 12pt
+            "FreeSans", false);
 
-        // Settings Screen Label
         UIManager::createTextElement(
             "settings_screen_label",
-            8, 30, // Left side with 8px margin
+            8, 30,
             TFT_WHITE,
             "Settings",
             SCREEN_SETTINGS,
-            "FreeSans", false); // 12pt
+            "FreeSans", false);
     }
 
-    // Set up temperature display elements
     static void setupTemperatureDisplayElements()
     {
-        // Create temperature display for all screens
-        // Settings Screen Temperature - Font2 opt-out
         UIManager::createTextElement(
             "temp_display_settings",
-            SCREEN_WIDTH - 60, 2, // Top right, tight margin
+            SCREEN_WIDTH - 60, 2,
             TFT_YELLOW,
-            "0C", // Default value, will be updated
+            "0C",
             SCREEN_SETTINGS,
-            "Font2", true, false); // opt-out of font changes
+            &lgfx::fonts::Font2);
 
-        // Main Screen Temperature - Font2 opt-out
         UIManager::createTextElement(
             "temp_display_main",
-            SCREEN_WIDTH - 60, 2, // Top right, tight margin
+            SCREEN_WIDTH - 60, 2,
             TFT_YELLOW,
-            "0C", // Default value, will be updated
+            "0C",
             SCREEN_MAIN,
-            "Font2", true, false); // opt-out of font changes
+            &lgfx::fonts::Font2);
 
-        // Fonts Screen Temperature - Font2 opt-out
         UIManager::createTextElement(
             "temp_display_fonts",
-            SCREEN_WIDTH - 60, 2, // Top right, tight margin
+            SCREEN_WIDTH - 60, 2,
             TFT_YELLOW,
-            "0C", // Default value, will be updated
+            "0C",
             SCREEN_FONTS,
-            "Font2", true, false); // opt-out of font changes
+            &lgfx::fonts::Font2);
+    }
+
+    static void setupFontDisplayElements()
+    {
+        // Get the current font name from the array
+        const char *currentFontName = IntegratedFontReflowGUI::fontNames[IntegratedFontReflowGUI::currentFontIndex];
+
+        // Create a string for the font counter display (showing which font out of total)
+        String fontCounterText = String(IntegratedFontReflowGUI::currentFontIndex + 1) + "/" + String(IntegratedFontReflowGUI::fontCount);
+    // Create the label in the middle of the screen to display the current font name
+    UIManager::createTextElement(
+      "current_font_display",
+      SCREEN_WIDTH / 2 - 70,  // x - centered (adjusted for text width)
+      SCREEN_HEIGHT / 2 - 20, // y - middle of screen, slightly above center
+      TFT_WHITE,             // color
+      currentFontName,       // text content (current font name)
+      SCREEN_FONTS,          // screen ID (font selection screen)
+      "FreeSans",            // using FreeSans to display the name consistently
+      true);                 // using 9pt size
+    
+    // Create the font counter label below the font name
+    UIManager::createTextElement(
+      "font_counter_display",
+      SCREEN_WIDTH / 2 - 20,  // x - centered (adjusted for counter width)
+      SCREEN_HEIGHT / 2 + 20, // y - below the font name
+      TFT_YELLOW,            // color
+      fontCounterText,       // text content (font counter)
+      SCREEN_FONTS,          // screen ID
+      "FreeSans",            // using FreeSans
+      true);                 // using 9pt size
     }
 };

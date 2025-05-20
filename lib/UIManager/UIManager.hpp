@@ -47,7 +47,7 @@ public:
                                   int screen, const std::string& fontString, bool size9pt, bool allowFontChange);
 
     // Example of a method to update all text elements' fonts
-    static void updateAllTextElementFonts(const std::string& fontString, bool size9pt);
+    static void updateAllTextElementFontsPreserveSize(const std::string& fontString);
 
     // Draw all active buttons for the current screen
     static void drawButtons();
@@ -69,7 +69,7 @@ public:
 
     // Get text element by key (returns nullptr if not found)
     static TextElement* getTextElement(const std::string& key);
-    static void updateTextElement(const std::string& key, const String& newText);
+    static void updateTextElementContent(const std::string& key, const String& newText);
 
 
     // Add temperature methods

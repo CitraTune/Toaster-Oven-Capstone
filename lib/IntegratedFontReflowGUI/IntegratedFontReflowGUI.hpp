@@ -49,8 +49,7 @@ public:
     static int buttonHeight;
     static int debounceDelay;
     
-    // Text setup methods
-    static void updateTemperatureDisplay();
+
 
     
     static void increaseSoakTemp(bool coarse = false);
@@ -58,7 +57,6 @@ public:
     static void increaseReflowTemp(bool coarse = false);
     static void decreaseReflowTemp(bool coarse = false);
     static void updateFontDisplay();
-    static void updateButtonVisibility();
 
     
     

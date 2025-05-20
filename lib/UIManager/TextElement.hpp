@@ -9,8 +9,33 @@ class TextElement {
 public:
   TextElement() = default;
   
-
+  // Constructor with direct font pointer - automatically opts OUT of font changes
+  TextElement(int x, int y, uint16_t color, String content, int screen, 
+              const lgfx::IFont* font = nullptr) 
+      : x(x), y(y), color(color), content(content), screen(screen), 
+        font(font), originalFont(font), active(false), 
+        fontString(""), size9pt(true), allowFontChange(false) {}
   
+  // Constructor with font string and size - automatically opts IN to font changes
+  TextElement(int x, int y, uint16_t color, String content, int screen,
+              const std::string& fontString, bool size9pt)
+      : x(x), y(y), color(color), content(content), screen(screen),
+        fontString(fontString), size9pt(size9pt), active(false), allowFontChange(true) {
+    // Convert fontString and size9pt to actual font object
+    font = getFontFromNameAndSize(fontString, size9pt);
+    originalFont = font;
+  }
+
+  // Constructor with explicit allowFontChange parameter (for special cases)
+  TextElement(int x, int y, uint16_t color, String content, int screen,
+              const std::string& fontString, bool size9pt, bool allowFontChange)
+      : x(x), y(y), color(color), content(content), screen(screen),
+        fontString(fontString), size9pt(size9pt), active(false), 
+        allowFontChange(allowFontChange) {
+    // Convert fontString and size9pt to actual font object
+    font = getFontFromNameAndSize(fontString, size9pt);
+    originalFont = font;
+  }
   
   void draw(LGFX& tft) const {
     if (!active) return;
@@ -28,13 +53,19 @@ public:
 
   // Helper function to get a font object from a font name string and size
   static const lgfx::IFont* getFontFromNameAndSize(const std::string& baseFontName, bool size9pt) {
+    // Special case for Font2 which doesn't follow the 9pt/12pt pattern
+    if (baseFontName == "Font2") {
+      return &lgfx::fonts::Font2;
+    }
+    
     std::string fullFontName = baseFontName + (size9pt ? "9" : "12");
     return getFontFromName(fullFontName);
   }
 
   // Helper function to get a font object from a font name string
   static const lgfx::IFont* getFontFromName(const std::string& fontName) {
-    static const std::map<std::string, const lgfx::IFont*> nameToFontMap = {
+    static const std::map<std::string, const lgfx::IFont*> nameToFontMap = {  
+      // Standard font families
       {"FreeMono9", &lgfx::fonts::FreeMono9pt7b},
       {"FreeMono12", &lgfx::fonts::FreeMono12pt7b},
       {"FreeMonoBold9", &lgfx::fonts::FreeMonoBold9pt7b},
@@ -63,95 +94,17 @@ public:
     }
     return nullptr; // Font not found
   }
-
-  // Helper function to get a font name string from a font object
-  static std::string getFontName(const lgfx::IFont* font) {
-    static const std::map<const lgfx::IFont*, std::string> fontToNameMap = {
-      {&lgfx::fonts::FreeMono9pt7b, "FreeMono9"},
-      {&lgfx::fonts::FreeMono12pt7b, "FreeMono12"},
-      {&lgfx::fonts::FreeMonoBold9pt7b, "FreeMonoBold9"},
-      {&lgfx::fonts::FreeMonoBold12pt7b, "FreeMonoBold12"},
-      {&lgfx::fonts::FreeMonoOblique9pt7b, "FreeMonoOblique9"},
-      {&lgfx::fonts::FreeMonoOblique12pt7b, "FreeMonoOblique12"},
-      {&lgfx::fonts::FreeSans9pt7b, "FreeSans9"},
-      {&lgfx::fonts::FreeSans12pt7b, "FreeSans12"},
-      {&lgfx::fonts::FreeSansBold9pt7b, "FreeSansBold9"},
-      {&lgfx::fonts::FreeSansBold12pt7b, "FreeSansBold12"},
-      {&lgfx::fonts::FreeSansBoldOblique9pt7b, "FreeSansBoldOblique9"},
-      {&lgfx::fonts::FreeSansBoldOblique12pt7b, "FreeSansBoldOblique12"},
-      {&lgfx::fonts::FreeSerif9pt7b, "FreeSerif9"},
-      {&lgfx::fonts::FreeSerif12pt7b, "FreeSerif12"},
-      {&lgfx::fonts::FreeSerifBold9pt7b, "FreeSerifBold9"},
-      {&lgfx::fonts::FreeSerifBold12pt7b, "FreeSerifBold12"},
-      {&lgfx::fonts::FreeSerifBoldItalic9pt7b, "FreeSerifBoldItalic9"},
-      {&lgfx::fonts::FreeSerifBoldItalic12pt7b, "FreeSerifBoldItalic12"},
-      {&lgfx::fonts::FreeSerifItalic9pt7b, "FreeSerifItalic9"},
-      {&lgfx::fonts::FreeSerifItalic12pt7b, "FreeSerifItalic12"}
-    };
-
-    auto it = fontToNameMap.find(font);
-    if (it != fontToNameMap.end()) {
-      return it->second;
-    }
-    return ""; // Unknown font
-  }
-
-  // Function to update font size and family
-  void updateFontSettings(const std::string& newFontString, bool newSize9pt) {
-    // Only update if this element allows font changes
-    if (!allowFontChange) return;
-    
-    // Store new font settings
-    fontString = newFontString;
-    size9pt = newSize9pt;
-    
-    // Update the font object
-    font = getFontFromNameAndSize(fontString, size9pt);
-    originalFont = font; // Also update original font reference
-  }
-  
   // Function to update font while maintaining size
   void updateFont(const std::string& baseFontName, bool use9pt = true) {
     // Only update if this element allows font changes
     if (!allowFontChange) return;
-    
-    std::string fullFontName = baseFontName + (use9pt ? "9" : "12");
-    const lgfx::IFont* newFont = getFontFromName(fullFontName);
-    
-    if (newFont) {
-      font = newFont;
-      originalFont = newFont;
-      
-      // Update stored settings
-      fontString = baseFontName;
-      size9pt = use9pt;
-    }
+    Serial.println("Updating font to: " + String(baseFontName.c_str()));
+    Serial.println("Font Content Changed: " + content);
+    // Update stored settings
+    fontString = baseFontName;
+    size9pt = use9pt;
+   
   }
-  
-  // Function to update font from a font pointer
-  void updateFont(const lgfx::IFont* newFont) {
-    // Only update if this element allows font changes
-    if (!allowFontChange) return;
-    
-    if (newFont) {
-      // Try to extract font name and size
-      std::string newFontName = getFontName(newFont);
-      if (!newFontName.empty()) {
-        // Extract base name and size
-        bool is9pt = newFontName.find("9") != std::string::npos;
-        size_t digitPos = newFontName.find_last_of("0123456789");
-        if (digitPos != std::string::npos) {
-          fontString = newFontName.substr(0, digitPos);
-          size9pt = is9pt;
-        }
-      }
-      
-      // Update the font object
-      font = newFont;
-      originalFont = newFont;
-    }
-  }
-
   // Update font preserving size from original font
   void updateFontPreserveSize(const std::string& baseFontName) {
     // Only update if this element allows font changes
@@ -175,4 +128,3 @@ public:
   bool size9pt;           // Size flag: true for 9pt, false for 12pt
   bool allowFontChange;   // Flag to allow/disallow font changes
 };
-

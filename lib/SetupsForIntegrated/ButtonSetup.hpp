@@ -16,9 +16,9 @@ public:
   // Setup all buttons for the application
   static void setupAllButtons()
   {
+    setupFontScreenButtons();
     setupMainScreenButtons();
     setupSettingsScreenButtons();
-    setupFontScreenButtons();
   }
 
 private:
@@ -73,26 +73,26 @@ private:
     int tempBoxX = 130;
     int tempBoxY = 10;
 
-    // Soak Temp Controls
-    UIManager::createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
-                            SCREEN_SETTINGS, increaseSoakTempCoarse);
-    UIManager::createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
-                            SCREEN_SETTINGS, decreaseSoakTempCoarse);
-    UIManager::createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
-                            SCREEN_SETTINGS, increaseSoakTempFine);
-    UIManager::createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
-                            SCREEN_SETTINGS, decreaseSoakTempFine);
+    // // Soak Temp Controls
+    // UIManager::createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
+    //                         SCREEN_SETTINGS, increaseSoakTempCoarse);
+    // UIManager::createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
+    //                         SCREEN_SETTINGS, decreaseSoakTempCoarse);
+    // UIManager::createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
+    //                         SCREEN_SETTINGS, increaseSoakTempFine);
+    // UIManager::createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
+    //                         SCREEN_SETTINGS, decreaseSoakTempFine);
 
-    // Reflow Temp Controls
-    tempBoxY += 100;
-    UIManager::createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
-                            SCREEN_SETTINGS, increaseReflowTempCoarse);
-    UIManager::createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
-                            SCREEN_SETTINGS, decreaseReflowTempCoarse);
-    UIManager::createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
-                            SCREEN_SETTINGS, increaseReflowTempFine);
-    UIManager::createButton("reflow_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
-                            SCREEN_SETTINGS, decreaseReflowTempFine);
+    // // Reflow Temp Controls
+    // tempBoxY += 100;
+    // UIManager::createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
+    //                         SCREEN_SETTINGS, increaseReflowTempCoarse);
+    // UIManager::createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
+    //                         SCREEN_SETTINGS, decreaseReflowTempCoarse);
+    // UIManager::createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
+    //                         SCREEN_SETTINGS, increaseReflowTempFine);
+    // UIManager::createButton("reflow_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
+    //                         SCREEN_SETTINGS, decreaseReflowTempFine);
 
     UIManager::createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100, 112, 40, 10,
                             "Invert Accent", SCREEN_SETTINGS, UIManager::toggleInvertAccent);

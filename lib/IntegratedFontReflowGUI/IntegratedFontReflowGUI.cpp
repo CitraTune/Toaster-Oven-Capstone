@@ -94,7 +94,6 @@ void IntegratedFontReflowGUI::setup()
 // Main loop
 void IntegratedFontReflowGUI::loop()
 {
-
   // Check for touch input
   TOUCHINFO ti;
   // Get touch samples
@@ -119,84 +118,30 @@ void IntegratedFontReflowGUI::loop()
 }
 
 // Update font display elements
+// Update font display elements
 void IntegratedFontReflowGUI::updateFontDisplay()
 {
-  // Keep special fonts for certain elements
-  const std::unordered_map<std::string, const lgfx::IFont *> specialFonts = {
-      {"font_name", &lgfx::fonts::Font2},
-      {"font_counter", &lgfx::fonts::Font2},
-      {"main_menu_label", fonts[currentFontIndex]},
-      {"settings_menu_label", fonts[currentFontIndex]},
-      {"font_menu_label", fonts[currentFontIndex]},
-  };
+  // // Get the current font name from the array
+  
+  // // Create a string for the font counter display (showing which font out of total)
+  // String fontCounterText = String(currentFontIndex + 1) + "/" + String(fontCount);
 
-  // Update font name and counter content
-  TextElement *fontNameElement = UIManager::getTextElement("font_name");
-  if (fontNameElement)
-  {
-    fontNameElement->content = fontNames[currentFontIndex];
-  }
-
-  TextElement *counterElement = UIManager::getTextElement("font_counter");
-  if (counterElement)
-  {
-    String counterText = String(currentFontIndex + 1) + "/" + String(fontCount);
-    counterElement->content = counterText;
-  }
-
-  // Update all text elements in all screens
-  for (auto &pair : UIManager::getTextElements())
-  {
-    TextElement &element = const_cast<TextElement &>(pair.second);
-    const std::string &key = pair.first;
-
-    // Check if this element has a special font
-    auto specialFont = specialFonts.find(key);
-    if (specialFont != specialFonts.end())
-    {
-      element.font = specialFont->second;
-    }
-    else
-    {
-      // Use the current font from the fonts array for all other text elements
-      // Adjust font size to match previous height as closely as possible
-      int prevFontHeight = 0;
-      if (element.font)
-      {
-        display.setFont(element.font);
-        prevFontHeight = display.fontHeight();
-      }
-      const lgfx::IFont *bestFont = fonts[currentFontIndex];
-      int bestDiff = 10000;
-      // Try to match font height if possible
-      for (int i = 0; i < fontCount; ++i)
-      {
-        display.setFont(fonts[i]);
-        int h = display.fontHeight();
-        if (prevFontHeight > 0 && abs(h - prevFontHeight) < bestDiff)
-        {
-          bestDiff = abs(h - prevFontHeight);
-          bestFont = fonts[i];
-        }
-      }
-      element.font = bestFont;
-    }
-
-    // Recalculate center position for certain elements
-    if (element.font)
-    {
-      display.setFont(element.font);
-      if (key == "font_name" || key == "sample_text" || key == "font_menu_label")
-      {
-        int textWidth = display.textWidth(element.content);
-        element.x = (display.width() - textWidth) / 2;
-      }
-      // For main_menu_label and settings_menu_label, keep x as originally set (top left)
-    }
-  }
-
-  // Redraw screen (this will redraw all buttons with the new font, since Button::draw uses display.setFont)
-  UIManager::drawActiveScreen();
+  // const char* currentFontName = fontNames[currentFontIndex];
+  // UIManager::updateTextElementContent("current_font_display", currentFontName);
+  // UIManager::updateTextElementContent("font_counter_display", fontCounterText);
+  
+  // // Update all text elements to use the new font (preserving size settings)
+  // //UIManager::updateAllTextElementFontsPreserveSize(currentFontName);
+  
+  // // Debug output
+  // Serial.print("Font changed to: ");
+  // Serial.print(currentFontName);
+  // Serial.print(" (");
+  // Serial.print(currentFontIndex + 1);
+  // Serial.print("/");
+  // Serial.print(fontCount);
+  // Serial.println(")");
+  // UIManager::drawActiveScreen();
 }
 
 

@@ -33,31 +33,6 @@ Button::Button(int x, int y, int width, int height, int radius,
   this->buttonFont = &lgfx::fonts::FreeSans9pt7b; // Default to FreeSans9pt
 }
 
-// Helper method to get equivalent 9pt font from any font
-const lgfx::IFont* Button::get9ptFont(const lgfx::IFont* font) {
-  if (!font) return &lgfx::fonts::FreeSans9pt7b; // Default
-  
-  // Get font name using TextElement's helper
-  std::string fontName = TextElement::getFontName(font);
-  
-  if (fontName.empty()) return &lgfx::fonts::FreeSans9pt7b; // Default if unknown
-  
-  // Extract base font name (without size)
-  std::string baseFont;
-  size_t digitPos = fontName.find_last_of("0123456789");
-  if (digitPos != std::string::npos) {
-    baseFont = fontName.substr(0, digitPos);
-  } else {
-    baseFont = fontName;  
-  }
-  
-  // Append 9pt size and get font
-  std::string font9pt = baseFont + "9";
-  const lgfx::IFont* result = TextElement::getFontFromName(font9pt);
-  
-  // Return found font or default
-  return result ? result : &lgfx::fonts::FreeSans9pt7b;
-}
 
 // Draw the button on the TFT
 void Button::draw(LGFX& tft) const {
@@ -68,10 +43,7 @@ void Button::draw(LGFX& tft) const {
   
   // Use current system font family but always 9pt size
   const lgfx::IFont* currentFont = UIManager::getCurrentFont();
-  const lgfx::IFont* font9pt = get9ptFont(currentFont);
-  
-  // Set button font for text measurements
-  tft.setFont(font9pt);
+
   
   // Calculate text dimensions using button font
   int textWidth = tft.textWidth(label);

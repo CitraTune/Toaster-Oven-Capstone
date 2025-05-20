@@ -25,17 +25,13 @@ LGFX& UIManager::display() {
 
 // setup the UI
 void UIManager::setup(LGFX& tft) {
-    Serial.println("UISetup1");
     currentFont = &lgfx::fonts::FreeSans9pt7b;
-    Serial.println("UISetup2");
-    //crashed here
     _tft = &tft;
     currentScreen = SCREEN_MAIN;
     lightMode = false;
     invertAccent = false;
     outlineColor = TFT_DARKGRAY;
     _tft->setFont(currentFont);
-    Serial.println("UISetup3");
 }
 
 // Create a new button with a key
@@ -46,7 +42,7 @@ bool UIManager::createButton(const std::string& key, int x, int y, int width, in
         Serial.println("Warning: Button with key '" + String(key.c_str()) + "' already exists!");
         return false;
     }
-    Serial.println("Creating button: " + label + " with key: " + String(key.c_str()));
+    //Serial.println("Creating button: " + label + " with key: " + String(key.c_str()));
     Button newButton(x, y, width, height, radius, label, screen, action);
     newButton.active = (screen == currentScreen);
     
@@ -54,10 +50,9 @@ bool UIManager::createButton(const std::string& key, int x, int y, int width, in
     return true;
 }
 
-// Add this to UIManager class:
+// UIManager methods for text element creation
 
-// Original createTextElement method (unchanged)
-bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content, 
+bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
                                  int screen, const lgfx::IFont* font) {
     // Check if key already exists
     if (textElements.find(key) != textElements.end()) {
@@ -66,14 +61,13 @@ bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t
     }
     
     Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
-    TextElement newElement(x, y, color, content, screen, font);
+    TextElement newElement(x, y, color, content, screen, font); // Will auto-opt out of font changes
     newElement.active = (screen == currentScreen);
     
     textElements[key] = newElement;
     return true;
 }
 
-// New overloaded method using font string and size
 bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
                                  int screen, const std::string& fontString, bool size9pt) {
     // Check if key already exists
@@ -83,38 +77,19 @@ bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t
     }
     
     Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
-    TextElement newElement(x, y, color, content, screen, fontString, size9pt);
+    TextElement newElement(x, y, color, content, screen, fontString, size9pt); // Will auto-opt in to font changes
     newElement.active = (screen == currentScreen);
     
     textElements[key] = newElement;
     return true;
 }
 
-// New overloaded method with opt-out for font changes
-bool UIManager::createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
-                                 int screen, const std::string& fontString, bool size9pt, bool allowFontChange) {
-    // Check if key already exists
-    if (textElements.find(key) != textElements.end()) {
-        Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
-        return false;
-    }
-    
-    Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
-    TextElement newElement(x, y, color, content, screen, fontString, size9pt, allowFontChange);
-    newElement.active = (screen == currentScreen);
-    
-    textElements[key] = newElement;
-    return true;
-}
 
-// Example of a method to update all text elements' fonts 
-// (Add this to UIManager class)
-void UIManager::updateAllTextElementFonts(const std::string& fontString, bool size9pt) {
+void UIManager::updateAllTextElementFontsPreserveSize(const std::string& fontString) {
     for (auto it = textElements.begin(); it != textElements.end(); ++it) {
-    it->second.updateFontSettings(fontString, size9pt);
+    it->second.updateFontPreserveSize(fontString);
 }
 }
-
 
 // Draw all active buttons for the current screen
 void UIManager::drawButtons() {
@@ -136,7 +111,7 @@ void UIManager::drawTextElements() {
     }
 }
 
-void UIManager::updateTextElement(const std::string& key, const String& newText) {
+void UIManager::updateTextElementContent(const std::string& key, const String& newText) {
     TextElement* element = getTextElement(key);
     if (element) {
         element->content = newText;
@@ -231,18 +206,6 @@ TextElement* UIManager::getTextElement(const std::string& key) {
     return nullptr;
 }
 
-void UIManager::setFont(const lgfx::IFont* font) {
-    _tft->setFont(font);
-    currentFont = font;
-    
-    // Update all text elements to use the new font while maintaining their relative sizes
-    for (auto& pair : textElements) {
-        pair.second.updateFont(font);
-    }
-    
-    // Force a redraw of all active elements
-    redraw();
-}
 
 void UIManager::redraw() {
     _tft->fillScreen(lightMode ? TFT_WHITE : TFT_BLACK);

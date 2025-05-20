@@ -30,5 +30,5 @@ private:
   const lgfx::IFont* buttonFont;
   
   // Static method to get a 9pt font from the font family
-  static const lgfx::IFont* get9ptFont(const lgfx::IFont* font);
+
 };
