@@ -13,6 +13,8 @@ public:
   
   // Draw the button on the display
   void draw(LGFX& tft) const;
+  void updateFontPreserveSize(const std::string &baseFontName);
+  
   
   // Check if a point is inside the button
   bool contains(int touchX, int touchY);
@@ -28,6 +30,7 @@ private:
   
   // Store the current font family but always use 9pt size
   const lgfx::IFont* buttonFont;
+  std::string buttonFontString;
   
   // Static method to get a 9pt font from the font family
 

@@ -15,8 +15,6 @@
 // Initialize LGFX display
 LGFX IntegratedFontReflowGUI::display;
 
-
-
 // Define the static font array and font names
 const GFXfont *IntegratedFontReflowGUI::fonts[] = {
     &FreeMono12pt7b,
@@ -32,10 +30,10 @@ const GFXfont *IntegratedFontReflowGUI::fonts[] = {
 
 // Define font names array for display ALL 12PT
 const char *IntegratedFontReflowGUI::fontNames[] = {
-    "FreeMono",
-    "FreeSansBoldOblique",
     "FreeSans",
+    "FreeSansBoldOblique",
     "FreeSansBold",
+    "FreeMono",
     "FreeMonoBold",
     "FreeMonoOblique",
     "FreeSerif",
@@ -51,6 +49,9 @@ int IntegratedFontReflowGUI::soakTemp = 150;
 int IntegratedFontReflowGUI::reflowTemp = 230;
 int IntegratedFontReflowGUI::buttonHeight = BUTTON_HEIGHT;
 int IntegratedFontReflowGUI::debounceDelay = DEBOUNCE_DELAY;
+
+// Add a new static variable to track whether buttons should be affected
+bool IntegratedFontReflowGUI::affectButtons = false;
 
 // Function pointer type for class member functions
 typedef void (IntegratedFontReflowGUI::*MemberFunctionPtr)();
@@ -81,8 +82,7 @@ void IntegratedFontReflowGUI::setup()
   // Initialize touch
   
   touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
-  Serial.println("Initialized touch...");
-
+  
   // Setup UI manager
   UIManager::setup(display);
   LineArtManager::setup(display);
@@ -118,30 +118,37 @@ void IntegratedFontReflowGUI::loop()
 }
 
 // Update font display elements
-// Update font display elements
 void IntegratedFontReflowGUI::updateFontDisplay()
 {
-  // // Get the current font name from the array
+  // Get the current font name from the array
   
-  // // Create a string for the font counter display (showing which font out of total)
-  // String fontCounterText = String(currentFontIndex + 1) + "/" + String(fontCount);
+  // Create a string for the font counter display (showing which font out of total)
+  String fontCounterText = String(currentFontIndex + 1) + "/" + String(fontCount);
 
-  // const char* currentFontName = fontNames[currentFontIndex];
-  // UIManager::updateTextElementContent("current_font_display", currentFontName);
-  // UIManager::updateTextElementContent("font_counter_display", fontCounterText);
+  const char* currentFontName = fontNames[currentFontIndex];
+  UIManager::updateTextElementContent("current_font_display", currentFontName);
+  UIManager::updateTextElementContent("font_counter_display", fontCounterText);
+  UIManager::updateTextElementContent("button_font_display", currentFontName);
   
-  // // Update all text elements to use the new font (preserving size settings)
-  // //UIManager::updateAllTextElementFontsPreserveSize(currentFontName);
-  
-  // // Debug output
-  // Serial.print("Font changed to: ");
-  // Serial.print(currentFontName);
-  // Serial.print(" (");
-  // Serial.print(currentFontIndex + 1);
-  // Serial.print("/");
-  // Serial.print(fontCount);
-  // Serial.println(")");
-  // UIManager::drawActiveScreen();
+  // Update text elements or buttons based on the toggle state
+  if (affectButtons) {
+    // Update all buttons to use the new font
+    UIManager::updateAllFontsPreserveSize(currentFontName);
+  } else {
+    // Update only text elements to use the new font
+    UIManager::updateAllTextElementFontsPreserveSize(currentFontName);
+  }
+
+  UIManager::drawActiveScreen();
 }
 
-
+// Add a new function to toggle the affectButtons state
+void IntegratedFontReflowGUI::toggleAffectButtons()
+{
+  affectButtons = !affectButtons;
+  String buttonText = "Affect buttons: ";
+  buttonText += (affectButtons ? "True" : "False");
+  UIManager::updateButtonText("toggle_affect_buttons", buttonText);
+  UIManager::drawActiveScreen();
+}
+  

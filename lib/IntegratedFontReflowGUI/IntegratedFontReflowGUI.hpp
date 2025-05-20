@@ -48,9 +48,8 @@ public:
     static int reflowTemp;
     static int buttonHeight;
     static int debounceDelay;
-    
-
-
+    static bool affectButtons;
+    static void toggleAffectButtons();
     
     static void increaseSoakTemp(bool coarse = false);
     static void decreaseSoakTemp(bool coarse = false);
@@ -58,9 +57,6 @@ public:
     static void decreaseReflowTemp(bool coarse = false);
     static void updateFontDisplay();
 
-    
-    
 private:
     BBCapTouch touch;
- 
 };

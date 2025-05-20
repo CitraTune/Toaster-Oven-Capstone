@@ -56,8 +56,8 @@ private:
 
   static void setupSettingsScreenButtons()
   {
-    const int backButtonWidth = 160;
-    const int backButtonX = (SCREEN_WIDTH - backButtonWidth) / 2;
+    const int backButtonWidth = SCREEN_WIDTH - 4; // Full screen width minus 4 pixels margin
+    const int backButtonX = 2; // 2 pixels margin from left
 
     UIManager::createButton(
         "back_from_settings_btn",
@@ -95,7 +95,7 @@ private:
     //                         SCREEN_SETTINGS, decreaseReflowTempFine);
 
     UIManager::createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100, 112, 40, 10,
-                            "Invert Accent", SCREEN_SETTINGS, UIManager::toggleInvertAccent);
+                            "Gray & Red", SCREEN_SETTINGS, UIManager::toggleInvertAccent);
 
     UIManager::createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10,
                             "Light Mode", SCREEN_SETTINGS, UIManager::toggleLightMode);
@@ -103,9 +103,8 @@ private:
 
   static void setupFontScreenButtons()
   {
-    const int backButtonWidth = 160;
-    const int backButtonX = (SCREEN_WIDTH - backButtonWidth) / 2;
-
+    const int backButtonWidth = SCREEN_WIDTH - 4; // Full screen width minus 4 pixels margin
+    const int backButtonX = 2; // 2 pixels margin from left
     UIManager::createButton(
         "back_from_fonts_btn",
         backButtonX,
@@ -138,6 +137,20 @@ private:
         ">",
         SCREEN_FONTS,
         nextFont);
+
+    // Full width for the toggle button
+    String buttonText = "Affect buttons: ";
+    buttonText += (IntegratedFontReflowGUI::affectButtons ? "True" : "False");
+    UIManager::createButton(
+        "toggle_affect_buttons",
+        2, // 2 pixels margin from left
+        SCREEN_HEIGHT - buttonHeight - 110,
+        SCREEN_WIDTH - 4, // Full screen width minus 4 pixels margin
+        buttonHeight,
+        10,
+        buttonText,
+        SCREEN_FONTS,
+        toggleAffectButtons);
   }
 
   static void goToMain()
@@ -219,4 +232,10 @@ private:
     IntegratedFontReflowGUI::reflowTemp -= 1;
     IntegratedFontReflowGUI::updateFontDisplay();
   }
+
+  static void toggleAffectButtons()
+  {
+    IntegratedFontReflowGUI::toggleAffectButtons();
+  }
 };
+

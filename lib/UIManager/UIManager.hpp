@@ -15,7 +15,7 @@ private:
     static bool lightMode;
     static bool invertAccent;
     static uint16_t outlineColor;
-    static const lgfx::IFont* currentFont;  // Track current font
+    static std::string currentFont;  // Track current font
     static LGFX _display; // The global display object
 
     // Private constructor to prevent instantiation
@@ -34,6 +34,9 @@ public:
     static bool createButton(const std::string& key, int x, int y, int width, int height, int radius,
                              String label, int screen, void (*action)());
 
+    static const lgfx::IFont* getFontFromNameAndSize(const std::string& baseFontName, bool size9pt);
+    static const lgfx::IFont *getFontFromNameDefault(const std::string &baseFontName);
+
     // Create a new text element with a key
     static bool createTextElement(const std::string& key, int x, int y, uint16_t color, String content,
                                   int screen, const lgfx::IFont* font = nullptr);
@@ -48,6 +51,7 @@ public:
 
     // Example of a method to update all text elements' fonts
     static void updateAllTextElementFontsPreserveSize(const std::string& fontString);
+    static void updateAllFontsPreserveSize(const std::string &fontString);
 
     // Draw all active buttons for the current screen
     static void drawButtons();
@@ -70,7 +74,6 @@ public:
     // Get text element by key (returns nullptr if not found)
     static TextElement* getTextElement(const std::string& key);
     static void updateTextElementContent(const std::string& key, const String& newText);
-
 
     // Add temperature methods
     static void increaseSoakTemp(bool coarse = false) {
@@ -124,11 +127,24 @@ public:
     }
 
     static void setFont(const lgfx::IFont* font);
-    static const lgfx::IFont* getCurrentFont() { return currentFont; }
+    static const lgfx::IFont* getCurrentFont() { return TextElement::getFontFromNameDefault(currentFont); }
+    static void setCurrentFont(std::string font) { currentFont = font; }
     static void redraw();
 
     // Add getter for text elements
     static std::unordered_map<std::string, TextElement>& getTextElements() {
         return textElements;
+    }
+
+    // Add this method to the UIManager class
+    static void updateButtonText(const std::string &key, const String &newLabel) {
+        Button* button = getButton(key);
+        if (button) {
+            button->label = newLabel;
+            // Redraw the screen to show the change
+            drawActiveScreen();
+        } else {
+            Serial.println("Warning: Button with key '" + String(key.c_str()) + "' not found!");
+        }
     }
 };

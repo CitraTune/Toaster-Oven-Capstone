@@ -32,7 +32,15 @@ Button::Button(int x, int y, int width, int height, int radius,
   this->action = action;
   this->buttonFont = &lgfx::fonts::FreeSans9pt7b; // Default to FreeSans9pt
 }
+void Button::updateFontPreserveSize(const std::string &baseFontName) {
+  // Store font name if needed
+  this->buttonFontString = baseFontName; // You may want to add this as a member variable if tracking
 
+  // Always use 9pt size
+  this->buttonFont = TextElement::getFontFromNameDefault(baseFontName);
+
+  // Optional: re-calculate layout or trigger redraw if required
+}
 
 // Draw the button on the TFT
 void Button::draw(LGFX& tft) const {
@@ -44,7 +52,7 @@ void Button::draw(LGFX& tft) const {
   // Use current system font family but always 9pt size
   const lgfx::IFont* currentFont = UIManager::getCurrentFont();
 
-  
+  tft.setFont(buttonFont); // Set button font for sizing
   // Calculate text dimensions using button font
   int textWidth = tft.textWidth(label);
   int textHeight = tft.fontHeight();
