@@ -155,19 +155,19 @@ private:
 
   static void goToMain()
   {
-    UIManager::navigateToScreen(SCREEN_MAIN);
+    UIManager::setCurrentScreen(SCREEN_MAIN);
     IntegratedFontReflowGUI::updateFontDisplay();
   }
 
   static void goToFonts()
   {
-    UIManager::navigateToScreen(SCREEN_FONTS);
+    UIManager::setCurrentScreen(SCREEN_FONTS);
     IntegratedFontReflowGUI::updateFontDisplay();
   }
 
   static void goToSettings()
   {
-    UIManager::navigateToScreen(SCREEN_SETTINGS);
+    UIManager::setCurrentScreen(SCREEN_SETTINGS);
     IntegratedFontReflowGUI::updateFontDisplay();
   }
 

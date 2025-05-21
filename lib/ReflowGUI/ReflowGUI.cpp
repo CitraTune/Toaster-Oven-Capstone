@@ -99,7 +99,7 @@
 //   setupTemperatureElements();
   
 //   // Start with the main screen
-//   uiManager.navigateToScreen(SCREEN_MAIN);
+//   uiManager.setCurrentScreen(SCREEN_MAIN);
 // }
 
 // // Main loop
@@ -128,11 +128,11 @@
 
 // // Action methods
 // void ReflowGUI::goToSettings() {
-//     uiManager.navigateToScreen(SCREEN_SETTINGS);
+//     uiManager.setCurrentScreen(SCREEN_SETTINGS);
 // }
 
 // void ReflowGUI::goToMain() {
-//     uiManager.navigateToScreen(SCREEN_MAIN);
+//     uiManager.setCurrentScreen(SCREEN_MAIN);
 //     graphManager.draw();
 // }
 

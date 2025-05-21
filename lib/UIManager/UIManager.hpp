@@ -63,7 +63,7 @@ public:
     static void checkButtonPress(int touchX, int touchY);
 
     // Navigate to a specific screen
-    static void navigateToScreen(int screen);
+    static void setCurrentScreen(int screen);
 
     // Draw the active screen with all its elements
     static void drawActiveScreen();

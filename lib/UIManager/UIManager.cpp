@@ -193,7 +193,7 @@ void UIManager::checkButtonPress(int touchX, int touchY)
 }
 
 // Navigate to a specific screen
-void UIManager::navigateToScreen(int screen)
+void UIManager::setCurrentScreen(int screen)
 {
     currentScreen = screen;
 

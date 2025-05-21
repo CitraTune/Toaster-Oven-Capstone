@@ -86,7 +86,7 @@ void FontSelectorGUI::setup()
     uiManager.setFont(fonts[currentFontIndex]);
 
     // Start with the main screen
-    uiManager.navigateToScreen(SCREEN_MAIN);
+    uiManager.setCurrentScreen(SCREEN_MAIN);
 
     // Create navigation buttons using string keys
     // Button colors are now managed by UIManager's light/dark mode

@@ -82,15 +82,47 @@ void IntegratedFontReflowGUI::setup()
   // Initialize touch
   
   touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
-  
+
   // Setup UI manager
   UIManager::setup(display);
   LineArtManager::setup(display);
   ButtonSetup::setupAllButtons();
   TextSetup::setupAllTextElements();
-  UIManager::navigateToScreen(SCREEN_MAIN);
+  UIManager::setCurrentScreen(SCREEN_MAIN);
 }
 
+unsigned long cooldownStartTime = 0;
+bool cooldownActive = false;
+
+void cooldownScreen() {
+    // Change to cooldown screen
+    UIManager::setCurrentScreen(SCREEN_COOLDOWN);
+    
+    // Start the timer
+    cooldownStartTime = millis();
+    cooldownActive = true;
+    
+    // Initial timer text update
+    UIManager::updateTextElementContent("cooldown_timer", "30s");
+}
+
+// Add this to your main loop to handle the timer countdown
+void handleCooldownTimer() {
+    if (cooldownActive) {
+        // Calculate remaining time
+        unsigned long elapsedTime = (millis() - cooldownStartTime) / 1000; // in seconds
+        
+        if (elapsedTime >= 30) {
+            // Timer completed
+            cooldownActive = false;
+            UIManager::setCurrentScreen(SCREEN_MAIN); // Return to main screen
+        } else {
+            // Update timer display
+            int remainingTime = 30 - elapsedTime;
+            UIManager::updateTextElementContent("cooldown_timer", String(remainingTime) + "s");
+        }
+    }
+}
 // Main loop
 void IntegratedFontReflowGUI::loop()
 {
@@ -114,14 +146,13 @@ void IntegratedFontReflowGUI::loop()
       UIManager::checkButtonPress(x, y);
     }
   }
+  handleCooldownTimer();
   delay(10); // Reduced delay for smoother UI
 }
 
 // Update font display elements
 void IntegratedFontReflowGUI::updateFontDisplay()
 {
-  // Get the current font name from the array
-  
   // Create a string for the font counter display (showing which font out of total)
   String fontCounterText = String(currentFontIndex + 1) + "/" + String(fontCount);
 

@@ -61,7 +61,7 @@ unsigned long lastTouchTime = 0;
 const unsigned long debounceDelay = 200; // 200ms debounce delay
 
 // Function declarations
-void navigateToScreen(int screen);
+void setCurrentScreen(int screen);
 void goToSettings();
 void goToMain();
 void toggleLightMode();
@@ -167,7 +167,7 @@ void setup() {
   );
 
   // setupial screen setup
-  navigateToScreen(SCREEN_MAIN);
+  setCurrentScreen(SCREEN_MAIN);
 }
 
 void loop() {
@@ -262,7 +262,7 @@ void checkButtonPress(int touchX, int touchY) {
 }
 
 // Navigate to specified screen
-void navigateToScreen(int screen) {
+void setCurrentScreen(int screen) {
   currentScreen = screen;
   
   // Update button active states
@@ -332,11 +332,11 @@ void drawActiveScreen() {
 
 // Button action functions
 void goToSettings() {
-  navigateToScreen(SCREEN_SETTINGS);
+  setCurrentScreen(SCREEN_SETTINGS);
 }
 
 void goToMain() {
-  navigateToScreen(SCREEN_MAIN);
+  setCurrentScreen(SCREEN_MAIN);
 }
 
 void toggleLightMode() {

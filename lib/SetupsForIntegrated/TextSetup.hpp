@@ -24,6 +24,7 @@ public:
 
         // No errors!
         setupFontDisplayElements();
+        setupCooldownScreenElements();
     }
 
     static void updateTemperatureDisplays(const String &tempStr)
@@ -210,6 +211,27 @@ private:
             SCREEN_FONTS,
             "FreeSans",
             true);
+    }
+
+    static void setupCooldownScreenElements()
+    {
+        // Instruction text
+        UIManager::createTextElement(
+            "cooldown_instruction",
+            SCREEN_WIDTH / 2 - 140, SCREEN_HEIGHT / 2 - 30,
+            TFT_BLACK,
+            "Hold Door Partially Open For:",
+            SCREEN_COOLDOWN,
+            "FreeSansBold", false);
+
+        // Timer text - will be updated dynamically
+        UIManager::createTextElement(
+            "cooldown_timer",
+            SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT / 2 + 30,
+            TFT_BLACK,
+            "30s",
+            SCREEN_COOLDOWN,
+            "FreeSansBold", false);
     }
 };
 

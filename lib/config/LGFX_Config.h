@@ -5,6 +5,7 @@
 #define SCREEN_MAIN 0
 #define SCREEN_SETTINGS 1
 #define SCREEN_FONTS 2
+#define SCREEN_COOLDOWN 3  
 
 class LGFX : public lgfx::LGFX_Device {
   lgfx::Panel_ILI9341 _panel;
