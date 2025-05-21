@@ -10,21 +10,19 @@ class TextSetup
 public:
     static void setupAllTextElements()
     {
-        // these two cause font2 errors
-         setupBonfireTitleElements();
-         setupTemperatureAdjustElements();
+        setupBonfireTitleElements();
 
-        // This causes a 12pt error
-         setupScreenLabelElements();
+        setupTemperatureAdjustElements();
 
-        // Temp display causes font2 errors
-         setupTemperatureDisplayElements();
+        setupScreenLabelElements();
 
-        // errors above apply to font test and Light mod
+        setupTemperatureDisplayElements();
 
-        // No errors!
         setupFontDisplayElements();
+
         setupCooldownScreenElements();
+        
+        setupGraphLabels();
     }
 
     static void updateTemperatureDisplays(const String &tempStr)
@@ -35,6 +33,27 @@ public:
     }
 
 private:
+    // Add the new separate function for graph labels
+    static void setupGraphLabels()
+    {
+        // Add graph labels (Y-axis temperature values)
+        for (int i = 0; i <= 5; i++) {
+            int temp = i * 50;
+            int y = 200 - (i * 30); // 5 intervals in 150px height = 30px each
+
+            // Convert i to string and create the key properly
+            std::string labelKey = "graph_label_" + std::to_string(i);
+
+        UIManager::createTextElement(
+                labelKey,
+                5, y - 5,
+            TFT_WHITE,
+                String(temp),
+                SCREEN_MAIN,
+                &lgfx::fonts::Font2);
+        }
+    }
+
     static void setupTemperatureAdjustElements()
     {
         UIManager::createTextElement(
@@ -44,7 +63,6 @@ private:
             "Soak Temp:",
             SCREEN_SETTINGS,
             "FreeSans", true);
-
         UIManager::createTextElement(
             "soak_temp_value",
             10, 75,
@@ -52,7 +70,6 @@ private:
             String(UIManager::soakTemp) + " C",
             SCREEN_SETTINGS,
             "FreeSans", false);
-
         UIManager::createTextElement(
             "reflow_temp_label",
             10, 140,
@@ -60,7 +77,6 @@ private:
             "Reflow Temp:",
             SCREEN_SETTINGS,
             "FreeSans", true);
-
         UIManager::createTextElement(
             "reflow_temp_value",
             10, 165,
@@ -79,7 +95,6 @@ private:
             "Bonfire 1.0.11",
             SCREEN_SETTINGS,
             &lgfx::fonts::Font2);
-
         UIManager::createTextElement(
             "title_main",
             SCREEN_WIDTH / 2 - 50, 2,
@@ -129,15 +144,14 @@ private:
         UIManager::createTextElement(
             "temp_display_settings",
             SCREEN_WIDTH - 60, 2,
-            TFT_RED,  // Changed from TFT_YELLOW to TFT_RED
+            TFT_RED, // Changed from TFT_YELLOW to TFT_RED
             "0C",
             SCREEN_SETTINGS,
             &lgfx::fonts::Font2);
-
         UIManager::createTextElement(
             "temp_display_main",
             SCREEN_WIDTH - 60, 2,
-            TFT_RED,  // Changed from TFT_YELLOW to TFT_RED
+            TFT_RED, // Changed from TFT_YELLOW to TFT_RED
             "0C",
             SCREEN_MAIN,
             &lgfx::fonts::Font2);
@@ -145,7 +159,7 @@ private:
         UIManager::createTextElement(
             "temp_display_fonts",
             SCREEN_WIDTH - 60, 2,
-            TFT_RED,  // Changed from TFT_YELLOW to TFT_RED
+            TFT_RED, // Changed from TFT_YELLOW to TFT_RED
             "0C",
             SCREEN_FONTS,
             &lgfx::fonts::Font2);
@@ -162,8 +176,8 @@ private:
         // Add a new label to show the current button font - MOVED UP MORE AND LEFT-ALIGNED
         UIManager::createTextElement(
             "button_font_label",
-            10,                        // x - left-aligned at 10px from left edge
-            SCREEN_HEIGHT / 2 - 100,   // y position unchanged from previous modification
+            10,                      // x - left-aligned at 10px from left edge
+            SCREEN_HEIGHT / 2 - 100, // y position unchanged from previous modification
             TFT_WHITE,
             "Button font:",
             SCREEN_FONTS,
@@ -171,8 +185,8 @@ private:
             true);
         UIManager::createTextElement(
             "button_font_display",
-            20,                        // x - left-aligned with slight indent (10px)
-            SCREEN_HEIGHT / 2 - 80,    // y position unchanged
+            20,                     // x - left-aligned with slight indent (10px)
+            SCREEN_HEIGHT / 2 - 80, // y position unchanged
             TFT_WHITE,
             currentFontName,
             SCREEN_FONTS,
@@ -182,8 +196,8 @@ private:
         // Change the regular font label - MOVED LEFT
         UIManager::createTextElement(
             "global_font_label",
-            10,                        // x - left-aligned at 10px from left edge
-            SCREEN_HEIGHT / 2 - 60,    // y position unchanged
+            10,                     // x - left-aligned at 10px from left edge
+            SCREEN_HEIGHT / 2 - 60, // y position unchanged
             TFT_WHITE,
             "Global font:",
             SCREEN_FONTS,
@@ -193,8 +207,8 @@ private:
         // Current font name display - MOVED LEFT
         UIManager::createTextElement(
             "current_font_display",
-            20,                        // x - left-aligned with slight indent (10px)
-            SCREEN_HEIGHT / 2 - 40,    // y position unchanged
+            20,                     // x - left-aligned with slight indent (10px)
+            SCREEN_HEIGHT / 2 - 40, // y position unchanged
             TFT_WHITE,
             currentFontName,
             SCREEN_FONTS,
@@ -204,8 +218,8 @@ private:
         // Font counter label - MOVED LEFT
         UIManager::createTextElement(
             "font_counter_display",
-            10,                        // x - left-aligned at 10px from left edge
-            SCREEN_HEIGHT / 2 - 20,    // y position unchanged
+            10,                     // x - left-aligned at 10px from left edge
+            SCREEN_HEIGHT / 2 - 20, // y position unchanged
             TFT_WHITE,
             fontCounterText,
             SCREEN_FONTS,
