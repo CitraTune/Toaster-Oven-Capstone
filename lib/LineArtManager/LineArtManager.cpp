@@ -150,7 +150,6 @@ void LineArtManager::updateActiveState(int currentScreen) {
 // Draw all active line arts
 void LineArtManager::draw() {
     if (!display) return;  // Safety check
-    
     for (const auto& pair : lineArts) {
         const LineArt& art = pair.second;
         art.draw(*display);

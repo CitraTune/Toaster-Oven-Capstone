@@ -2,7 +2,7 @@
 #include "ButtonSetup.hpp"
 #include "TextSetup.hpp"
 #include "UIManager.hpp"
-#include "LineArtManager.hpp"
+#include "LineArtSetup.hpp"
 
 // Define constants
 #define SCREEN_WIDTH 240
@@ -88,6 +88,7 @@ void IntegratedFontReflowGUI::setup()
   LineArtManager::setup(display);
   ButtonSetup::setupAllButtons();
   TextSetup::setupAllTextElements();
+  LineArtSetup::setupAllLineArt();
   UIManager::setCurrentScreen(SCREEN_MAIN);
 }
 

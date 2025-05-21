@@ -31,7 +31,6 @@ struct LineArt {
     // Draw the line art element
     void draw(LGFX& display) const {
         if (!active) return;
-        
         switch (type) {
             case LINE:
                 display.drawLine(x1, y1, x2, y2, color);

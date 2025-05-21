@@ -5,7 +5,7 @@
 typedef void (*ButtonAction)();
 
 // Static member initialization
-LGFX *UIManager::_tft = nullptr;
+LGFX *UIManager::_display = nullptr;
 std::unordered_map<std::string, Button> UIManager::buttons;
 std::unordered_map<std::string, TextElement> UIManager::textElements;
 int UIManager::currentScreen = SCREEN_MAIN;
@@ -15,23 +15,22 @@ uint16_t UIManager::outlineColor = TFT_DARKGRAY;
 std::string UIManager::currentFont = "FreeSans";
 int UIManager::soakTemp = 150;
 int UIManager::reflowTemp = 230;
-LGFX UIManager::_display;
+
 
 LGFX &UIManager::display()
 {
-    return _display;
+    return *UIManager::_display;
 }
 
 // setup the UI
 void UIManager::setup(LGFX &tft)
 {
-
-    _tft = &tft;
+    _display = &tft;
     currentScreen = SCREEN_MAIN;
     lightMode = false;
     invertAccent = false;
     outlineColor = TFT_DARKGRAY;
-    _tft->setFont(TextElement::getFontFromNameDefault(currentFont));
+    _display->setFont(TextElement::getFontFromNameDefault(currentFont));
 }
 
 // Create a new button with a key
@@ -119,7 +118,7 @@ void UIManager::drawButtons()
         const Button &button = pair.second;
         if (button.active)
         {
-            button.draw(*_tft);
+            button.draw(UIManager::display());
         }
     }
 }
@@ -132,7 +131,7 @@ void UIManager::drawTextElements()
         const TextElement &element = pair.second;
         if (element.active)
         {
-            element.draw(*_tft);
+            element.draw(UIManager::display());
         }
     }
 }
@@ -145,7 +144,7 @@ void UIManager::updateTextElementContent(const std::string &key, const String &n
         element->content = newText;
         if (element->active)
         {
-            element->draw(*_tft); // Redraw only if it's active on the current screen
+            element->draw(*_display); // Redraw only if it's active on the current screen
         }
     }
     else
@@ -210,7 +209,7 @@ void UIManager::setCurrentScreen(int screen)
         TextElement &element = pair.second;
         element.active = (element.screen == currentScreen);
     }
-
+    LineArtManager::updateActiveState(screen);
     // Draw the new screen
     drawActiveScreen();
 }
@@ -219,15 +218,16 @@ void UIManager::setCurrentScreen(int screen)
 void UIManager::drawActiveScreen()
 {
     // Clear the screen
-    _tft->fillScreen(lightMode ? TFT_WHITE : TFT_BLACK);
+    _display->fillScreen(lightMode ? TFT_WHITE : TFT_BLACK);
 
     // First draw the text elements
     drawTextElements();
 
     // Then draw the buttons on top
     drawButtons();
-
+    
     LineArtManager::draw();
+
 }
 
 // Get button by key (returns nullptr if not found)
@@ -254,7 +254,7 @@ TextElement *UIManager::getTextElement(const std::string &key)
 
 void UIManager::redraw()
 {
-    _tft->fillScreen(lightMode ? TFT_WHITE : TFT_BLACK);
+    _display->fillScreen(lightMode ? TFT_WHITE : TFT_BLACK);
 
     // Draw all active buttons
     for (const auto &pair : buttons)
@@ -262,7 +262,7 @@ void UIManager::redraw()
         const Button &button = pair.second;
         if (button.active)
         {
-            button.draw(*_tft);
+            button.draw(*_display);
         }
     }
 
@@ -272,7 +272,7 @@ void UIManager::redraw()
         const TextElement &element = pair.second;
         if (element.active)
         {
-            element.draw(*_tft);
+            element.draw(*_display);
         }
     }
 }

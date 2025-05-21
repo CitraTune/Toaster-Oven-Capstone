@@ -8,7 +8,7 @@
 
 class UIManager {
 private:
-    static LGFX* _tft;
+    static LGFX* _display;
     static std::unordered_map<std::string, Button> buttons;
     static std::unordered_map<std::string, TextElement> textElements;
     static int currentScreen;
@@ -16,7 +16,6 @@ private:
     static bool invertAccent;
     static uint16_t outlineColor;
     static std::string currentFont;  // Track current font
-    static LGFX _display; // The global display object
 
     // Private constructor to prevent instantiation
     UIManager() {}
@@ -147,4 +146,6 @@ public:
             Serial.println("Warning: Button with key '" + String(key.c_str()) + "' not found!");
         }
     }
+
+    static int getCurrentScreen() { return currentScreen; }
 };

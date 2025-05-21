@@ -58,8 +58,8 @@ void Button::draw(LGFX& tft) const {
   int textHeight = tft.fontHeight();
   
   // Determine colors based on current state
-  uint16_t fillColor = isInvertedAccent ? TFT_RED : TFT_DARKGRAY;
-  uint16_t outlineColor = isInvertedAccent ? TFT_DARKGRAY : TFT_RED;
+  uint16_t fillColor = isInvertedAccent ? TFT_DARKGRAY : TFT_RED;
+  uint16_t outlineColor = isInvertedAccent ? TFT_RED : TFT_DARKGRAY;
   uint16_t textColor = isLightMode ? TFT_BLACK : TFT_WHITE;
   
   // Draw filled rounded rectangle for button
