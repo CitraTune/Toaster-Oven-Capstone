@@ -26,7 +26,7 @@ struct LineArt {
     // For rectangles: x1,y1 is top-left corner, x2,y2 is width,height
     
     // Color
-    uint32_t color;
+    uint16_t color;
     
     // Draw the line art element
     void draw(LGFX& display) const {
