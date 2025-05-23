@@ -34,7 +34,7 @@ private:
     UIManager::createButton(
         "font_test_btn",
         leftButtonX,
-        SCREEN_HEIGHT - buttonHeight - buttonMargin,
+        SCREEN_HEIGHT - buttonHeight - buttonMargin + 3, // Moved down by 3 pixels
         buttonWidth,
         buttonHeight,
         10,
@@ -45,7 +45,7 @@ private:
     UIManager::createButton(
         "settings_btn",
         rightButtonX,
-        SCREEN_HEIGHT - buttonHeight - buttonMargin,
+        SCREEN_HEIGHT - buttonHeight - buttonMargin + 3, // Moved down by 3 pixels
         buttonWidth,
         buttonHeight,
         10,
@@ -62,7 +62,7 @@ private:
     UIManager::createButton(
         "back_from_settings_btn",
         backButtonX,
-        SCREEN_HEIGHT - buttonHeight - buttonMargin,
+        SCREEN_HEIGHT - buttonHeight - buttonMargin + 3, // Moved down by 3 pixels
         backButtonWidth,
         buttonHeight,
         10,
@@ -73,31 +73,31 @@ private:
     int tempBoxX = 130;
     int tempBoxY = 10;
 
-    // // Soak Temp Controls
-    // UIManager::createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
-    //                         SCREEN_SETTINGS, increaseSoakTempCoarse);
-    // UIManager::createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
-    //                         SCREEN_SETTINGS, decreaseSoakTempCoarse);
-    // UIManager::createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
-    //                         SCREEN_SETTINGS, increaseSoakTempFine);
-    // UIManager::createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
-    //                         SCREEN_SETTINGS, decreaseSoakTempFine);
+    // Soak Temp Controls
+    UIManager::createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
+                            SCREEN_SETTINGS, increaseSoakTempCoarse);
+    UIManager::createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
+                            SCREEN_SETTINGS, decreaseSoakTempCoarse);
+    UIManager::createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
+                            SCREEN_SETTINGS, increaseSoakTempFine);
+    UIManager::createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
+                            SCREEN_SETTINGS, decreaseSoakTempFine);
 
-    // // Reflow Temp Controls
-    // tempBoxY += 100;
-    // UIManager::createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
-    //                         SCREEN_SETTINGS, increaseReflowTempCoarse);
-    // UIManager::createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
-    //                         SCREEN_SETTINGS, decreaseReflowTempCoarse);
-    // UIManager::createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
-    //                         SCREEN_SETTINGS, increaseReflowTempFine);
-    // UIManager::createButton("reflow_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
-    //                         SCREEN_SETTINGS, decreaseReflowTempFine);
+    // Reflow Temp Controls
+    tempBoxY += 100;
+    UIManager::createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
+                            SCREEN_SETTINGS, increaseReflowTempCoarse);
+    UIManager::createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
+                            SCREEN_SETTINGS, decreaseReflowTempCoarse);
+    UIManager::createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
+                            SCREEN_SETTINGS, increaseReflowTempFine);
+    UIManager::createButton("reflow_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
+                            SCREEN_SETTINGS, decreaseReflowTempFine);
 
-    UIManager::createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100, 112, 40, 10,
+    UIManager::createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100 + 3, 112, 40, 10, // Moved down by 3 pixels
                             "Gray & Red", SCREEN_SETTINGS, UIManager::toggleInvertAccent);
 
-    UIManager::createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100, 112, 40, 10,
+    UIManager::createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100 + 3, 112, 40, 10, // Moved down by 3 pixels
                             "Light Mode", SCREEN_SETTINGS, UIManager::toggleLightMode);
   }
 
@@ -108,7 +108,7 @@ private:
     UIManager::createButton(
         "back_from_fonts_btn",
         backButtonX,
-        SCREEN_HEIGHT - buttonHeight - buttonMargin,
+        SCREEN_HEIGHT - buttonHeight - buttonMargin + 3, // Moved down by 3 pixels
         backButtonWidth,
         buttonHeight,
         10,
@@ -119,7 +119,7 @@ private:
     UIManager::createButton(
         "prev_font_btn",
         10,
-        SCREEN_HEIGHT - buttonHeight - 60,
+        SCREEN_HEIGHT - buttonHeight - 60 + 3, // Moved down by 3 pixels
         60,
         buttonHeight,
         10,
@@ -130,7 +130,7 @@ private:
     UIManager::createButton(
         "next_font_btn",
         SCREEN_WIDTH - 70,
-        SCREEN_HEIGHT - buttonHeight - 60,
+        SCREEN_HEIGHT - buttonHeight - 60 + 3, // Moved down by 3 pixels
         60,
         buttonHeight,
         10,
@@ -144,7 +144,7 @@ private:
     UIManager::createButton(
         "toggle_affect_buttons",
         2, // 2 pixels margin from left
-        SCREEN_HEIGHT - buttonHeight - 110,
+        SCREEN_HEIGHT - buttonHeight - 110 + 3, // Moved down by 3 pixels
         SCREEN_WIDTH - 4, // Full screen width minus 4 pixels margin
         buttonHeight,
         10,
@@ -238,4 +238,3 @@ private:
     IntegratedFontReflowGUI::toggleAffectButtons();
   }
 };
-
