@@ -8,6 +8,8 @@ public:
     static void setupAllLineArt()
     {
         setupMainScreenGraphs();
+        addGraphTickMarks();
+        addDividerLines();
     }
 
 private:
@@ -22,19 +24,97 @@ private:
         // Assuming SCREEN_MAIN is defined elsewhere
         const int graphX = 40;  // X position
         const int graphY = 55;  // Y position
-        const int squareSize = 14;  // Size of each square (14 pixels)
-        const int graphWidth = squareSize * 14;  // Width for 14 columns
-        const int graphHeight = squareSize * 12;  // Height for 12 rows
+        const int squareSize = 16;  // Size of each square
+        const int graphWidth = squareSize * 12 + 1;  // Width for 14 columns
+        const int graphHeight = squareSize * 10 + 1;  // Height for 12 rows
 
         // Create the graph with black lines and gray background
         LineArtManager::addGraph(
             SCREEN_MAIN,        // Screen ID
             graphX, graphY,     // Position
             graphWidth, graphHeight, // Dimensions
-            11, 13,             // 11 horizontal lines, 13 vertical lines (internal grid lines)
+            9, 11,             // 11 horizontal lines, 13 vertical lines (internal grid lines)
             TFT_BLACK,          // Frame color
             TFT_BLACK,          // Grid color
             TFT_LIGHTGRAY       // Background color
+        );
+
+        // Dark gray outline options (pick one):
+        // 0x4208 - Very dark gray (close to black)
+        // 0x5A69 - Dark slate gray
+        // 0x6B4D - Medium-dark gray
+        // 0x7BEF - Medium gray
+        // 0x8C71 - Standard dark gray
+        // 0x9CD3 - Slightly darker than TFT_DARKGRAY
+
+        // Using the very dark gray option (0x4208)
+        LineArtManager::addRect(
+                SCREEN_MAIN,
+            graphX, graphY,
+            graphWidth, graphHeight,
+            0x4208  // Very dark gray, almost black
+            );
+        }
+
+    static void addGraphTickMarks()
+    {
+        // Define the graph position and dimensions (must match what's in setupMainScreenGraphs)
+        const int graphX = 40;  // X position
+        const int graphY = 55;  // Y position
+        const int graphHeight = 16 * 10;  // Height for 10 rows
+
+        // Tick mark properties
+        const int tickWidth = 4;
+        const int tickHeight = 1;
+        const int tickOffset = 6; // How much the tick extends left of the graph
+
+        // We have 6 labels: 0, 50, 100, 150, 200, 250
+        const int labelCount = 6;
+
+        // Add tick marks for each temperature label
+        for (int i = 0; i < labelCount; i++) {
+            // Calculate Y position: map i from [0,5] to [graphBottom,graphTop]
+            int y = (graphY + graphHeight) - (i * (graphHeight) / (labelCount - 1));
+
+            // Add a red tick mark at this position
+            // The tick will be positioned just to the left of the graph
+            LineArtManager::addFilledRect(
+            SCREEN_MAIN,
+                graphX-2,  // X position (left of graph)
+                y, // Y position (centered on the grid line)
+                tickWidth,            // Width
+                tickHeight,           // Height
+                TFT_RED               // Color
+        );
+        }
+    }
+
+    static void addDividerLines()
+    {
+        // Add a divider line below the "Main Menu" text on main screen
+        // The Main Menu text is at y=24, so we'll place this a few pixels below
+        LineArtManager::addLine(
+            SCREEN_MAIN,
+            0, 45,             // Start point (left edge of screen, y=40)
+            SCREEN_WIDTH, 45,  // End point (right edge of screen, same y)
+            TFT_WHITE          // Color
+        );
+
+        // LineArtManager::addLine(
+        //     SCREEN_MAIN,
+        //     0, 20,             // Start point (left edge of screen, y=40)
+        //     SCREEN_WIDTH, 20,  // End point (right edge of screen, same y)
+        //     TFT_WHITE          // Color
+        // );
+
+        // Add a divider line above the buttons on main screen
+        // Assuming buttons are at the bottom of the screen, we'll place this line appropriately
+        // Typically buttons might be around y=200-220 on a 240px height screen
+        LineArtManager::addLine(
+            SCREEN_MAIN,
+            0, 250,             // Start point (left edge of screen, y=200)
+            SCREEN_WIDTH, 250,  // End point (right edge of screen, same y)
+            TFT_WHITE           // Color
         );
     }
 
@@ -43,6 +123,4 @@ private:
         // Add light green background for cooldown screen
         LineArtManager::addFilledRect(SCREEN_COOLDOWN, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, TFT_GREENYELLOW);
     }
-
 };
-

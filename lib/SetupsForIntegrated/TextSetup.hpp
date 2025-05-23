@@ -37,13 +37,13 @@ private:
     static void setupGraphLabels()
     {
         // Calculate new Y positions based on the graph position and height
-        const int graphY = 20;  // Graph's Y position
-        const int graphHeight = 14 * 12;  // Graph height (12 squares of 14px each)
-        const int graphBottom = graphY + graphHeight;  // Y-coordinate of the bottom of the graph
+        const int graphY = 55;  // Graph's Y position (unchanged)
+        const int graphHeight = 16 * 10 + 1;  // Graph height
+        const int graphBottom = graphY + graphHeight-1;  // Y-coordinate of the bottom of the graph
         const int graphTop = graphY;  // Y-coordinate of the top of the graph
 
         // We want to align 250 with the top and 0 with the bottom
-        // 5 labels will be evenly distributed between top and bottom
+        // Labels will be evenly distributed between top and bottom
         const int labelCount = 6;  // 0, 50, 100, 150, 200, 250
 
         // Add graph labels (Y-axis temperature values)
@@ -53,13 +53,23 @@ private:
             // Calculate Y position: map i from [0,5] to [graphBottom,graphTop]
             int y = graphBottom - (i * (graphHeight) / (labelCount - 1));
 
+            // Convert the temperature to a right-aligned string with spaces
+            String tempStr;
+            if (temp < 10) {
+                tempStr = "  " + String(temp);  // 2 spaces for single digit
+            } else if (temp < 100) {
+                tempStr = " " + String(temp);   // 1 space for double digit
+            } else {
+                tempStr = String(temp);         // No space needed for 3 digits
+            }
+
             // Convert i to string and create the key properly
             std::string labelKey = "graph_label_" + std::to_string(i);
             UIManager::createTextElement(
                 labelKey,
-                5, y - 5,  // -5 to center the text vertically with the line
+                5, y - 7,  // -7 to center the text vertically with the line
                 TFT_WHITE,
-                String(temp),
+                tempStr,
                 SCREEN_MAIN,
                 &lgfx::fonts::Font2);
         }
