@@ -138,6 +138,10 @@ public:
     return getFontFromName(fullFontName);
   }
 
+  const lgfx::IFont* getFont() const {
+    return font;
+  }
+
 public:
   int x, y;
   uint16_t color;

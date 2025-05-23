@@ -3,7 +3,6 @@
 #include "UIManager.hpp"
 #include "IntegratedFontReflowGUI.hpp"
 
-
 // Constants for button dimensions
 #define BUTTON_HEIGHT 40
 #define BUTTON_MARGIN 10
@@ -57,7 +56,7 @@ private:
   static void setupSettingsScreenButtons()
   {
     const int backButtonWidth = SCREEN_WIDTH - 4; // Full screen width minus 4 pixels margin
-    const int backButtonX = 2; // 2 pixels margin from left
+    const int backButtonX = 2;                    // 2 pixels margin from left
 
     UIManager::createButton(
         "back_from_settings_btn",
@@ -70,41 +69,60 @@ private:
         SCREEN_SETTINGS,
         goToMain);
 
-    int tempBoxX = 130;
-    int tempBoxY = 10;
-
-    // Soak Temp Controls
-    UIManager::createButton("soak_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
+    // New temperature control table layout - moved right and down
+    const int tableX = 120; // Moved right from 90
+    const int tableY = 55;  // Moved down from 40
+    const int cellWidth = 40;
+    const int cellHeight = 40;
+    const int buttonSize = 40;
+    // Soak Temperature Controls
+    UIManager::createButton("soak_temp_plus10", tableX, tableY,
+                            buttonSize, buttonSize, 5, "+",
                             SCREEN_SETTINGS, increaseSoakTempCoarse);
-    UIManager::createButton("soak_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
-                            SCREEN_SETTINGS, decreaseSoakTempCoarse);
-    UIManager::createButton("soak_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
+
+    UIManager::createButton("soak_temp_plus1", tableX + cellWidth, tableY,
+                            buttonSize, buttonSize, 5, "+",
                             SCREEN_SETTINGS, increaseSoakTempFine);
-    UIManager::createButton("soak_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
+
+    UIManager::createButton("soak_temp_minus10", tableX, tableY + cellHeight,
+                            buttonSize, buttonSize, 5, "-",
+                            SCREEN_SETTINGS, decreaseSoakTempCoarse);
+
+    UIManager::createButton("soak_temp_minus1", tableX + cellWidth, tableY + cellHeight,
+                            buttonSize, buttonSize, 5, "-",
                             SCREEN_SETTINGS, decreaseSoakTempFine);
 
-    // Reflow Temp Controls
-    tempBoxY += 100;
-    UIManager::createButton("reflow_temp_plus10", tempBoxX, tempBoxY, 40, 40, 5, "+10",
+    // Reflow Temperature Controls
+    UIManager::createButton("reflow_temp_plus10", tableX, tableY + (cellHeight * 2),
+                            buttonSize, buttonSize, 5, "+",
                             SCREEN_SETTINGS, increaseReflowTempCoarse);
-    UIManager::createButton("reflow_temp_minus10", tempBoxX, tempBoxY + 50, 40, 40, 5, "-10",
-                            SCREEN_SETTINGS, decreaseReflowTempCoarse);
-    UIManager::createButton("reflow_temp_plus1", tempBoxX + 60, tempBoxY, 40, 40, 5, "+1",
+
+    UIManager::createButton("reflow_temp_plus1", tableX + cellWidth, tableY + (cellHeight * 2),
+                            buttonSize, buttonSize, 5, "+",
                             SCREEN_SETTINGS, increaseReflowTempFine);
-    UIManager::createButton("reflow_temp_minus1", tempBoxX + 60, tempBoxY + 50, 40, 40, 5, "-1",
+
+    UIManager::createButton("reflow_temp_minus10", tableX, tableY + (cellHeight * 3),
+                            buttonSize, buttonSize, 5, "-",
+                            SCREEN_SETTINGS, decreaseReflowTempCoarse);
+
+    UIManager::createButton("reflow_temp_minus1", tableX + cellWidth, tableY + (cellHeight * 3),
+                            buttonSize, buttonSize, 5, "-",
                             SCREEN_SETTINGS, decreaseReflowTempFine);
 
-    UIManager::createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100 + 3, 112, 40, 10, // Moved down by 3 pixels
+    // Comment out the light mode and accent buttons
+    /*
+    UIManager::createButton("invert_accent_btn", 3, SCREEN_HEIGHT - 100 + 3, 112, 40, 10,
                             "Gray & Red", SCREEN_SETTINGS, UIManager::toggleInvertAccent);
 
-    UIManager::createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100 + 3, 112, 40, 10, // Moved down by 3 pixels
+    UIManager::createButton("light_mode_btn", (SCREEN_WIDTH - 112) - 3, SCREEN_HEIGHT - 100 + 3, 112, 40, 10,
                             "Light Mode", SCREEN_SETTINGS, UIManager::toggleLightMode);
+    */
   }
 
   static void setupFontScreenButtons()
   {
     const int backButtonWidth = SCREEN_WIDTH - 4; // Full screen width minus 4 pixels margin
-    const int backButtonX = 2; // 2 pixels margin from left
+    const int backButtonX = 2;                    // 2 pixels margin from left
     UIManager::createButton(
         "back_from_fonts_btn",
         backButtonX,
@@ -143,9 +161,9 @@ private:
     buttonText += (IntegratedFontReflowGUI::affectButtons ? "True" : "False");
     UIManager::createButton(
         "toggle_affect_buttons",
-        2, // 2 pixels margin from left
+        2,                                      // 2 pixels margin from left
         SCREEN_HEIGHT - buttonHeight - 110 + 3, // Moved down by 3 pixels
-        SCREEN_WIDTH - 4, // Full screen width minus 4 pixels margin
+        SCREEN_WIDTH - 4,                       // Full screen width minus 4 pixels margin
         buttonHeight,
         10,
         buttonText,
@@ -156,19 +174,19 @@ private:
   static void goToMain()
   {
     UIManager::setCurrentScreen(SCREEN_MAIN);
-    IntegratedFontReflowGUI::updateFontDisplay();
+    // IntegratedFontReflowGUI::updateFontDisplay();
   }
 
   static void goToFonts()
   {
     UIManager::setCurrentScreen(SCREEN_FONTS);
-    IntegratedFontReflowGUI::updateFontDisplay();
+    // IntegratedFontReflowGUI::updateFontDisplay();
   }
 
   static void goToSettings()
   {
     UIManager::setCurrentScreen(SCREEN_SETTINGS);
-    IntegratedFontReflowGUI::updateFontDisplay();
+    // IntegratedFontReflowGUI::updateFontDisplay();
   }
 
   static void nextFont()
@@ -188,49 +206,49 @@ private:
   static void increaseSoakTempCoarse()
   {
     IntegratedFontReflowGUI::soakTemp += 10;
-    IntegratedFontReflowGUI::updateFontDisplay();
+    UIManager::updateTextElementContent("soak_temp_value", String(IntegratedFontReflowGUI::soakTemp) + " C");
   }
 
   static void decreaseSoakTempCoarse()
   {
     IntegratedFontReflowGUI::soakTemp -= 10;
-    IntegratedFontReflowGUI::updateFontDisplay();
+    UIManager::updateTextElementContent("soak_temp_value", String(IntegratedFontReflowGUI::soakTemp) + " C");
   }
 
   static void increaseSoakTempFine()
   {
     IntegratedFontReflowGUI::soakTemp += 1;
-    IntegratedFontReflowGUI::updateFontDisplay();
+    UIManager::updateTextElementContent("soak_temp_value", String(IntegratedFontReflowGUI::soakTemp) + " C");
   }
 
   static void decreaseSoakTempFine()
   {
     IntegratedFontReflowGUI::soakTemp -= 1;
-    IntegratedFontReflowGUI::updateFontDisplay();
+    UIManager::updateTextElementContent("soak_temp_value", String(IntegratedFontReflowGUI::soakTemp) + " C");
   }
 
   static void increaseReflowTempCoarse()
   {
     IntegratedFontReflowGUI::reflowTemp += 10;
-    IntegratedFontReflowGUI::updateFontDisplay();
+    UIManager::updateTextElementContent("reflow_temp_value", String(IntegratedFontReflowGUI::reflowTemp) + " C");
   }
 
   static void decreaseReflowTempCoarse()
   {
     IntegratedFontReflowGUI::reflowTemp -= 10;
-    IntegratedFontReflowGUI::updateFontDisplay();
+    UIManager::updateTextElementContent("reflow_temp_value", String(IntegratedFontReflowGUI::reflowTemp) + " C");
   }
 
   static void increaseReflowTempFine()
   {
     IntegratedFontReflowGUI::reflowTemp += 1;
-    IntegratedFontReflowGUI::updateFontDisplay();
+    UIManager::updateTextElementContent("reflow_temp_value", String(IntegratedFontReflowGUI::reflowTemp) + " C");
   }
 
   static void decreaseReflowTempFine()
   {
     IntegratedFontReflowGUI::reflowTemp -= 1;
-    IntegratedFontReflowGUI::updateFontDisplay();
+    UIManager::updateTextElementContent("reflow_temp_value", String(IntegratedFontReflowGUI::reflowTemp) + " C");
   }
 
   static void toggleAffectButtons()
@@ -238,3 +256,4 @@ private:
     IntegratedFontReflowGUI::toggleAffectButtons();
   }
 };
+

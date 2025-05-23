@@ -17,6 +17,7 @@ public:
         setupFontDisplayElements();
         setupCooldownScreenElements();
         setupGraphLabels();
+        setupTemperatureTableLabels();
     }
 
     static void updateTemperatureDisplays(const String &tempStr)
@@ -109,28 +110,28 @@ private:
     {
         UIManager::createTextElement(
             "soak_temp_label",
-            10, 50,
+            10, 75,  // Changed from 50 to 75
             TFT_WHITE,
             "Soak Temp:",
             SCREEN_SETTINGS,
             "FreeSans", true);
         UIManager::createTextElement(
             "soak_temp_value",
-            10, 75,
+            10, 100,  // Changed from 75 to 100
             TFT_YELLOW,
             String(UIManager::soakTemp) + " C",
             SCREEN_SETTINGS,
             "FreeSans", false);
         UIManager::createTextElement(
             "reflow_temp_label",
-            10, 140,
+            10, 165,  // Changed from 140 to 165
             TFT_WHITE,
             "Reflow Temp:",
             SCREEN_SETTINGS,
             "FreeSans", true);
         UIManager::createTextElement(
             "reflow_temp_value",
-            10, 165,
+            10, 190,  // Changed from 165 to 190
             TFT_YELLOW,
             String(UIManager::reflowTemp) + " C",
             SCREEN_SETTINGS,
@@ -287,6 +288,34 @@ private:
             "30s",
             SCREEN_COOLDOWN,
             "FreeSansBold", false);
+    }
+
+    static void setupTemperatureTableLabels()
+    {
+        // Table positioning (matching the button layout in ButtonSetup)
+        const int tableX = 120;
+        const int tableY = 55;
+        const int cellWidth = 50;
+        const int cellHeight = 40;
+
+        // Add column headers - using Font2 (9pt) and shifted left by 15px
+        UIManager::createTextElement(
+            "header_10",
+            tableX - 5, tableY - 20,  // Shifted left by 15px (from tableX + 15 to tableX - 15)
+            TFT_WHITE,
+            "+/- 10",
+            SCREEN_SETTINGS,
+            &lgfx::fonts::Font2  // Changed to 9pt font
+        );
+
+        UIManager::createTextElement(
+            "header_1",
+            tableX + cellWidth - 5, tableY - 20,  // Shifted left by 15px (from tableX + cellWidth + 15 to tableX + cellWidth - 15)
+            TFT_WHITE,
+            "+/- 1",
+            SCREEN_SETTINGS,
+            &lgfx::fonts::Font2  // Changed to 9pt font
+        );
     }
 };
 

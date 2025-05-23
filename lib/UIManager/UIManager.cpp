@@ -168,7 +168,6 @@ void UIManager::updateAllFontsPreserveSize(const std::string &fontString)
     UIManager::setCurrentFont(fontString);
 }
 
-// Draw all active buttons for the current screen
 void UIManager::drawButtons()
 {
     for (const auto &pair : buttons)
@@ -193,16 +192,42 @@ void UIManager::drawTextElements()
         }
     }
 }
-
 void UIManager::updateTextElementContent(const std::string &key, const String &newText)
 {
     TextElement *element = getTextElement(key);
     if (element)
     {
-        element->content = newText;
+        // If element is active, first clear its background
         if (element->active)
         {
-            element->draw(*_display); // Redraw only if it's active on the current screen
+            // Calculate background rectangle based on text dimensions
+            _display->setFont(element->getFont());
+            
+            // Get the text dimensions using available methods
+            int16_t textWidth = _display->textWidth(element->content);
+            int16_t textHeight = _display->fontHeight();
+            
+            // Clear the text area with current background color
+            uint16_t bgColor = lightMode ? TFT_WHITE : TFT_BLACK;
+            
+            // Create a rectangle around the text position with a fixed offset
+            int x_pos = element->x;
+            int y_pos = element->y;
+            
+            // Use a fixed 8 pixel downward offset as requested
+            int yOffset = 18;
+
+            // Draw the background clearing rectangle with the fixed offset
+            _display->fillRect(x_pos, y_pos - textHeight + yOffset, textWidth, textHeight, bgColor);
+        }
+        
+        // Update content
+        element->content = newText;
+        
+        // Redraw if active
+        if (element->active)
+        {
+            element->draw(*_display);
         }
     }
     else
@@ -210,12 +235,10 @@ void UIManager::updateTextElementContent(const std::string &key, const String &n
         Serial.println("Warning: Text element key not found: " + String(key.c_str()));
     }
 }
-
 // Check if a button was pressed. Activates action if it's pressed.
 void UIManager::checkButtonPress(int touchX, int touchY)
 {
     Serial.printf("Checking touch at X: %d, Y: %d for screen %d\n", touchX, touchY, currentScreen);
-
     for (auto &pair : buttons)
     {
         Button &button = pair.second;
@@ -283,7 +306,7 @@ void UIManager::drawActiveScreen()
 
     // Then draw the buttons on top
     drawButtons();
-    
+
     LineArtManager::draw();
 
 }
@@ -334,3 +357,4 @@ void UIManager::redraw()
         }
     }
 }
+

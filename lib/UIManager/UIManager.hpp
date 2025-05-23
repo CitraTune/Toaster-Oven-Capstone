@@ -66,6 +66,8 @@ public:
     static void updateAllTextElementFontsPreserveSize(const std::string &fontString);
     static void updateAllFontsPreserveSize(const std::string &fontString);
 
+   
+
     // Draw all active buttons for the current screen
     static void drawButtons();
 

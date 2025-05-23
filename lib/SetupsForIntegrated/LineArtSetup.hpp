@@ -21,6 +21,7 @@ public:
         setupMainScreenGraphs();
         addGraphTickMarks();
         addDividerLines();
+        setupTemperatureTable();
     }
 
 private:
@@ -102,6 +103,43 @@ private:
     static void setupCooldownScreen()
     {
         LineArtManager::addFilledRect(SCREEN_COOLDOWN, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, TFT_GREENYELLOW);
+    }
+
+    static void setupTemperatureTable()
+    {
+        // Table positioning (matching the button layout in ButtonSetup)
+        const int tableX = 120; // Moved right from 90
+        const int tableY = 55;  // Moved down from 40
+        const int cellWidth = 40;
+        const int cellHeight = 40;
+        const int tableWidth = cellWidth * 2;
+        const int tableHeight = cellHeight * 4;
+
+        // Draw outer rectangle - no gap between button and border
+        LineArtManager::addRect(
+            SCREEN_SETTINGS,
+            tableX, tableY,
+            tableWidth, tableHeight,
+            TFT_WHITE
+        );
+
+        // Draw horizontal dividers
+        for (int i = 1; i < 4; i++) {
+            LineArtManager::addLine(
+                SCREEN_SETTINGS,
+                tableX, tableY + (cellHeight * i),
+                tableX + tableWidth, tableY + (cellHeight * i),
+                TFT_WHITE
+            );
+        }
+
+        // Draw vertical divider
+        LineArtManager::addLine(
+            SCREEN_SETTINGS,
+            tableX + cellWidth, tableY,
+            tableX + cellWidth, tableY + tableHeight,
+            TFT_WHITE
+        );
     }
 };
 
