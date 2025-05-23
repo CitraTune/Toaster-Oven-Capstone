@@ -64,7 +64,8 @@ bool UIManager::createTextElement(const std::string &key, int x, int y, uint16_t
     }
 
     Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
-    TextElement newElement(x, y, color, content, screen, font); // Will auto-opt out of font changes
+    // Call constructor with explicit rotation=0, datum=0
+    TextElement newElement(x, y, color, content, screen, font, 0, 0);
     newElement.active = (screen == currentScreen);
 
     textElements[key] = newElement;
@@ -82,7 +83,64 @@ bool UIManager::createTextElement(const std::string &key, int x, int y, uint16_t
     }
 
     Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
-    TextElement newElement(x, y, color, content, screen, fontString, size9pt); // Will auto-opt in to font changes
+    // Call constructor with explicit rotation=0, datum=0
+    TextElement newElement(x, y, color, content, screen, fontString, size9pt, 0, 0);
+    newElement.active = (screen == currentScreen);
+
+    textElements[key] = newElement;
+    return true;
+}
+
+bool UIManager::createTextElementWithFontControl(const std::string &key, int x, int y, uint16_t color, String content,
+                              int screen, const std::string &fontString, bool size9pt, bool allowFontChange)
+{
+    // Check if key already exists
+    if (textElements.find(key) != textElements.end())
+    {
+        Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
+        return false;
+    }
+
+    Serial.println("Creating text element with font control: " + content + " with key: " + String(key.c_str()));
+    TextElement newElement(x, y, color, content, screen, fontString, size9pt, allowFontChange, 0, 0);
+    newElement.active = (screen == currentScreen);
+    textElements[key] = newElement;
+    return true;
+}
+
+bool UIManager::createRotatedTextElement(const std::string &key, int x, int y, uint16_t color, String content,
+                              int screen, const lgfx::IFont *font, bool allowFontChange,
+                              int rotation, int datum)
+{
+    // Check if key already exists
+    if (textElements.find(key) != textElements.end())
+    {
+        Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
+        return false;
+    }
+
+    Serial.println("Creating rotated text element: " + content + " with key: " + String(key.c_str()));
+    TextElement newElement(x, y, color, content, screen, font, rotation, datum);
+    newElement.active = (screen == currentScreen);
+    newElement.allowFontChange = allowFontChange;
+
+    textElements[key] = newElement;
+    return true;
+}
+
+bool UIManager::createRotatedTextElement(const std::string &key, int x, int y, uint16_t color, String content,
+                              int screen, const std::string &fontString, bool size9pt,
+                              int rotation, int datum)
+{
+    // Check if key already exists
+    if (textElements.find(key) != textElements.end())
+    {
+        Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
+        return false;
+    }
+
+    Serial.println("Creating rotated text element: " + content + " with key: " + String(key.c_str()));
+    TextElement newElement(x, y, color, content, screen, fontString, size9pt, true, rotation, datum);
     newElement.active = (screen == currentScreen);
 
     textElements[key] = newElement;

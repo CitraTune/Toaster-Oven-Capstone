@@ -10,59 +10,78 @@ class TextElement
 public:
   TextElement() = default;
 
-  // Constructor with direct font pointer - automatically opts OUT of font changes
   TextElement(int x, int y, uint16_t color, String content, int screen,
-              const lgfx::IFont *font = nullptr)
+              const lgfx::IFont *font = nullptr,
+              int rotation = 0, int datum = 0)
       : x(x), y(y), color(color), content(content), screen(screen),
         font(font), originalFont(font), active(false),
-        fontString(""), size9pt(true), allowFontChange(false) {}
+        fontString(""), size9pt(true), allowFontChange(false),
+        textRotation(rotation), textDatum(datum) {}
 
-  // Constructor with font string and size - automatically opts IN to font changes
   TextElement(int x, int y, uint16_t color, String content, int screen,
-              const std::string &fontString, bool size9pt)
+              const std::string &fontString, bool size9pt,
+              int rotation = 0, int datum = 0)
       : x(x), y(y), color(color), content(content), screen(screen),
-        fontString(fontString), size9pt(size9pt), active(false), allowFontChange(true)
+        fontString(fontString), size9pt(size9pt), active(false), allowFontChange(true),
+        textRotation(rotation), textDatum(datum)
   {
-    // Convert fontString and size9pt to actual font object
     font = getFontFromNameAndSize(fontString, size9pt);
     originalFont = font;
   }
 
-  // Constructor with explicit allowFontChange parameter (for special cases)
   TextElement(int x, int y, uint16_t color, String content, int screen,
-              const std::string &fontString, bool size9pt, bool allowFontChange)
+              const std::string &fontString, bool size9pt, bool allowFontChange,
+              int rotation = 0, int datum = 0)
       : x(x), y(y), color(color), content(content), screen(screen),
         fontString(fontString), size9pt(size9pt), active(false),
-        allowFontChange(allowFontChange)
+        allowFontChange(allowFontChange), textRotation(rotation), textDatum(datum)
   {
-    // Convert fontString and size9pt to actual font object
     font = getFontFromNameAndSize(fontString, size9pt);
     originalFont = font;
   }
 
   void draw(LGFX &tft) const
   {
-    if (!active)
-      return;
+    if (!active) return;
 
-    // If we have a specific font for this element, use it
-    if (font)
+    if (textRotation != 0)
+    {
+      // Create a sprite to draw rotated text
+      LGFX_Sprite sprite(&tft);
+      sprite.setFont(font);
+      sprite.setTextColor(color);
+      sprite.setTextDatum(textDatum);
+      sprite.setColorDepth(8); // 8-bit color is a good balance
+
+      // Estimate width/height of the text (safely)
+      int16_t textWidth = sprite.textWidth(content);
+      int16_t textHeight = 12; // fallback if font is null
+
+      // Add margin to avoid cutoff
+      int margin = 10;
+      int spriteW = textWidth + margin;
+      int spriteH = textHeight + margin;
+
+      sprite.createSprite(spriteW, spriteH);
+      sprite.fillSprite(TFT_TRANSPARENT);
+      sprite.setPivot(spriteW / 2, spriteH / 2);
+
+      sprite.drawString(content, spriteW / 2, spriteH / 2);
+      sprite.pushRotateZoom(x, y, textRotation * DEG_TO_RAD, 1.0, 1.0);
+
+      sprite.deleteSprite();
+    }
+    else
     {
       tft.setFont(font);
+      tft.setTextColor(color);
+      tft.setTextDatum(textDatum);
+      tft.drawString(content, x, y);
     }
-    // Otherwise use whatever font is currently set on the TFT
-
-    tft.setTextColor(color);
-    tft.setCursor(x, y);
-    tft.print(content);
   }
 
-  // Function to update font while maintaining size
-
-  // Update font preserving size from original font
   void updateFontPreserveSize(const std::string &baseFontName)
   {
-    // Only update if this element allows font changes
     if (!allowFontChange) return;
 
     Serial.println("Updating font to: " + String(baseFontName.c_str()));
@@ -76,11 +95,9 @@ public:
     return getFontFromNameAndSize(baseFontName, true);
   }
 
-  // Helper function to get a font object from a font name string
   static const lgfx::IFont *getFontFromName(const std::string &fontName)
   {
     static const std::map<std::string, const lgfx::IFont *> nameToFontMap = {
-        // Standard font families
         {"FreeMono9", &lgfx::fonts::FreeMono9pt7b},
         {"FreeMono12", &lgfx::fonts::FreeMono12pt7b},
         {"FreeMonoBold9", &lgfx::fonts::FreeMonoBold9pt7b},
@@ -107,11 +124,11 @@ public:
     {
       return it->second;
     }
-    return nullptr; // Font not found
+    return nullptr;
   }
+
   static const lgfx::IFont *getFontFromNameAndSize(const std::string &baseFontName, bool size9pt)
   {
-    // Special case for Font2 which doesn't follow the 9pt/12pt pattern
     if (baseFontName == "Font2")
     {
       return &lgfx::fonts::Font2;
@@ -127,11 +144,13 @@ public:
   String content;
   int screen;
   const lgfx::IFont *font;
-  const lgfx::IFont *originalFont; // Store the original font to maintain size ratio
+  const lgfx::IFont *originalFont;
   bool active;
 
-  // New properties to store font information
-  std::string fontString; // Base font name without size (e.g., "FreeSerif")
-  bool size9pt;           // Size flag: true for 9pt, false for 12pt
-  bool allowFontChange;   // Flag to allow/disallow font changes
+  std::string fontString;
+  bool size9pt;
+  bool allowFontChange;
+
+  int textRotation;
+  int textDatum;
 };

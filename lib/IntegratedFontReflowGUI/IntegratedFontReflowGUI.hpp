@@ -6,6 +6,7 @@
 #include "Button.hpp"
 #include "UIManager.hpp"
 #include <bb_captouch.h>
+#include "LGFX_Config.h"
 
 // Screen definitions
 #define SCREEN_MAIN 0

@@ -4,6 +4,7 @@
 #include "UIManager.hpp"
 #include "LineArtSetup.hpp"
 
+
 // Define constants
 #define SCREEN_WIDTH 240
 #define SCREEN_HEIGHT 320

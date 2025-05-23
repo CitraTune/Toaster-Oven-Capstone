@@ -36,11 +36,9 @@ private:
     // Add the new separate function for graph labels
     static void setupGraphLabels()
     {
-        // Calculate positions based on the graph position and height
-
-
-        const int yOffset = 8;   // Shift everything down by 8 pixels
-        const int xOffset = -4;  // Shift graph left by 4 pixels
+        // Updated offsets to move graph up and right
+        const int yOffset = -8;   // Shift everything UP by 8 pixels
+        const int xOffset = 0;   // Shift RIGHT by 12 pixels
         const int graphX = 40 + xOffset;  // X position with offset
         const int graphY = 55 + yOffset;  // Y position with offset
 
@@ -50,27 +48,27 @@ private:
         const int graphBottom = graphY + graphHeight-1;  // Y-coordinate of the bottom of the graph
         const int graphTop = graphY;      // Y-coordinate of the top of the graph
 
+        // Original X position for Y-axis labels with slight adjustment
+        const int labelX = 10;  // Adjusted slightly
 
-        // Original X position for Y-axis labels (don't shift these)
-        const int labelX = 5;  // This stays the same (no xOffset)
-
-        // Add a "C" label at the top of the Y-axis - keep at original position
-        UIManager::createTextElement(
-            "temp_unit_label",
-
-
-            labelX,           // X position (no offset - stays at original position)
-            graphTop - 15,    // Position above the graph
+        // COMMENTED OUT: Remove the "Temp(Celsius)" vertical label
+        /*
+        UIManager::createRotatedTextElement(
+            "temp_axis_label",
+            labelX - 5,                     // Position left of the Y axis
+            graphY + graphHeight/2 - 40,    // Center vertically along the Y axis
                 TFT_WHITE,
-            "C",
+            "Temp(Celsius)",
                 SCREEN_MAIN,
-            &lgfx::fonts::Font2);
+            &lgfx::fonts::Font2,
+            false,                          // Don't allow font changes
+            90,                             // 90 degree rotation for vertical text
+            4                               // middle_center datum value
+        );
+        */
 
-        // Labels will be evenly distributed between top and bottom
+        // Add graph labels (Y-axis temperature values) - with updated positions
         const int labelCount = 6;  // 0, 50, 100, 150, 200, 250
-
-
-        // Add graph labels (Y-axis temperature values) - keep at original position
         for (int i = 0; i < labelCount; i++) {
             int temp = i * 50;  // Temperature value (0, 50, 100, 150, 200, 250)
 
@@ -92,10 +90,11 @@ private:
 
             // Convert i to string and create the key properly
             std::string labelKey = "graph_label_" + std::to_string(i);
+
+            // Updated Y position to align with the middle of the grid lines
         UIManager::createTextElement(
                 labelKey,
-
-                labelX, y - 7,  // X position remains at original position (no offset)
+                labelX, y,  // Adjusted to align with grid lines
                 TFT_WHITE,
                 tempStr,
                 SCREEN_MAIN,
@@ -105,35 +104,35 @@ private:
         // Now add X-axis time labels (simplified to just 1-6)
         const int timeLabelsCount = 6;
 
-        // Add the time labels (1-6)
+        // Add the time labels (1-6) with improved positioning
         for (int i = 1; i <= timeLabelsCount; i++) {
             // Calculate time value (1 to 6)
             String timeStr = String(i);
 
             // Calculate X position: evenly distribute across the graph width
-            int x = graphX + (i * graphWidth / timeLabelsCount);
-
+            // Adjust to ensure they're properly positioned at grid lines
+            int x = graphX + ((i * 2) * squareSize);  // Position at every 2nd grid line
             // Create a unique key for each time label
             std::string labelKey = "time_label_" + std::to_string(i-1);
 
-            // Position the label below the graph
+            // Position the label below the graph with better visibility
         UIManager::createTextElement(
                 labelKey,
-                x - 3,                     // Offset to center the text with the tick
-                graphY + graphHeight + 6,  // Position below the graph
+                x - 3,                     // Slight offset to center
+                graphY + graphHeight + 8,  // Position clearly below the graph
                 TFT_WHITE,
                 timeStr,
                 SCREEN_MAIN,
             &lgfx::fonts::Font2);
         }
 
-        // Add "min" label to the right of "6"
+        // Changed to "Time (minutes)" and repositioned to be centered under X-axis
         UIManager::createTextElement(
             "time_unit_label",
-            graphX + graphWidth + 5,     // Position to the right of the graph
-            graphY + graphHeight + 6,    // Position below the graph
+            graphX + graphWidth/2 - 35,     // Center under the X-axis
+            graphY + graphHeight + 25,      // Position further below the graph
             TFT_WHITE,
-            "min",
+            "Time (minutes)",
             SCREEN_MAIN,
             &lgfx::fonts::Font2);
     }
