@@ -22,11 +22,13 @@ private:
 
         // Define the graph position and size
         // Assuming SCREEN_MAIN is defined elsewhere
-        const int graphX = 40;  // X position
-        const int graphY = 55;  // Y position
-        const int squareSize = 16;  // Size of each square
-        const int graphWidth = squareSize * 12 + 1;  // Width for 14 columns
-        const int graphHeight = squareSize * 10 + 1;  // Height for 12 rows
+        const int yOffset = 8;   // Shift everything down by 8 pixels
+        const int xOffset = -4;  // Shift graph left by 4 pixels
+        const int graphX = 40 + xOffset;  // X position with offset
+        const int graphY = 55 + yOffset;  // Y position with offset
+        const int squareSize = 15;  // Size of each square
+        const int graphWidth = squareSize * 12 + 1;  // Width for 12 columns
+        const int graphHeight = squareSize * 10 + 1;  // Height for 10 rows
 
         // Create the graph with black lines and gray background
         LineArtManager::addGraph(
@@ -52,20 +54,24 @@ private:
                 SCREEN_MAIN,
             graphX, graphY,
             graphWidth, graphHeight,
-            0x4208  // Very dark gray, almost black
+            0x20E4  // Very dark gray, almost black
             );
         }
 
     static void addGraphTickMarks()
     {
         // Define the graph position and dimensions (must match what's in setupMainScreenGraphs)
-        const int graphX = 40;  // X position
-        const int graphY = 55;  // Y position
-        const int graphHeight = 16 * 10;  // Height for 10 rows
+        const int yOffset = 8;   // Shift everything down by 8 pixels
+        const int xOffset = -4;  // Shift graph left by 4 pixels
+        const int graphX = 40 + xOffset;  // X position with offset
+        const int graphY = 55 + yOffset;  // Y position with offset
+        const int squareSize = 15;  // Size of each square
+        const int graphHeight = squareSize * 10;  // Height for 10 rows
+        const int graphWidth = squareSize * 12;   // Width for 12 columns
 
-        // Tick mark properties
-        const int tickWidth = 4;
-        const int tickHeight = 1;
+        // Y-axis tick mark properties
+        const int yTickWidth = 4;
+        const int yTickHeight = 1;
         const int tickOffset = 6; // How much the tick extends left of the graph
 
         // We have 6 labels: 0, 50, 100, 150, 200, 250
@@ -82,9 +88,33 @@ private:
             SCREEN_MAIN,
                 graphX-2,  // X position (left of graph)
                 y, // Y position (centered on the grid line)
-                tickWidth,            // Width
-                tickHeight,           // Height
+                yTickWidth,           // Width
+                yTickHeight,          // Height
                 TFT_RED               // Color
+        );
+        }
+
+        // X-axis tick mark properties
+        const int xTickWidth = 1;
+        const int xTickHeight = 4;
+
+        // We'll have 6 time labels: 1, 2, 3, 4, 5, 6
+        const int timeLabelsCount = 6;
+
+        // Add tick marks for each time label, including both ends of the graph
+        for (int i = 0; i <= timeLabelsCount; i++) {
+            // Calculate X position: evenly distribute across the graph width
+            // We want i=0 to be at the left edge and i=6 at the right edge
+            int x = graphX + (i * graphWidth / timeLabelsCount);
+
+            // Add a tick mark at this position
+            LineArtManager::addFilledRect(
+            SCREEN_MAIN,
+                x,                   // X position (centered on grid line)
+                graphY + graphHeight, // Y position (below graph)
+                xTickWidth,           // Width
+                xTickHeight,          // Height
+                TFT_RED              // Color
         );
         }
     }
@@ -124,3 +154,4 @@ private:
         LineArtManager::addFilledRect(SCREEN_COOLDOWN, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, TFT_GREENYELLOW);
     }
 };
+
