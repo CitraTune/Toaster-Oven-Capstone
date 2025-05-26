@@ -3,7 +3,8 @@
 #include "TextSetup.hpp"
 #include "UIManager.hpp"
 #include "LineArtSetup.hpp"
-
+#include "TempManager.hpp"
+#include "ReflowController.hpp"
 
 // Define constants
 #define SCREEN_WIDTH 240
@@ -80,8 +81,13 @@ void IntegratedFontReflowGUI::setup()
   display.setBrightness(128);
   display.setColorDepth(24);
 
+  // Initialize temperature manager
+  TempManager::begin();
+
+  // Initialize reflow controller
+  ReflowController::begin();
+
   // Initialize touch
-  
   touch.init(TOUCH_SDA, TOUCH_SCL, TOUCH_RST, TOUCH_INT);
 
   // Setup UI manager
@@ -96,60 +102,103 @@ void IntegratedFontReflowGUI::setup()
 unsigned long cooldownStartTime = 0;
 bool cooldownActive = false;
 
-void cooldownScreen() {
-    // Change to cooldown screen
-    UIManager::setCurrentScreen(SCREEN_COOLDOWN);
-    
-    // Start the timer
-    cooldownStartTime = millis();
-    cooldownActive = true;
-    
-    // Initial timer text update
-    UIManager::updateTextElementContent("cooldown_timer", "30s");
+void cooldownScreen()
+{
+  // Change to cooldown screen
+  UIManager::setCurrentScreen(SCREEN_COOLDOWN);
+
+  // Start the timer
+  cooldownStartTime = millis();
+  cooldownActive = true;
+
+  // Initial timer text update
+  UIManager::updateTextElementContent("cooldown_timer", "30s");
 }
 
 // Add this to your main loop to handle the timer countdown
-void handleCooldownTimer() {
-    if (cooldownActive) {
-        // Calculate remaining time
-        unsigned long elapsedTime = (millis() - cooldownStartTime) / 1000; // in seconds
-        
-        if (elapsedTime >= 30) {
-            // Timer completed
-            cooldownActive = false;
-            UIManager::setCurrentScreen(SCREEN_MAIN); // Return to main screen
-        } else {
-            // Update timer display
-            int remainingTime = 30 - elapsedTime;
-            UIManager::updateTextElementContent("cooldown_timer", String(remainingTime) + "s");
-        }
+void handleCooldownTimer()
+{
+  if (cooldownActive)
+  {
+    // Calculate remaining time
+    unsigned long elapsedTime = (millis() - cooldownStartTime) / 1000; // in seconds
+
+    if (elapsedTime >= 30)
+    {
+      // Timer completed
+      cooldownActive = false;
+      UIManager::setCurrentScreen(SCREEN_MAIN); // Return to main screen
     }
+    else
+    {
+      // Update timer display
+      int remainingTime = 30 - elapsedTime;
+      UIManager::updateTextElementContent("cooldown_timer", String(remainingTime) + "s");
+    }
+  }
 }
+
 // Main loop
 void IntegratedFontReflowGUI::loop()
 {
-  // Check for touch input
-  TOUCHINFO ti;
-  // Get touch samples
-  if (IntegratedFontReflowGUI::touch.getSamples(&ti))
+  delay(1); // optional, keeps things smooth
+  static unsigned long lastWakeTime = millis();
+  static unsigned long lastTempUpdateTime = 0;
+  const unsigned long interval = 10; // 10 ms interval
+  const unsigned long tempUpdateInterval = 500; // 500 ms for temperature display updates
+
+  unsigned long now = millis();
+
+  if ((long)(now - lastWakeTime) >= interval)
   {
-    unsigned long currentTime = millis();
-    if (currentTime - IntegratedFontReflowGUI::lastTouchTime > IntegratedFontReflowGUI::debounceDelay)
-    {
-      lastTouchTime = currentTime;
+    lastWakeTime += interval; // Add fixed interval to avoid drift
+    // Update temperature manager
+    TempManager::update();
 
-      int x = ti.x[0];
-      int y = ti.y[0];
+    // Update reflow controller
+    ReflowController::update();
 
-      // Debugging output
-      Serial.printf("Touch x=%d y=%d\n", x, y);
+    // Update temperature and heater status displays less frequently to avoid flicker
+    if (now - lastTempUpdateTime >= tempUpdateInterval) {
+      lastTempUpdateTime = now;
 
-      // Check if any button was pressed
-      UIManager::checkButtonPress(x, y);
+      // Get current temperature as a string
+      String tempString = TempManager::getTemperatureString();
+      // Update all temperature displays
+      TextSetup::updateTemperatureDisplays(tempString);
+
+      // Update heater status display in top bar
+      String heaterStatus = ReflowController::isReflowActive() ? "ON" : "OFF";
+      UIManager::updateTextElementContent("heater_status_display", heaterStatus);
+
+      // If active, update the display now to show the changes
+  UIManager::drawActiveScreen();
+}
+
+    // Check for touch input
+    TOUCHINFO ti;
+    // Get touch samples
+    if (IntegratedFontReflowGUI::touch.getSamples(&ti))
+{
+      if (now - IntegratedFontReflowGUI::lastTouchTime > IntegratedFontReflowGUI::debounceDelay)
+      {
+        lastTouchTime = now;
+
+        int x = ti.x[0];
+        int y = ti.y[0];
+
+        // Debugging output
+        Serial.printf("Touch x=%d y=%d\n", x, y);
+
+        // Check if any button was pressed
+        UIManager::checkButtonPress(x, y);
+      }
     }
+
+    handleCooldownTimer();
   }
-  handleCooldownTimer();
-  delay(10); // Reduced delay for smoother UI
+
+  // No delay needed - the timing is controlled by the if statement above
 }
 
 // Update font display elements
@@ -158,20 +207,22 @@ void IntegratedFontReflowGUI::updateFontDisplay()
   // Create a string for the font counter display (showing which font out of total)
   String fontCounterText = String(currentFontIndex + 1) + "/" + String(fontCount);
 
-  const char* currentFontName = fontNames[currentFontIndex];
+  const char *currentFontName = fontNames[currentFontIndex];
   UIManager::updateTextElementContent("current_font_display", currentFontName);
   UIManager::updateTextElementContent("font_counter_display", fontCounterText);
   UIManager::updateTextElementContent("button_font_display", currentFontName);
-  
+
   // Update text elements or buttons based on the toggle state
-  if (affectButtons) {
+  if (affectButtons)
+  {
     // Update all buttons to use the new font
     UIManager::updateAllFontsPreserveSize(currentFontName);
-  } else {
+  }
+  else
+  {
     // Update only text elements to use the new font
     UIManager::updateAllTextElementFontsPreserveSize(currentFontName);
   }
-
   UIManager::drawActiveScreen();
 }
 
@@ -184,4 +235,3 @@ void IntegratedFontReflowGUI::toggleAffectButtons()
   UIManager::updateButtonText("toggle_affect_buttons", buttonText);
   UIManager::drawActiveScreen();
 }
-  

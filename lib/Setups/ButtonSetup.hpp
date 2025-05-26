@@ -2,6 +2,8 @@
 
 #include "UIManager.hpp"
 #include "IntegratedFontReflowGUI.hpp"
+#include "TempManager.hpp"
+#include "ReflowController.hpp"
 
 // Constants for button dimensions
 #define BUTTON_HEIGHT 40
@@ -30,17 +32,17 @@ private:
     const int leftButtonX = buttonMargin;
     const int rightButtonX = leftButtonX + buttonWidth + buttonMargin;
 
+    // Rename to just "Reflow" instead of "Begin Reflow"
     UIManager::createButton(
-        "font_test_btn",
+        "reflow_btn",
         leftButtonX,
         SCREEN_HEIGHT - buttonHeight - buttonMargin + 3, // Moved down by 3 pixels
         buttonWidth,
         buttonHeight,
         10,
-        "Font Test",
+        "Reflow",
         SCREEN_MAIN,
-        goToFonts);
-
+        beginReflow);
     UIManager::createButton(
         "settings_btn",
         rightButtonX,
@@ -254,6 +256,29 @@ private:
   static void toggleAffectButtons()
   {
     IntegratedFontReflowGUI::toggleAffectButtons();
+  }
+
+  // Updated reflow button callback to use the improved controller
+  static void beginReflow()
+  {
+    Serial.println("Reflow button pressed");
+
+    // Set thermal lag offset to 50°C
+    ReflowController::setThermalLagOffset(50.0);
+
+    // Set target temperature to the reflow temperature from settings
+    ReflowController::setTargetTemperature(IntegratedFontReflowGUI::reflowTemp);
+
+    // Update duty cycle coefficient to get appropriate values
+    // For a target of 150°C, we want 15% duty cycle: 0.15/150 = 0.001
+    ReflowController::setDutyCycleCoefficient(0.001f);
+
+    // Start the reflow process
+    ReflowController::startReflow();
+
+    // Update the target temperature display
+    UIManager::updateTextElementContent("target_temp_display",
+        String(IntegratedFontReflowGUI::reflowTemp) + "C");
   }
 };
 

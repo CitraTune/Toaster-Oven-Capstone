@@ -7,6 +7,7 @@
 #include "UIManager.hpp"
 #include <bb_captouch.h>
 #include "LGFX_Config.h"
+#include "TempManager.hpp"
 
 // Screen definitions
 #define SCREEN_MAIN 0
@@ -57,7 +58,10 @@ public:
     static void increaseReflowTemp(bool coarse = false);
     static void decreaseReflowTemp(bool coarse = false);
     static void updateFontDisplay();
+    static TempManager tempManager;
 
 private:
     BBCapTouch touch;
+    
 };
+

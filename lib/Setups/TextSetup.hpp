@@ -2,6 +2,7 @@
 
 #include "IntegratedFontReflowGUI.hpp"
 #include "UIManager.hpp"
+#include "TempManager.hpp"
 
 #define pt12 false
 #define pt9 true
@@ -18,6 +19,7 @@ public:
         setupCooldownScreenElements();
         setupGraphLabels();
         setupTemperatureTableLabels();
+        setupReflowStatusElements();
     }
 
     static void updateTemperatureDisplays(const String &tempStr)
@@ -25,9 +27,50 @@ public:
         UIManager::updateTextElementContent("temp_display_settings", tempStr);
         UIManager::updateTextElementContent("temp_display_main", tempStr);
         UIManager::updateTextElementContent("temp_display_fonts", tempStr);
+        UIManager::updateTextElementContent("current_temp_display", tempStr);
     }
 
 private:
+    // Updated function to setup reflow status elements
+    static void setupReflowStatusElements()
+    {
+        // Current temperature display (large display in content area)
+        UIManager::createTextElement(
+            "current_temp_display",
+            10, 90,
+            TFT_RED,
+            TempManager::getTemperatureString(),  // Use actual temperature reading
+            SCREEN_MAIN,
+            "FreeSansBold", false);
+
+        // Temperature label
+        UIManager::createTextElement(
+            "current_temp_label",
+            10, 70,
+            TFT_WHITE,
+            "Current Temperature:",
+            SCREEN_MAIN,
+            "FreeSans", true);
+
+        // Target temperature display
+        UIManager::createTextElement(
+            "target_temp_display",
+            10, 130,
+            TFT_YELLOW,
+            "0C",
+            SCREEN_MAIN,
+            "FreeSansBold", false);
+
+        // Target temperature label
+        UIManager::createTextElement(
+            "target_temp_label",
+            10, 110,
+            TFT_WHITE,
+            "Target Temperature:",
+            SCREEN_MAIN,
+            "FreeSans", true);
+    }
+
     static void setupGraphLabels()
     {
         const int yOffset = 18;
@@ -110,28 +153,28 @@ private:
     {
         UIManager::createTextElement(
             "soak_temp_label",
-            10, 75,  // Changed from 50 to 75
+            10, 75,
             TFT_WHITE,
             "Soak Temp:",
             SCREEN_SETTINGS,
             "FreeSans", true);
         UIManager::createTextElement(
             "soak_temp_value",
-            10, 100,  // Changed from 75 to 100
+            10, 100,
             TFT_YELLOW,
             String(UIManager::soakTemp) + " C",
             SCREEN_SETTINGS,
             "FreeSans", false);
         UIManager::createTextElement(
             "reflow_temp_label",
-            10, 165,  // Changed from 140 to 165
+            10, 165,
             TFT_WHITE,
             "Reflow Temp:",
             SCREEN_SETTINGS,
             "FreeSans", true);
         UIManager::createTextElement(
             "reflow_temp_value",
-            10, 190,  // Changed from 165 to 190
+            10, 190,
             TFT_YELLOW,
             String(UIManager::reflowTemp) + " C",
             SCREEN_SETTINGS,
@@ -142,21 +185,21 @@ private:
     {
         UIManager::createTextElement(
             "title_settings",
-            SCREEN_WIDTH / 2 - 50, 2,
+            SCREEN_WIDTH / 2 - 60, 2,
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_SETTINGS,
             &lgfx::fonts::Font2);
         UIManager::createTextElement(
             "title_main",
-            SCREEN_WIDTH / 2 - 50, 2,
+            SCREEN_WIDTH / 2 - 60, 2,
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_MAIN,
             &lgfx::fonts::Font2);
         UIManager::createTextElement(
             "title_fonts",
-            SCREEN_WIDTH / 2 - 50, 2,
+            SCREEN_WIDTH / 2 - 60, 2,
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_FONTS,
@@ -172,7 +215,6 @@ private:
             "Main Menu",
             SCREEN_MAIN,
             "FreeSans", false);
-
         UIManager::createTextElement(
             "fonts_screen_label",
             8, 24,
@@ -180,7 +222,6 @@ private:
             "Font Selector",
             SCREEN_FONTS,
             "FreeSans", false);
-
         UIManager::createTextElement(
             "settings_screen_label",
             8, 24,
@@ -192,26 +233,37 @@ private:
 
     static void setupTemperatureDisplayElements()
     {
+        // Top-right corner temperature display for all screens
         UIManager::createTextElement(
             "temp_display_settings",
             SCREEN_WIDTH - 60, 2,
             TFT_RED,
-            "0C",
+            TempManager::getTemperatureString(),  // Use actual temperature reading
             SCREEN_SETTINGS,
             &lgfx::fonts::Font2);
+
+        // Top-right corner temperature display with heater status for main screen
         UIManager::createTextElement(
             "temp_display_main",
-            SCREEN_WIDTH - 60, 2,
+            SCREEN_WIDTH - 100, 2,
             TFT_RED,
-            "0C",
+            TempManager::getTemperatureString(),  // Use actual temperature reading
             SCREEN_MAIN,
             &lgfx::fonts::Font2);
 
+        // Heater status indicator next to temperature in top bar
+        UIManager::createTextElement(
+            "heater_status_display",
+            SCREEN_WIDTH - 40, 2,
+            TFT_YELLOW,
+            "OFF",
+            SCREEN_MAIN,
+            &lgfx::fonts::Font2);
         UIManager::createTextElement(
             "temp_display_fonts",
             SCREEN_WIDTH - 60, 2,
             TFT_RED,
-            "0C",
+            TempManager::getTemperatureString(),  // Use actual temperature reading
             SCREEN_FONTS,
             &lgfx::fonts::Font2);
     }
@@ -301,20 +353,20 @@ private:
         // Add column headers - using Font2 (9pt) and shifted left by 15px
         UIManager::createTextElement(
             "header_10",
-            tableX - 5, tableY - 20,  // Shifted left by 15px (from tableX + 15 to tableX - 15)
+            tableX - 5, tableY - 20,
             TFT_WHITE,
             "+/- 10",
             SCREEN_SETTINGS,
-            &lgfx::fonts::Font2  // Changed to 9pt font
+            &lgfx::fonts::Font2
         );
 
         UIManager::createTextElement(
             "header_1",
-            tableX + cellWidth - 5, tableY - 20,  // Shifted left by 15px (from tableX + cellWidth + 15 to tableX + cellWidth - 15)
+            tableX + cellWidth - 5, tableY - 20,
             TFT_WHITE,
             "+/- 1",
             SCREEN_SETTINGS,
-            &lgfx::fonts::Font2  // Changed to 9pt font
+            &lgfx::fonts::Font2
         );
     }
 };
