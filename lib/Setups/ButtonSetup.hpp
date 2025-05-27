@@ -1,10 +1,10 @@
 #pragma once
 
-#include "../UIManager/UIManager.hpp"
-#include "../IntegratedFontReflowGUI/IntegratedFontReflowGUI.hpp"
+#include "UIManager.hpp"
+#include "IntegratedFontReflowGUI.hpp"
 #include <bb_captouch.h>
-#include "../TempManager/TempManager.hpp"
-#include "../TempManager/ReflowController.hpp"
+#include "TempManager.hpp"
+#include "ReflowController.hpp"
 
 // Constants for button dimensions
 #define BUTTON_HEIGHT 40
@@ -17,15 +17,11 @@ class ButtonSetup
 public:
   // Setup all buttons for the application
   static void setupAllButtons();
-  static void checkReflowConfirmationTimeout();     // Add this line
-
 private:
   static constexpr int buttonMargin = BUTTON_MARGIN;
   static constexpr int buttonHeight = BUTTON_HEIGHT;
   // Static variable for reflow confirmation
   static bool reflowConfirmationNeeded;
-  static unsigned long reflowConfirmationTimestamp; // Add this line
- 
 
   static void setupMainScreenButtons();
   static void setupSettingsScreenButtons();

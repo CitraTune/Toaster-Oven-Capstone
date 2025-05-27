@@ -3,11 +3,11 @@
 #include <LovyanGFX.hpp>
 #include <vector>
 #include <string>
-#include "../Button/Button.hpp"
-#include "../UIManager/UIManager.hpp"
+#include "Button.hpp"
+#include "UIManager.hpp"
 #include <bb_captouch.h>
-#include "../config/LGFX_Config.h"
-#include "../TempManager/TempManager.hpp"
+#include "LGFX_Config.h"
+#include "TempManager.hpp"
 
 // Screen definitions
 #define SCREEN_MAIN 0
@@ -64,3 +64,4 @@ private:
     BBCapTouch touch;
     
 };
+

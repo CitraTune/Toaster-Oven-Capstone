@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <LovyanGFX.hpp>
 #include <bb_captouch.h>
-#include "../UIManager/UIManager.hpp"
+#include "UIManager.hpp"
 
 // Number of fonts in the array
 #define NUM_FONTS 10
