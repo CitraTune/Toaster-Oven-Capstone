@@ -155,11 +155,3 @@ void LineArtManager::draw() {
         art.draw(*display);
     }
 }
-
-// Alternative draw method that allows passing a display
-void LineArtManager::draw(LGFX& tft) {
-    for (const auto& pair : lineArts) {
-        const LineArt& art = pair.second;
-        art.draw(tft);
-    }
-}

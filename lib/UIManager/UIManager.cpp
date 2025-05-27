@@ -1,5 +1,5 @@
 #include "UIManager.hpp"
-#include "LineArtManager.hpp"
+#include "../LineArtManager/LineArtManager.hpp"
 
 // This allows you to pass in functions as arguments
 typedef void (*ButtonAction)();
@@ -328,3 +328,4 @@ void UIManager::redraw()
         }
     }
 }
+

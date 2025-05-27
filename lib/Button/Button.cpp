@@ -1,6 +1,6 @@
 #include "Button.hpp"
-#include "UIManager.hpp"
-#include "TextElement.hpp" // Include for access to font mapping functions
+#include "../UIManager/UIManager.hpp"
+#include "../TextElement/TextElement.hpp" // Include for access to font mapping functions
 
 // Reference to the global display object
 static LGFX* globalDisplay = nullptr;
@@ -114,4 +114,3 @@ void Button::updateLabel(const String &newLabel) {
     draw();
   }
 }
-

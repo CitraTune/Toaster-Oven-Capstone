@@ -2,6 +2,7 @@
 
 // Initialize static member variables
 bool ButtonSetup::reflowConfirmationNeeded = false;
+unsigned long ButtonSetup::reflowConfirmationTimestamp = 0;
 
 void ButtonSetup::setupAllButtons()
 {
@@ -245,37 +246,39 @@ void ButtonSetup::toggleAffectButtons()
 void ButtonSetup::beginReflow()
 {
   Serial.println("Reflow button pressed");
-
   if (!reflowConfirmationNeeded) {
     // First press - request confirmation
     reflowConfirmationNeeded = true;
-
+    // Store the current time for timeout tracking
+    reflowConfirmationTimestamp = millis();
     // Update button text to ask for confirmation
     UIManager::updateButtonText("reflow_btn", "CONFIRM?");
-
-    // We could add a timeout here to reset the confirmation state after a few seconds
   } else {
     // Confirmation received - proceed with reflow
     reflowConfirmationNeeded = false;
-
     // Reset the button text
     UIManager::updateButtonText("reflow_btn", "Reflow");
-
     // Set thermal lag offset to 50°C
     ReflowController::setThermalLagOffset(50.0);
-
     // Set target temperature to the reflow temperature from settings
     ReflowController::setTargetTemperature(IntegratedFontReflowGUI::soakTemp);
-
     // Update duty cycle coefficient to get appropriate values
     // For a target of 150°C, we want 15% duty cycle: 0.15/150 = 0.001
     ReflowController::setDutyCycleCoefficient(0.001f);
-
     // Start the reflow process
     ReflowController::startReflow();
-
     // Update the target temperature display
     UIManager::updateTextElementContent("target_temp_display",
         String(IntegratedFontReflowGUI::reflowTemp) + "C");
+  }
+}
+
+void ButtonSetup::checkReflowConfirmationTimeout() {
+  // If confirmation is needed and 10 seconds have passed
+  if (reflowConfirmationNeeded && (millis() - reflowConfirmationTimestamp > 10000)) {
+    // Reset confirmation state
+    reflowConfirmationNeeded = false;
+    // Reset button text
+    UIManager::updateButtonText("reflow_btn", "Reflow");
   }
 }

@@ -1,11 +1,11 @@
 #pragma once
-#include "Button.hpp"
+#include "../Button/Button.hpp"
 #include <Arduino.h>
 #include <unordered_map>
 #include <string>
-#include "LGFX_Config.h"
-#include "TextElement.hpp"
-#include "ReflowController.hpp"
+#include "../config/LGFX_Config.h"
+#include "../TextElement/TextElement.hpp"
+#include "../TempManager/ReflowController.hpp"
 
 class UIManager
 {

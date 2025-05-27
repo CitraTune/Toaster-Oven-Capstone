@@ -1,9 +1,8 @@
 #pragma once
 #include <Arduino.h>
-#include "LGFX_Config.h"
+#include "../config/LGFX_Config.h"
 #include <bb_captouch.h>
-#include "UIManager.hpp"
-#include "GraphManager.hpp"
+#include "../UIManager/UIManager.hpp"
 
 
 class ReflowGUI {
@@ -33,7 +32,7 @@ public:
   
   // Getters for components
   UIManager* getUIManager() { return &uiManager; }
-  GraphManager* getGraphManager() { return &graphManager; }
+ 
 
 private:
   int soakTemp;
@@ -45,7 +44,6 @@ private:
   LGFX display;
   BBCapTouch touch;
   UIManager uiManager;
-  GraphManager graphManager;
 
   
   // Debounce variables
@@ -55,4 +53,3 @@ private:
   // setup interface buttons
   void setupButtons();
 };
-

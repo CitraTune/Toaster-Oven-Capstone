@@ -1,10 +1,10 @@
 #include "IntegratedFontReflowGUI.hpp"
-#include "ButtonSetup.hpp"
-#include "TextSetup.hpp"
-#include "UIManager.hpp"
-#include "LineArtSetup.hpp"
-#include "TempManager.hpp"
-#include "ReflowController.hpp"
+#include "../Setups/ButtonSetup.hpp"
+#include "../Setups/TextSetup.hpp"
+#include "../UIManager/UIManager.hpp"
+#include "../Setups/LineArtSetup.hpp"
+#include "../TempManager/TempManager.hpp"
+#include "../TempManager/ReflowController.hpp"
 
 // Define constants
 #define SCREEN_WIDTH 240
@@ -154,6 +154,7 @@ void IntegratedFontReflowGUI::loop()
 
     // Update temperature manager
     TempManager::update();
+    ButtonSetup::checkReflowConfirmationTimeout();
 
     // Check for touch input
     TOUCHINFO ti;
@@ -233,4 +234,3 @@ void IntegratedFontReflowGUI::toggleAffectButtons()
   UIManager::updateButtonText("toggle_affect_buttons", buttonText);
   UIManager::drawActiveScreen();
 }
-

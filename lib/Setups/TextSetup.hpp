@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IntegratedFontReflowGUI.hpp"
-#include "UIManager.hpp"
-#include "TempManager.hpp"
+#include "../IntegratedFontReflowGUI/IntegratedFontReflowGUI.hpp"
+#include "../UIManager/UIManager.hpp"
+#include "../TempManager/TempManager.hpp"
 
 #define pt12 false
 #define pt9 true
@@ -333,3 +333,4 @@ private:
         );
     }
 };
+
