@@ -1,4 +1,5 @@
 #include "ButtonSetup.hpp"
+#include "LineArtSetup.hpp"
 
 // Initialize static member variables
 bool ButtonSetup::reflowConfirmationNeeded = false;
@@ -245,7 +246,7 @@ void ButtonSetup::toggleAffectButtons()
 void ButtonSetup::beginReflow()
 {
   Serial.println("Reflow button pressed");
-
+  LineArtSetup::resetGraph();
   if (!reflowConfirmationNeeded) {
     // First press - request confirmation
     reflowConfirmationNeeded = true;
@@ -264,18 +265,12 @@ void ButtonSetup::beginReflow()
     // Set thermal lag offset to 50°C
     ReflowController::setThermalLagOffset(50.0);
 
-    // Set target temperature to the reflow temperature from settings
-    ReflowController::setTargetTemperature(IntegratedFontReflowGUI::soakTemp);
-
-    // Update duty cycle coefficient to get appropriate values
-    // For a target of 150°C, we want 15% duty cycle: 0.15/150 = 0.001
-    ReflowController::setDutyCycleCoefficient(0.001f);
+    // Set soak and reflow temperatures from settings
+    ReflowController::setSoakTemperature(IntegratedFontReflowGUI::soakTemp);
+    ReflowController::setReflowTemperature(IntegratedFontReflowGUI::reflowTemp);
 
     // Start the reflow process
     ReflowController::startReflow();
 
-    // Update the target temperature display
-    UIManager::updateTextElementContent("target_temp_display",
-        String(IntegratedFontReflowGUI::reflowTemp) + "C");
   }
 }

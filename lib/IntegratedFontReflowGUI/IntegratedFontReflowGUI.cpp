@@ -155,6 +155,13 @@ void IntegratedFontReflowGUI::loop()
     // Update temperature manager
     TempManager::update();
 
+     // Check if reflow is active using the ReflowController
+    bool reflowActive = ReflowController::isReflowActive();
+    
+    // Update the graph (this will only draw a point every 30 seconds if reflow is active)
+    LineArtSetup::updateGraph(now, reflowActive);
+    ReflowController::update();
+
     // Check for touch input
     TOUCHINFO ti;
     // Get touch samples
