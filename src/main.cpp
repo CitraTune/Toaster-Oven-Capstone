@@ -1,11 +1,11 @@
-#include <Arduino.h>
-#include "ReflowGUI.hpp"
+#include "IntegratedFontReflowGUI.hpp"
 
 // Create the main controller instance
-ReflowGUI controller;
+IntegratedFontReflowGUI controller;
 
 void setup() {
   // setup the controller
+  
   controller.setup();
 }
 

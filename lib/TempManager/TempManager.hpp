@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include "../max6675test/max6675.h'
+#include <max6675.h>
 
 // Forward declaration
 class LineArtSetup;
