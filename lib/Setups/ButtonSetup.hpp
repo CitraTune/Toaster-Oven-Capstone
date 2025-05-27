@@ -2,6 +2,7 @@
 
 #include "UIManager.hpp"
 #include "IntegratedFontReflowGUI.hpp"
+#include <bb_captouch.h>
 #include "TempManager.hpp"
 #include "ReflowController.hpp"
 
