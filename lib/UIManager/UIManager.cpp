@@ -31,6 +31,10 @@ void UIManager::setup(LGFX &tft)
     invertAccent = false;
     outlineColor = TFT_DARKGRAY;
     _display->setFont(TextElement::getFontFromNameDefault(currentFont));
+
+    // Initialize the global display for Button and TextElement
+    Button::setGlobalDisplay(tft);
+    TextElement::setGlobalDisplay(tft);
 }
 
 // Create a new button with a key
@@ -64,8 +68,8 @@ bool UIManager::createTextElement(const std::string &key, int x, int y, uint16_t
     }
 
     Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
-    // Call constructor with explicit rotation=0, datum=0
-    TextElement newElement(x, y, color, content, screen, font, 0, 0);
+    // Call constructor without datum parameter
+    TextElement newElement(x, y, color, content, screen, font);
     newElement.active = (screen == currentScreen);
 
     textElements[key] = newElement;
@@ -83,8 +87,8 @@ bool UIManager::createTextElement(const std::string &key, int x, int y, uint16_t
     }
 
     Serial.println("Creating text element: " + content + " with key: " + String(key.c_str()));
-    // Call constructor with explicit rotation=0, datum=0
-    TextElement newElement(x, y, color, content, screen, fontString, size9pt, 0, 0);
+    // Call constructor without datum parameter
+    TextElement newElement(x, y, color, content, screen, fontString, size9pt);
     newElement.active = (screen == currentScreen);
 
     textElements[key] = newElement;
@@ -101,47 +105,13 @@ bool UIManager::createTextElementWithFontControl(const std::string &key, int x, 
         return false;
     }
 
+    // Create a text element with the specified font control parameters
     Serial.println("Creating text element with font control: " + content + " with key: " + String(key.c_str()));
-    TextElement newElement(x, y, color, content, screen, fontString, size9pt, allowFontChange, 0, 0);
-    newElement.active = (screen == currentScreen);
-    textElements[key] = newElement;
-    return true;
-}
 
-bool UIManager::createRotatedTextElement(const std::string &key, int x, int y, uint16_t color, String content,
-                              int screen, const lgfx::IFont *font, bool allowFontChange,
-                              int rotation, int datum)
-{
-    // Check if key already exists
-    if (textElements.find(key) != textElements.end())
-    {
-        Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
-        return false;
-    }
-
-    Serial.println("Creating rotated text element: " + content + " with key: " + String(key.c_str()));
-    TextElement newElement(x, y, color, content, screen, font, rotation, datum);
+    // Create a text element with the basic parameters
+    TextElement newElement(x, y, color, content, screen, fontString, size9pt);
     newElement.active = (screen == currentScreen);
     newElement.allowFontChange = allowFontChange;
-
-    textElements[key] = newElement;
-    return true;
-}
-
-bool UIManager::createRotatedTextElement(const std::string &key, int x, int y, uint16_t color, String content,
-                              int screen, const std::string &fontString, bool size9pt,
-                              int rotation, int datum)
-{
-    // Check if key already exists
-    if (textElements.find(key) != textElements.end())
-    {
-        Serial.println("Warning: Text element with key '" + String(key.c_str()) + "' already exists!");
-        return false;
-    }
-
-    Serial.println("Creating rotated text element: " + content + " with key: " + String(key.c_str()));
-    TextElement newElement(x, y, color, content, screen, fontString, size9pt, true, rotation, datum);
-    newElement.active = (screen == currentScreen);
 
     textElements[key] = newElement;
     return true;
@@ -175,7 +145,7 @@ void UIManager::drawButtons()
         const Button &button = pair.second;
         if (button.active)
         {
-            button.draw(UIManager::display());
+            button.draw();
         }
     }
 }
@@ -188,10 +158,11 @@ void UIManager::drawTextElements()
         const TextElement &element = pair.second;
         if (element.active)
         {
-            element.draw(UIManager::display());
+            element.draw();
         }
     }
 }
+
 void UIManager::updateTextElementContent(const std::string &key, const String &newText)
 {
     TextElement *element = getTextElement(key);
@@ -215,7 +186,7 @@ void UIManager::updateTextElementContent(const std::string &key, const String &n
             int y_pos = element->y;
             
             // Use a fixed 8 pixel downward offset as requested
-            int yOffset = 18;
+            int yOffset = 16;
 
             // Draw the background clearing rectangle with the fixed offset
             _display->fillRect(x_pos, y_pos - textHeight + yOffset, textWidth, textHeight, bgColor);
@@ -227,7 +198,7 @@ void UIManager::updateTextElementContent(const std::string &key, const String &n
         // Redraw if active
         if (element->active)
         {
-            element->draw(*_display);
+            element->draw();
         }
     }
     else
@@ -235,6 +206,7 @@ void UIManager::updateTextElementContent(const std::string &key, const String &n
         Serial.println("Warning: Text element key not found: " + String(key.c_str()));
     }
 }
+
 // Check if a button was pressed. Activates action if it's pressed.
 void UIManager::checkButtonPress(int touchX, int touchY)
 {
@@ -308,7 +280,6 @@ void UIManager::drawActiveScreen()
     drawButtons();
 
     LineArtManager::draw();
-
 }
 
 // Get button by key (returns nullptr if not found)
@@ -343,7 +314,7 @@ void UIManager::redraw()
         const Button &button = pair.second;
         if (button.active)
         {
-            button.draw(*_display);
+            button.draw();
         }
     }
 
@@ -353,8 +324,7 @@ void UIManager::redraw()
         const TextElement &element = pair.second;
         if (element.active)
         {
-            element.draw(*_display);
+            element.draw();
         }
     }
 }
-

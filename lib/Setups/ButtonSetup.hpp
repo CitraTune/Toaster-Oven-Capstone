@@ -25,6 +25,8 @@ public:
 private:
   static constexpr int buttonMargin = BUTTON_MARGIN;
   static constexpr int buttonHeight = BUTTON_HEIGHT;
+  // Add this static variable for reflow confirmation
+  static bool reflowConfirmationNeeded;
 
   static void setupMainScreenButtons()
   {
@@ -236,10 +238,10 @@ private:
   }
 
   static void decreaseReflowTempCoarse()
-  {
-    IntegratedFontReflowGUI::reflowTemp -= 10;
-    UIManager::updateTextElementContent("reflow_temp_value", String(IntegratedFontReflowGUI::reflowTemp) + " C");
-  }
+{
+  IntegratedFontReflowGUI::reflowTemp -= 10;
+  UIManager::updateTextElementContent("reflow_temp_value", String(IntegratedFontReflowGUI::reflowTemp) + " C");
+}
 
   static void increaseReflowTempFine()
   {
@@ -258,16 +260,31 @@ private:
     IntegratedFontReflowGUI::toggleAffectButtons();
   }
 
-  // Updated reflow button callback to use the improved controller
+  // Updated reflow button callback to use the improved controller with confirmation
   static void beginReflow()
   {
     Serial.println("Reflow button pressed");
+
+    if (!reflowConfirmationNeeded) {
+      // First press - request confirmation
+      reflowConfirmationNeeded = true;
+
+      // Update button text to ask for confirmation
+      UIManager::updateButtonText("reflow_btn", "CONFIRM?");
+
+      // We could add a timeout here to reset the confirmation state after a few seconds
+    } else {
+      // Confirmation received - proceed with reflow
+      reflowConfirmationNeeded = false;
+
+      // Reset the button text
+      UIManager::updateButtonText("reflow_btn", "Reflow");
 
     // Set thermal lag offset to 50°C
     ReflowController::setThermalLagOffset(50.0);
 
     // Set target temperature to the reflow temperature from settings
-    ReflowController::setTargetTemperature(IntegratedFontReflowGUI::reflowTemp);
+    ReflowController::setTargetTemperature(IntegratedFontReflowGUI::soakTemp);
 
     // Update duty cycle coefficient to get appropriate values
     // For a target of 150°C, we want 15% duty cycle: 0.15/150 = 0.001
@@ -279,6 +296,7 @@ private:
     // Update the target temperature display
     UIManager::updateTextElementContent("target_temp_display",
         String(IntegratedFontReflowGUI::reflowTemp) + "C");
+  }
   }
 };
 

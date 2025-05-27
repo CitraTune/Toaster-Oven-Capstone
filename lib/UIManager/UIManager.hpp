@@ -5,6 +5,7 @@
 #include <string>
 #include "LGFX_Config.h"
 #include "TextElement.hpp"
+#include "ReflowController.hpp"
 
 class UIManager
 {
@@ -54,19 +55,17 @@ public:
     // Renamed to createRotatedTextElement to avoid overload conflicts
     static bool createRotatedTextElement(const std::string &key, int x, int y, uint16_t color, String content,
                                   int screen, const lgfx::IFont *font, bool allowFontChange = false,
-                                  int rotation = 90, int datum = 0);
+                                  int rotation = 90);
 
     // Method 5: Rotated text with font string
     // Renamed to createRotatedTextElement to avoid overload conflicts
     static bool createRotatedTextElement(const std::string &key, int x, int y, uint16_t color, String content,
                                   int screen, const std::string &fontString, bool size9pt,
-                                  int rotation = 90, int datum = 0);
+                                  int rotation = 90);
 
     // Example of a method to update all text elements' fonts
     static void updateAllTextElementFontsPreserveSize(const std::string &fontString);
     static void updateAllFontsPreserveSize(const std::string &fontString);
-
-   
 
     // Draw all active buttons for the current screen
     static void drawButtons();
@@ -180,4 +179,7 @@ public:
     }
 
     static int getCurrentScreen() { return currentScreen; }
+
+    static void handleReflowButtonPress();
+    
 };

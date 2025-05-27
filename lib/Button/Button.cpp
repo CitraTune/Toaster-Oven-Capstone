@@ -2,7 +2,8 @@
 #include "UIManager.hpp"
 #include "TextElement.hpp" // Include for access to font mapping functions
 
-
+// Reference to the global display object
+static LGFX* globalDisplay = nullptr;
 
 // Default constructor
 Button::Button() {
@@ -32,18 +33,26 @@ Button::Button(int x, int y, int width, int height, int radius,
   this->action = action;
   this->buttonFont = &lgfx::fonts::FreeSans9pt7b; // Default to FreeSans9pt
 }
-void Button::updateFontPreserveSize(const std::string &baseFontName) {
-  // Store font name if needed
-  this->buttonFontString = baseFontName; // You may want to add this as a member variable if tracking
 
-  // Always use 9pt size
-  this->buttonFont = TextElement::getFontFromNameDefault(baseFontName);
-
-  // Optional: re-calculate layout or trigger redraw if required
+// Set the global display reference (call this once during initialization)
+void Button::setGlobalDisplay(LGFX& display) {
+  globalDisplay = &display;
 }
 
-// Draw the button on the TFT
-void Button::draw(LGFX& tft) const {
+void Button::updateFontPreserveSize(const std::string &baseFontName) {
+  // Store font name if needed
+  this->buttonFontString = baseFontName;
+  // Always use 9pt size
+  this->buttonFont = TextElement::getFontFromNameDefault(baseFontName);
+}
+
+// Draw the button on the TFT - no display parameter needed
+void Button::draw() const {
+  // Make sure we have a valid display reference
+  if (!globalDisplay) {
+    Serial.println("Error: Display not initialized for Button class");
+    return;
+  }
   
   // Get current state from UIManager
   bool isLightMode = UIManager::getLightMode();
@@ -52,10 +61,10 @@ void Button::draw(LGFX& tft) const {
   // Use current system font family but always 9pt size
   const lgfx::IFont* currentFont = UIManager::getCurrentFont();
 
-  tft.setFont(buttonFont); // Set button font for sizing
+  globalDisplay->setFont(buttonFont); // Set button font for sizing
   // Calculate text dimensions using button font
-  int textWidth = tft.textWidth(label);
-  int textHeight = tft.fontHeight();
+  int textWidth = globalDisplay->textWidth(label);
+  int textHeight = globalDisplay->fontHeight();
   
   // Determine colors based on current state
   uint16_t fillColor = isInvertedAccent ? TFT_DARKGRAY : TFT_RED;
@@ -63,23 +72,22 @@ void Button::draw(LGFX& tft) const {
   uint16_t textColor = isLightMode ? TFT_BLACK : TFT_WHITE;
   
   // Draw filled rounded rectangle for button
-  tft.fillRoundRect(x, y, width, height, radius, fillColor);
+  globalDisplay->fillRoundRect(x, y, width, height, radius, fillColor);
   
   // Draw thicker outline
-  tft.drawRoundRect(x, y, width, height, radius, outlineColor);
-  tft.drawRoundRect(x - 1, y - 1, width + 2, height + 2, radius + 1, outlineColor);
+  globalDisplay->drawRoundRect(x, y, width, height, radius, outlineColor);
+  globalDisplay->drawRoundRect(x - 1, y - 1, width + 2, height + 2, radius + 1, outlineColor);
   
   // Calculate text position to center it in the button (horizontally and vertically)
   int textX = x + (width - textWidth) / 2;
   int textY = y + (height - textHeight) / 2;
   
   // Draw text with button font
-  tft.setTextColor(textColor);
-  tft.setCursor(textX, textY);
-  tft.print(label);
-  
+  globalDisplay->setTextColor(textColor);
+  globalDisplay->setCursor(textX, textY);
+  globalDisplay->print(label);
   // Restore the system font
-  tft.setFont(currentFont);
+  globalDisplay->setFont(currentFont);
 }
 
 // Check if a point is inside the button
@@ -91,3 +99,19 @@ bool Button::contains(int touchX, int touchY) {
                 xInBounds ? "true" : "false", yInBounds ? "true" : "false");
   return xInBounds && yInBounds;
 }
+
+// Update the button label and redraw
+void Button::updateLabel(const String &newLabel) {
+  // Update the label
+  this->label = newLabel;
+
+  // Only redraw if the button is active and we have a display
+  if (active && globalDisplay) {
+    // Clear the button area first to prevent ghosting
+    globalDisplay->fillRect(x, y, width, height, TFT_BLACK); // Use appropriate background color
+
+    // Redraw the button with the new label
+    draw();
+  }
+}
+

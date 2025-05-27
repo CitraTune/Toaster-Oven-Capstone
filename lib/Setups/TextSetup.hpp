@@ -19,7 +19,6 @@ public:
         setupCooldownScreenElements();
         setupGraphLabels();
         setupTemperatureTableLabels();
-        setupReflowStatusElements();
     }
 
     static void updateTemperatureDisplays(const String &tempStr)
@@ -27,50 +26,14 @@ public:
         UIManager::updateTextElementContent("temp_display_settings", tempStr);
         UIManager::updateTextElementContent("temp_display_main", tempStr);
         UIManager::updateTextElementContent("temp_display_fonts", tempStr);
-        UIManager::updateTextElementContent("current_temp_display", tempStr);
+    }
+
+    static void updateHeaterStatus(const String &status)
+    {
+        UIManager::updateTextElementContent("heater_status_display", status);
     }
 
 private:
-    // Updated function to setup reflow status elements
-    static void setupReflowStatusElements()
-    {
-        // Current temperature display (large display in content area)
-        UIManager::createTextElement(
-            "current_temp_display",
-            10, 90,
-            TFT_RED,
-            TempManager::getTemperatureString(),  // Use actual temperature reading
-            SCREEN_MAIN,
-            "FreeSansBold", false);
-
-        // Temperature label
-        UIManager::createTextElement(
-            "current_temp_label",
-            10, 70,
-            TFT_WHITE,
-            "Current Temperature:",
-            SCREEN_MAIN,
-            "FreeSans", true);
-
-        // Target temperature display
-        UIManager::createTextElement(
-            "target_temp_display",
-            10, 130,
-            TFT_YELLOW,
-            "0C",
-            SCREEN_MAIN,
-            "FreeSansBold", false);
-
-        // Target temperature label
-        UIManager::createTextElement(
-            "target_temp_label",
-            10, 110,
-            TFT_WHITE,
-            "Target Temperature:",
-            SCREEN_MAIN,
-            "FreeSans", true);
-    }
-
     static void setupGraphLabels()
     {
         const int yOffset = 18;
@@ -185,21 +148,21 @@ private:
     {
         UIManager::createTextElement(
             "title_settings",
-            SCREEN_WIDTH / 2 - 60, 2,
+            SCREEN_WIDTH / 2 - 68, 2,  // Moved left by 8 pixels
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_SETTINGS,
             &lgfx::fonts::Font2);
         UIManager::createTextElement(
             "title_main",
-            SCREEN_WIDTH / 2 - 60, 2,
+            SCREEN_WIDTH / 2 - 68, 2,  // Moved left by 8 pixels
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_MAIN,
             &lgfx::fonts::Font2);
         UIManager::createTextElement(
             "title_fonts",
-            SCREEN_WIDTH / 2 - 60, 2,
+            SCREEN_WIDTH / 2 - 68, 2,  // Moved left by 8 pixels
             TFT_WHITE,
             "Bonfire 1.0.11",
             SCREEN_FONTS,
@@ -233,37 +196,37 @@ private:
 
     static void setupTemperatureDisplayElements()
     {
-        // Top-right corner temperature display for all screens
+        // Top-right corner temperature display for all screens - moved right by 4 pixels
         UIManager::createTextElement(
             "temp_display_settings",
-            SCREEN_WIDTH - 60, 2,
+            SCREEN_WIDTH - 56, 2,  // Moved right by 4 pixels
             TFT_RED,
-            TempManager::getTemperatureString(),  // Use actual temperature reading
+            TempManager::getTemperatureString(),
             SCREEN_SETTINGS,
             &lgfx::fonts::Font2);
 
-        // Top-right corner temperature display with heater status for main screen
         UIManager::createTextElement(
             "temp_display_main",
-            SCREEN_WIDTH - 100, 2,
+            SCREEN_WIDTH - 56, 2,  // Moved right by 4 pixels
             TFT_RED,
-            TempManager::getTemperatureString(),  // Use actual temperature reading
+            TempManager::getTemperatureString(),
             SCREEN_MAIN,
             &lgfx::fonts::Font2);
 
-        // Heater status indicator next to temperature in top bar
+        // Heater status indicator - moved right by 8 pixels
         UIManager::createTextElement(
             "heater_status_display",
-            SCREEN_WIDTH - 40, 2,
+            SCREEN_WIDTH - 92, 2,  // Moved right by 8 pixels
             TFT_YELLOW,
             "OFF",
             SCREEN_MAIN,
             &lgfx::fonts::Font2);
+
         UIManager::createTextElement(
             "temp_display_fonts",
-            SCREEN_WIDTH - 60, 2,
+            SCREEN_WIDTH - 56, 2,  // Moved right by 4 pixels
             TFT_RED,
-            TempManager::getTemperatureString(),  // Use actual temperature reading
+            TempManager::getTemperatureString(),
             SCREEN_FONTS,
             &lgfx::fonts::Font2);
     }
@@ -370,4 +333,3 @@ private:
         );
     }
 };
-

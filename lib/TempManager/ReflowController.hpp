@@ -9,8 +9,6 @@ public:
         thermalLagOffset = 50.0; // Default thermal lag offset in Celsius
         targetTemp = 0.0;
         isActive = false;
-        // Set coefficient so that a target of 150°C gives a 15% duty cycle
-        // If y = coefficient * x and we want y=0.15 when x=150, then coefficient = 0.15/150 = 0.001
         dutyCycleCoefficient = 0.001f;
         Serial.println("ReflowController initialized");
     }
@@ -88,8 +86,4 @@ private:
     static float dutyCycleCoefficient;  // Coefficient for duty cycle calculation
 };
 
-// Initialize static variables
-float ReflowController::thermalLagOffset = 50.0;
-float ReflowController::targetTemp = 0.0;
-bool ReflowController::isActive = false;
-float ReflowController::dutyCycleCoefficient = 0.001f;
+

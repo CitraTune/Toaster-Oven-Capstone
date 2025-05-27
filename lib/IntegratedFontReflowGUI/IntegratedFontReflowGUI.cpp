@@ -137,49 +137,29 @@ void handleCooldownTimer()
     }
   }
 }
-
 // Main loop
 void IntegratedFontReflowGUI::loop()
 {
   delay(1); // optional, keeps things smooth
   static unsigned long lastWakeTime = millis();
   static unsigned long lastTempUpdateTime = 0;
-  const unsigned long interval = 10; // 10 ms interval
-  const unsigned long tempUpdateInterval = 500; // 500 ms for temperature display updates
+    const unsigned long interval = 10; // 10 ms interval
+  const unsigned long tempUpdateInterval = 1000; // 1 second interval for temperature updates
 
   unsigned long now = millis();
 
   if ((long)(now - lastWakeTime) >= interval)
   {
     lastWakeTime += interval; // Add fixed interval to avoid drift
+
     // Update temperature manager
     TempManager::update();
-
-    // Update reflow controller
-    ReflowController::update();
-
-    // Update temperature and heater status displays less frequently to avoid flicker
-    if (now - lastTempUpdateTime >= tempUpdateInterval) {
-      lastTempUpdateTime = now;
-
-      // Get current temperature as a string
-      String tempString = TempManager::getTemperatureString();
-      // Update all temperature displays
-      TextSetup::updateTemperatureDisplays(tempString);
-
-      // Update heater status display in top bar
-      String heaterStatus = ReflowController::isReflowActive() ? "ON" : "OFF";
-      UIManager::updateTextElementContent("heater_status_display", heaterStatus);
-
-      // If active, update the display now to show the changes
-  UIManager::drawActiveScreen();
-}
 
     // Check for touch input
     TOUCHINFO ti;
     // Get touch samples
     if (IntegratedFontReflowGUI::touch.getSamples(&ti))
-{
+    {
       if (now - IntegratedFontReflowGUI::lastTouchTime > IntegratedFontReflowGUI::debounceDelay)
       {
         lastTouchTime = now;
@@ -193,6 +173,24 @@ void IntegratedFontReflowGUI::loop()
         // Check if any button was pressed
         UIManager::checkButtonPress(x, y);
       }
+    }
+
+    // Update temperature displays only every second to avoid flicker
+    if (now - lastTempUpdateTime >= tempUpdateInterval)
+    {
+      lastTempUpdateTime = now;
+
+      // Get the current temperature string
+      String tempStr = TempManager::getTemperatureString();
+
+            // Update temperature displays using the existing method
+            TextSetup::updateTemperatureDisplays(tempStr);
+
+            // Update heater status using the existing method
+      String heaterStatus = TempManager::isHeaterActive() ? "ON" : "OFF";
+            UIManager::updateTextElementContent("heater_status_display", heaterStatus);
+
+            // No full screen redraw needed
     }
 
     handleCooldownTimer();
@@ -235,3 +233,4 @@ void IntegratedFontReflowGUI::toggleAffectButtons()
   UIManager::updateButtonText("toggle_affect_buttons", buttonText);
   UIManager::drawActiveScreen();
 }
+
